@@ -36,7 +36,7 @@ async function open(key: SenderKey): Promise<void> {
   sessions.set(key, session)
 
   const baileys = await import('baileys')
-  const { toDataURL } = await import('qrcode')
+  const { toString: qrSvg } = await import('qrcode')
   mkdirSync(folder(key), { recursive: true })
   const { state, saveCreds } = await baileys.useMultiFileAuthState(folder(key))
   const socket = baileys.makeWASocket({
@@ -52,7 +52,13 @@ async function open(key: SenderKey): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   socket.ev.on('connection.update', async (update: any) => {
     if (sessions.get(key)?.socket !== socket) return // a newer connection replaced this one
-    if (update.qr) session.status = { state: 'pairing', qr: await toDataURL(update.qr, { margin: 1, width: 320 }) }
+    if (update.qr) {
+      // Drawn the way WhatsApp Web draws its own code: lowest error correction (fewest, largest squares),
+      // a full quiet zone, and as a vector so every square stays sharp at any size. A small, blurry code
+      // is read by a phone's camera app but not by WhatsApp's own scanner.
+      const svg = await qrSvg(update.qr, { type: 'svg', errorCorrectionLevel: 'L', margin: 4, color: { dark: '#000000', light: '#ffffff' } })
+      session.status = { state: 'pairing', qr: `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}` }
+    }
     if (update.connection === 'open') {
       session.retries = 0
       session.status = { state: 'linked', number: String(socket.user?.id ?? '').split(/[:@]/)[0] }

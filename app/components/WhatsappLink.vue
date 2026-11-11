@@ -59,11 +59,11 @@ onBeforeUnmount(() => clearTimeout(timer))
 
     <template v-else-if="status.state === 'pairing' && status.qr">
       <div class="flex flex-wrap items-start gap-5">
-        <img :src="status.qr" width="200" height="200" alt="QR code to link WhatsApp" class="rounded-md border border-[var(--a-line)] bg-white p-1">
+        <img :src="status.qr" width="300" height="300" alt="QR code to link WhatsApp" class="qr rounded-md border border-[var(--a-line)] bg-white">
         <ol class="max-w-xs list-decimal space-y-1 pl-5">
           <li>Open WhatsApp on the phone that will send the invitations.</li>
           <li>Go to <b>Settings → Linked devices → Link a device</b>.</li>
-          <li>Point the phone at this code.</li>
+          <li>Point the phone at this code, from inside WhatsApp. The phone's ordinary camera app cannot link a device.</li>
         </ol>
       </div>
       <p class="muted mt-2 text-[0.8125rem]" role="status">Waiting for the scan. The code refreshes by itself and expires after about a minute.</p>
@@ -79,3 +79,8 @@ onBeforeUnmount(() => clearTimeout(timer))
     <p v-if="error" class="mt-3 text-danger" role="alert">{{ error }}</p>
   </div>
 </template>
+
+<style scoped>
+/* The code is shown large and never smoothed: WhatsApp's scanner needs crisp squares. */
+.qr { width: min(100%, 300px); height: auto; aspect-ratio: 1; image-rendering: pixelated; }
+</style>
