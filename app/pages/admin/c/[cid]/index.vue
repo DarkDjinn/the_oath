@@ -21,6 +21,7 @@ const filters: Record<string, { label: string, test: (i: AdminInvitation) => boo
   nophone: { label: 'No phone number', test: i => !i.phone },
   sendfailed: { label: 'Could not be sent', test: i => !!i.sendError && !i.sentAt },
   unopened: { label: 'Sent, not opened', test: i => !!i.sentAt && !i.firstOpenedAt },
+  seen: { label: 'Opened, no response', test: i => !!i.firstOpenedAt && i.rsvpStatus === 'pending' },
   chase: { label: 'Sent, no response', test: i => !!i.sentAt && i.rsvpStatus === 'pending' },
   bringing: { label: 'Bringing guests', test: i => i.extraGuests.length > 0 },
 }
@@ -241,9 +242,12 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
                 <span v-if="i.revoked" class="ml-2 text-[0.75rem] font-semibold text-danger">Link revoked</span>
                 <span v-if="i.sendError && !i.sentAt" class="block text-[0.75rem] text-danger">Not sent: {{ i.sendError }}</span>
                 <span v-else-if="!i.phone && !i.sentAt" class="muted block text-[0.75rem]">No phone number</span>
-                <span v-else-if="i.firstOpenedAt" class="muted ml-2 text-[0.75rem]" :title="`First opened ${formatWhen(i.firstOpenedAt)}`">Opened</span>
               </td>
-              <td data-label="RSVP"><span class="a-tag" :class="`a-tag-${i.rsvpStatus}`">{{ statusLabel[i.rsvpStatus] }}</span></td>
+              <td data-label="RSVP">
+                <span class="a-tag" :class="`a-tag-${i.rsvpStatus}`">{{ statusLabel[i.rsvpStatus] }}</span>
+                <span v-if="i.firstOpenedAt && i.rsvpStatus === 'pending'" class="block pt-1 text-[0.75rem] font-semibold">Opened {{ formatWhen(i.firstOpenedAt) }}</span>
+                <span v-else-if="i.rsvpStatus === 'pending'" class="muted block pt-1 text-[0.75rem]">Not opened yet</span>
+              </td>
               <td data-label="Bringing">
                 <span v-if="!i.guestsAllowed" class="muted">Comes alone</span>
                 <span v-else-if="!i.extraGuests.length" class="muted">None yet (up to {{ i.guestLimit }})</span>

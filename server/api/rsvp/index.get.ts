@@ -13,5 +13,5 @@ export default apiHandler((event) => {
   if (campaign.status === 'draft' && !admin) throw createError({ statusCode: 404, message: 'This invitation is not open yet.', data: { code: 'not_open' } })
   // An admin checking a link does not count as the guest opening it.
   if (campaign.status === 'live' && !admin) markOpened(db, row)
-  return { invitation: toGuest(row, contentOf(campaign).rsvp.guestLimit), campaign: publicView(campaign) }
+  return { invitation: toGuest(row, contentOf(campaign).rsvp.guestLimit), campaign: publicView(campaign), adminView: admin }
 })

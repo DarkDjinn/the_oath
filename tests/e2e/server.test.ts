@@ -216,13 +216,21 @@ describe('the guest journey (campaign 1, Victor and Dani)', () => {
     expect((await guest(fake, { method: 'PUT', json: { rsvpStatus: 'attending' } })).status).toBe(404)
   })
 
+  it('stays signed in when the browser also sends a stale session cookie first', async () => {
+    const stale = 'oath_admin=left-over-from-an-older-sign-in'
+    expect(await (await call('/api/admin/session', { cookie: `${stale}; ${owner}` })).json()).toMatchObject({ authenticated: true, role: 'owner' })
+    expect((await call('/admin', { cookie: `lang=he; ${stale}; ${owner}` })).status).toBe(200)
+    expect(await (await call('/api/admin/session', { cookie: stale })).json()).toMatchObject({ authenticated: false })
+  })
+
   it('records that a guest opened their link, but not when an admin checks it', async () => {
     const list = async () => (await (await asOwner('/api/admin/c/1/invitations')).json()).invitations as { guestName: string, firstOpenedAt: string | null }[]
     const fresh = await (await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName: 'Unopened Guest' } })).json()
     await call('/api/rsvp', { headers: { authorization: `Bearer ${tokenFrom(fresh.url)}` }, cookie: owner })
-    await call(`/i/${tokenFrom(fresh.url)}`, { cookie: owner })
+    const asAdmin = await (await call(`/i/${tokenFrom(fresh.url)}`, { cookie: owner })).text()
+    expect(asAdmin).toContain('not recorded as the guest opening')
     expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).toBeNull()
-    await call(`/i/${tokenFrom(fresh.url)}`)
+    expect(await (await call(`/i/${tokenFrom(fresh.url)}`)).text()).not.toContain('not recorded as the guest opening')
     expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).not.toBeNull()
     await asOwner(`/api/admin/c/1/invitations/${fresh.id}`, { method: 'DELETE' })
   })

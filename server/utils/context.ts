@@ -96,7 +96,23 @@ export function previewUrl(event: H3Event, row: Pick<CampaignRow, 'slug' | 'stat
 
 // ---------------------------------------------------------------- sessions
 
-export const sessionOf = (event: H3Event): Session | null => getSession(useDb(), getCookie(event, SESSION_COOKIE))
+/**
+ * Every session cookie the browser sent. It can hold two under the same name: one tied to a single
+ * host (from a sign-in before the cookie was shared with subdomains) and the shared one, oldest first.
+ */
+export function sessionTokens(event: H3Event): string[] {
+  return (getRequestHeader(event, 'cookie') ?? '').split(';').map(part => part.trim())
+    .filter(part => part.startsWith(`${SESSION_COOKIE}=`)).map(part => part.slice(SESSION_COOKIE.length + 1))
+}
+
+/** The most recent sign-in that is still valid, so a stale leftover cookie never hides a good one. */
+export function sessionOf(event: H3Event): Session | null {
+  for (const token of sessionTokens(event).reverse()) {
+    const session = getSession(useDb(), token)
+    if (session) return session
+  }
+  return null
+}
 export const isAdmin = (event: H3Event): boolean => sessionOf(event) !== null
 export function sessionInfo(event: H3Event): SessionInfo {
   const s = sessionOf(event)
