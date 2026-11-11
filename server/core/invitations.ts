@@ -1,11 +1,16 @@
 import type { AdminInvitation, GuestInvitation, Language, RsvpInput, RsvpStatus, Stats } from '../../shared/types'
 import { LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
+import { contentOf, getCampaign } from './campaigns'
 import type { DB } from './db'
+import { rsvpClosed } from '../../shared/campaign'
 import { NotFoundError, ValidationError } from './errors'
 import { deriveToken, hashToken, looksLikeToken, newNonce } from './tokens'
 
 export interface InvitationRow {
   id: number
+  campaign_id: number
+  guest_limit: number | null
+  first_opened_at: string | null
   guest_name: string
   language: Language
   token_hash: string
@@ -47,12 +52,25 @@ function parseExtras(json: string): string[] {
   catch { return [] }
 }
 
-function validateExtras(value: unknown, guestsAllowed: boolean): string[] {
+function validateExtras(value: unknown, limit: number): string[] {
   if (value == null) return []
   if (!Array.isArray(value)) throw new ValidationError('extra_guests_invalid', 'Additional guests must be a list of names.')
-  if (value.length && !guestsAllowed) throw new ValidationError('guests_not_allowed', 'This invitation does not include additional guests.')
-  if (value.length > MAX_EXTRA_GUESTS) throw new ValidationError('too_many_guests', `At most ${MAX_EXTRA_GUESTS} additional guests can be added.`)
+  if (value.length && limit === 0) throw new ValidationError('guests_not_allowed', 'This invitation does not include additional guests.')
+  if (value.length > limit) throw new ValidationError('too_many_guests', `At most ${limit} additional ${limit === 1 ? 'guest' : 'guests'} can be added.`)
   return value.map(v => validateName(v, 'guest_name'))
+}
+
+/** How many guests this invitee may bring: their own limit, else the campaign's, never above the hard ceiling. */
+export function guestLimitOf(row: Pick<InvitationRow, 'guests_allowed' | 'guest_limit'>, campaignLimit: number): number {
+  if (row.guests_allowed !== 1) return 0
+  return Math.min(row.guest_limit ?? campaignLimit, MAX_EXTRA_GUESTS)
+}
+
+function validateOwnLimit(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  if (!Number.isInteger(n) || n < 1 || n > MAX_EXTRA_GUESTS) throw new ValidationError('guest_limit_invalid', `A guest limit must be between 1 and ${MAX_EXTRA_GUESTS}, or empty to use the campaign's.`)
+  return n
 }
 
 function validateNotes(value: unknown, limit: number, code: string): string {
@@ -61,11 +79,12 @@ function validateNotes(value: unknown, limit: number, code: string): string {
   return text
 }
 
-export function toGuest(row: InvitationRow): GuestInvitation {
+export function toGuest(row: InvitationRow, campaignLimit = MAX_EXTRA_GUESTS): GuestInvitation {
   return {
     guestName: row.guest_name,
     language: row.language,
     guestsAllowed: row.guests_allowed === 1,
+    guestLimit: guestLimitOf(row, campaignLimit),
     rsvpStatus: row.rsvp_status,
     extraGuests: parseExtras(row.extra_guests),
     dietaryNotes: row.dietary_notes,
@@ -78,12 +97,15 @@ export function confirmedCount(row: Pick<InvitationRow, 'rsvp_status' | 'extra_g
   return row.rsvp_status === 'attending' ? 1 + parseExtras(row.extra_guests).length : 0
 }
 
-export function toAdmin(row: InvitationRow, secret: string, baseUrl: string): AdminInvitation {
+/** `baseUrl` is the campaign's own site address; the link is `<baseUrl>/i/<token>`. */
+export function toAdmin(row: InvitationRow, secret: string, baseUrl: string, campaignLimit = MAX_EXTRA_GUESTS): AdminInvitation {
   return {
-    ...toGuest(row),
+    ...toGuest(row, campaignLimit),
     id: row.id,
     url: `${baseUrl.replace(/\/+$/, '')}/i/${deriveToken(secret, row.token_nonce)}`,
     revoked: row.revoked_at !== null,
+    ownGuestLimit: row.guest_limit,
+    firstOpenedAt: row.first_opened_at,
     sentAt: row.sent_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -91,26 +113,27 @@ export function toAdmin(row: InvitationRow, secret: string, baseUrl: string): Ad
   }
 }
 
-export interface NewInvitation { guestName: unknown; guestsAllowed?: unknown; language?: unknown }
+export interface NewInvitation { guestName: unknown; guestsAllowed?: unknown; language?: unknown; guestLimit?: unknown }
 
 export function validateNewInvitation(input: NewInvitation) {
   const language: Language = input.language === 'en' ? 'en' : 'he'
-  return { guestName: validateName(input.guestName), guestsAllowed: input.guestsAllowed === true, language }
+  return { guestName: validateName(input.guestName), guestsAllowed: input.guestsAllowed === true, language, guestLimit: validateOwnLimit(input.guestLimit) }
 }
 
-export function createInvitation(db: DB, secret: string, input: NewInvitation): InvitationRow {
+export function createInvitation(db: DB, secret: string, campaignId: number, input: NewInvitation): InvitationRow {
   const v = validateNewInvitation(input)
   const nonce = newNonce()
   const ts = now()
   const info = db.prepare(`
-    INSERT INTO invitations (guest_name, language, token_hash, token_nonce, guests_allowed, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(v.guestName, v.language, hashToken(deriveToken(secret, nonce)), nonce, v.guestsAllowed ? 1 : 0, ts, ts)
-  return getById(db, Number(info.lastInsertRowid))
+    INSERT INTO invitations (campaign_id, guest_name, language, token_hash, token_nonce, guests_allowed, guest_limit, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(campaignId, v.guestName, v.language, hashToken(deriveToken(secret, nonce)), nonce, v.guestsAllowed ? 1 : 0, v.guestsAllowed ? v.guestLimit : null, ts, ts)
+  return getById(db, campaignId, Number(info.lastInsertRowid))
 }
 
-export function getById(db: DB, id: number): InvitationRow {
-  const row = db.prepare('SELECT * FROM invitations WHERE id = ?').get(id) as InvitationRow | undefined
+/** Always scoped to a campaign: an id from another campaign is "not found". */
+export function getById(db: DB, campaignId: number, id: number): InvitationRow {
+  const row = db.prepare('SELECT * FROM invitations WHERE id = ? AND campaign_id = ?').get(id, campaignId) as InvitationRow | undefined
   if (!row) throw new NotFoundError('Invitation not found.')
   return row
 }
@@ -122,24 +145,37 @@ export function getByToken(db: DB, token: unknown): InvitationRow | null {
   return row ?? null
 }
 
-export function listInvitations(db: DB): InvitationRow[] {
-  return db.prepare('SELECT * FROM invitations ORDER BY guest_name COLLATE NOCASE, id').all() as InvitationRow[]
+/** Record the first time a personal link is opened. */
+export function markOpened(db: DB, row: InvitationRow): void {
+  if (!row.first_opened_at) db.prepare('UPDATE invitations SET first_opened_at = ? WHERE id = ? AND first_opened_at IS NULL').run(now(), row.id)
+}
+
+export function listInvitations(db: DB, campaignId: number): InvitationRow[] {
+  return db.prepare('SELECT * FROM invitations WHERE campaign_id = ? ORDER BY guest_name COLLATE NOCASE, id').all(campaignId) as InvitationRow[]
 }
 
 /**
  * Record a guest's answer. Always updates the one existing row for this token;
- * submitting identical data again changes nothing.
+ * submitting identical data again changes nothing. Refused while the campaign
+ * is not live or its replies are closed.
  */
 export function submitRsvp(db: DB, token: unknown, input: Partial<RsvpInput> | null | undefined): InvitationRow {
   const row = getByToken(db, token)
   if (!row) throw new NotFoundError('Invitation not found.')
+  const campaign = getCampaign(db, row.campaign_id)
+  const content = contentOf(campaign)
+  if (campaign.status !== 'live') throw new ValidationError('campaign_not_live', 'This invitation is not accepting replies.')
+  if (rsvpClosed(content)) throw new ValidationError('rsvp_closed', 'Replies are closed. Please contact the couple directly.')
+
   const body = input ?? {}
   if (body.rsvpStatus !== 'attending' && body.rsvpStatus !== 'declined') {
     throw new ValidationError('status_required', 'Please choose whether you are attending.')
   }
-  const extras = body.rsvpStatus === 'attending' ? validateExtras(body.extraGuests, row.guests_allowed === 1) : []
-  const dietary = validateNotes(body.dietaryNotes, LIMITS.notes, 'notes_too_long')
-  const message = validateNotes(body.message, LIMITS.message, 'message_too_long')
+  // A limit lowered after the guest answered never removes names already given; it only stops more being added.
+  const limit = Math.max(guestLimitOf(row, content.rsvp.guestLimit), row.guests_allowed === 1 ? parseExtras(row.extra_guests).length : 0)
+  const extras = body.rsvpStatus === 'attending' ? validateExtras(body.extraGuests, limit) : []
+  const dietary = content.rsvp.askDietary ? validateNotes(body.dietaryNotes, LIMITS.notes, 'notes_too_long') : row.dietary_notes
+  const message = content.rsvp.askMessage ? validateNotes(body.message, LIMITS.message, 'message_too_long') : row.message
   const extrasJson = JSON.stringify(extras)
 
   const unchanged = row.rsvp_status === body.rsvpStatus && row.extra_guests === extrasJson
@@ -152,12 +188,13 @@ export function submitRsvp(db: DB, token: unknown, input: Partial<RsvpInput> | n
     SET rsvp_status = ?, extra_guests = ?, dietary_notes = ?, message = ?, responded_at = ?, updated_at = ?
     WHERE id = ?
   `).run(body.rsvpStatus, extrasJson, dietary, message, ts, ts, row.id)
-  return getById(db, row.id)
+  return getById(db, row.campaign_id, row.id)
 }
 
 export interface AdminPatch {
   guestName?: unknown
   guestsAllowed?: unknown
+  guestLimit?: unknown
   language?: unknown
   rsvpStatus?: unknown
   extraGuests?: unknown
@@ -165,10 +202,11 @@ export interface AdminPatch {
   sent?: unknown
 }
 
-export function updateInvitation(db: DB, id: number, patch: AdminPatch): InvitationRow {
-  const row = getById(db, id)
+export function updateInvitation(db: DB, campaignId: number, id: number, patch: AdminPatch): InvitationRow {
+  const row = getById(db, campaignId, id)
   const guestName = patch.guestName === undefined ? row.guest_name : validateName(patch.guestName)
   const guestsAllowed = patch.guestsAllowed === undefined ? row.guests_allowed === 1 : patch.guestsAllowed === true
+  const ownLimit = !guestsAllowed ? null : patch.guestLimit === undefined ? row.guest_limit : validateOwnLimit(patch.guestLimit)
   const language: Language = patch.language === undefined ? row.language : patch.language === 'en' ? 'en' : 'he'
   let status = row.rsvp_status
   if (patch.rsvpStatus !== undefined) {
@@ -177,48 +215,49 @@ export function updateInvitation(db: DB, id: number, patch: AdminPatch): Invitat
     }
     status = patch.rsvpStatus
   }
-  // Extra guests only exist alongside an attending primary guest who may bring them.
-  let extras = patch.extraGuests === undefined ? parseExtras(row.extra_guests) : validateExtras(patch.extraGuests, guestsAllowed)
+  // Extra guests only exist alongside an attending primary guest who may bring them. An admin may exceed the guest's own limit.
+  let extras = patch.extraGuests === undefined ? parseExtras(row.extra_guests) : validateExtras(patch.extraGuests, guestsAllowed ? MAX_EXTRA_GUESTS : 0)
   if (status !== 'attending' || !guestsAllowed) extras = []
   const dietary = patch.dietaryNotes === undefined ? row.dietary_notes : validateNotes(patch.dietaryNotes, LIMITS.notes, 'notes_too_long')
   const sentAt = patch.sent === undefined ? row.sent_at : patch.sent === true ? (row.sent_at ?? now()) : null
 
   db.prepare(`
     UPDATE invitations
-    SET guest_name = ?, guests_allowed = ?, language = ?, rsvp_status = ?, extra_guests = ?, dietary_notes = ?, sent_at = ?, updated_at = ?
+    SET guest_name = ?, guests_allowed = ?, guest_limit = ?, language = ?, rsvp_status = ?, extra_guests = ?, dietary_notes = ?, sent_at = ?, updated_at = ?
     WHERE id = ?
-  `).run(guestName, guestsAllowed ? 1 : 0, language, status, JSON.stringify(extras), dietary, sentAt, now(), id)
-  return getById(db, id)
+  `).run(guestName, guestsAllowed ? 1 : 0, ownLimit, language, status, JSON.stringify(extras), dietary, sentAt, now(), id)
+  return getById(db, campaignId, id)
 }
 
-export function deleteInvitation(db: DB, id: number): void {
-  const info = db.prepare('DELETE FROM invitations WHERE id = ?').run(id)
+export function deleteInvitation(db: DB, campaignId: number, id: number): void {
+  const info = db.prepare('DELETE FROM invitations WHERE id = ? AND campaign_id = ?').run(id, campaignId)
   if (!info.changes) throw new NotFoundError('Invitation not found.')
 }
 
 /** Issue a new link. The old one stops working immediately. Also lifts a revocation. */
-export function regenerateToken(db: DB, secret: string, id: number): InvitationRow {
-  getById(db, id)
+export function regenerateToken(db: DB, secret: string, campaignId: number, id: number): InvitationRow {
+  getById(db, campaignId, id)
   const nonce = newNonce()
-  db.prepare('UPDATE invitations SET token_nonce = ?, token_hash = ?, revoked_at = NULL, sent_at = NULL, updated_at = ? WHERE id = ?')
+  db.prepare('UPDATE invitations SET token_nonce = ?, token_hash = ?, revoked_at = NULL, sent_at = NULL, first_opened_at = NULL, updated_at = ? WHERE id = ?')
     .run(nonce, hashToken(deriveToken(secret, nonce)), now(), id)
-  return getById(db, id)
+  return getById(db, campaignId, id)
 }
 
-export function setRevoked(db: DB, id: number, revoked: boolean): InvitationRow {
-  const row = getById(db, id)
+export function setRevoked(db: DB, campaignId: number, id: number, revoked: boolean): InvitationRow {
+  const row = getById(db, campaignId, id)
   db.prepare('UPDATE invitations SET revoked_at = ?, updated_at = ? WHERE id = ?')
     .run(revoked ? (row.revoked_at ?? now()) : null, now(), id)
-  return getById(db, id)
+  return getById(db, campaignId, id)
 }
 
 export function computeStats(rows: InvitationRow[]): Stats {
   const stats: Stats = {
-    invited: rows.length, sent: 0, pending: 0, accepted: 0, declined: 0,
+    invited: rows.length, sent: 0, opened: 0, pending: 0, accepted: 0, declined: 0,
     confirmedExtraGuests: 0, confirmedAttendees: 0, openEnded: 0, expectedIfAllPendingAttend: 0,
   }
   for (const row of rows) {
     if (row.sent_at) stats.sent++
+    if (row.first_opened_at) stats.opened++
     if (row.rsvp_status === 'pending') stats.pending++
     else if (row.rsvp_status === 'declined') stats.declined++
     else {

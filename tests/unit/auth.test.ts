@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSession, deleteSession, hashPassword, isValidSession, verifyPassword } from '../../server/core/auth'
+import { canAccess, createSession, deleteSession, getSession, hashPassword, isValidSession, verifyPassword } from '../../server/core/auth'
 import { createRateLimiter } from '../../server/core/rateLimit'
 import { freshDb } from './helpers'
 
@@ -28,6 +28,18 @@ describe('admin sessions', () => {
     expect(isValidSession(db, a.token)).toBe(false)
     db.prepare('UPDATE admin_sessions SET expires_at = ?').run('2000-01-01T00:00:00.000Z')
     expect(isValidSession(db, b.token)).toBe(false)
+  })
+})
+
+describe('roles', () => {
+  it('an owner session reaches every campaign, a couple session only its own', () => {
+    const db = freshDb()
+    const owner = getSession(db, createSession(db).token)
+    const couple = getSession(db, createSession(db, 7).token)
+    expect(owner).toEqual({ role: 'owner', campaignId: null })
+    expect(couple).toEqual({ role: 'couple', campaignId: 7 })
+    expect([canAccess(owner, 1), canAccess(owner, 7)]).toEqual([true, true])
+    expect([canAccess(couple, 7), canAccess(couple, 1), canAccess(null, 7)]).toEqual([true, false, false])
   })
 })
 

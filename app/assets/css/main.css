@@ -10,6 +10,7 @@
 @import '@fontsource/david-libre/latin-700.css';
 @import '@fontsource/unifrakturcook/latin-700.css';
 @import '@fontsource/pirata-one/latin-400.css';
+@import '@fontsource-variable/heebo/wght.css';
 
 /* ------------------------------------------------------------------ tokens */
 @theme {
@@ -36,15 +37,15 @@
   --font-fraktur: 'UnifrakturCook', 'Frank Ruhl Libre Variable', serif;
   /* Blackletter numerals for dates and times. */
   --font-numeral: 'Pirata One', 'Frank Ruhl Libre Variable', serif;
-  /* Admin: stay out of the way. */
-  --font-ui: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Arial Hebrew', Arial, sans-serif;
+  /* Admin: a clear workhorse with real Hebrew, so guest names sit well in tables. */
+  --font-ui: 'Heebo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* -------------------------------------------------------------------- base */
 html {
-  background: var(--color-ground);
+  background-color: var(--color-ground);
   color: var(--color-ivory);
   color-scheme: dark;
   -webkit-text-size-adjust: 100%;
@@ -100,8 +101,20 @@ a { text-underline-offset: 0.22em; text-decoration-thickness: 1px; }
   --col: min(100% - 2.5rem, 30rem);
   position: relative;
   overflow-x: clip;
-  /* One warm glow behind the heart; everything else is flat ground. */
-  background: radial-gradient(ellipse 34rem 26rem at 50% 15rem, #261915 0%, transparent 70%) no-repeat;
+  min-height: 100svh;
+  background-color: var(--color-ground);
+  color: var(--color-ivory);
+}
+/* Nocturne palettes. The class sits on <html> too, so the ground reaches the edges of the window. */
+.pal-bone {
+  --color-ground: #050505; --color-plate: #111112; --color-plate-2: #1b1b1d;
+  --color-ivory: #f1ece2; --color-mute: #b9b3a8; --color-gold: #f1ece2; --color-gold-dim: #8a857c;
+  --color-wine: #7a1a2b; --color-wine-bright: #96233a; --color-moon: #f1ece2;
+}
+.pal-bone .orn .o-star { fill: #f1ece2; }
+.pal-oxblood {
+  --color-ground: #16080c; --color-plate: #200d13; --color-plate-2: #2b1219;
+  --color-mute: #c4b3a2; --color-wine: #8a1f33; --color-wine-bright: #a52a42;
 }
 .inv-col { width: var(--col); margin-inline: auto; }
 
@@ -159,19 +172,93 @@ a { text-underline-offset: 0.22em; text-decoration-thickness: 1px; }
 textarea.field { min-height: 6.5rem; resize: vertical; line-height: 1.5; }
 
 /* ------------------------------------------------------------------- admin */
+/*
+ * The working side of the product: light, coloured, quiet. Navigation is a row
+ * of binder tabs and every section owns one colour; the header band and the
+ * primary action take the colour of the section you are in (`--a-sec`).
+ */
 .admin {
+  --a-bg: #f7f8fb;
+  --a-surface: #ffffff;
+  --a-tint: #eef0f6;
+  --a-hover: #f3f5fa;
+  --a-line: #dfe3ee;
+  --a-line-strong: #c5cbdb;
+  --a-line-hover: #9aa3ba;
+  --a-ink: #151b2e;
+  --a-mute: #56607a;
+
+  /* Section colours, each with the ink that reads on it. */
+  --a-guests: #1d2f6f;   --a-guests-ink: #ffffff;
+  --a-import: #c2452a;   --a-import-ink: #ffffff;
+  --a-details: #e2b01e;  --a-details-ink: #2b2000;
+  --a-design: #157a66;   --a-design-ink: #ffffff;
+  --a-settings: #6a4bb8; --a-settings-ink: #ffffff;
+  --a-sec: var(--a-guests);
+  --a-sec-ink: var(--a-guests-ink);
+  /* Text and focus in the section colour must stay readable on white. */
+  --a-sec-text: var(--a-sec);
+  --a-sec-tint: color-mix(in srgb, var(--a-sec) 9%, #fff);
+
+  /* State colours: coming, waiting, not coming. */
+  --a-ok: #1f9d6b;    --a-ok-bg: #dcf3e8;   --a-ok-ink: #12634a;
+  --a-wait: #f0b93a;  --a-wait-bg: #fdf0cc; --a-wait-ink: #7a5600;
+  --a-no: #ef7b63;    --a-no-bg: #fde4dd;   --a-no-ink: #a2311b;  --a-no-line: #f0b3a5;
+
   min-height: 100svh;
-  background: #100e11;
-  color: #e9e3d8;
+  background: var(--a-bg);
+  color: var(--a-ink);
+  color-scheme: light;
   font-family: var(--font-ui);
   font-size: 0.9375rem;
   line-height: 1.5;
 }
-.admin :focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
-.admin h1 { font-size: 1.375rem; font-weight: 650; letter-spacing: -0.01em; }
-.admin h2 { font-size: 1.0625rem; font-weight: 650; }
-.admin .muted { color: #a79f92; }
+.admin.sec-import { --a-sec: var(--a-import); --a-sec-ink: var(--a-import-ink); }
+.admin.sec-details { --a-sec: var(--a-details); --a-sec-ink: var(--a-details-ink); --a-sec-text: #8a6500; }
+.admin.sec-design { --a-sec: var(--a-design); --a-sec-ink: var(--a-design-ink); }
+.admin.sec-settings { --a-sec: var(--a-settings); --a-sec-ink: var(--a-settings-ink); }
+html:has(.admin) { background-color: #f7f8fb; color-scheme: light; scrollbar-color: #c5cbdb #f7f8fb; }
+
+.admin ::selection { background: color-mix(in srgb, var(--a-sec) 22%, #fff); color: var(--a-ink); }
+.admin :focus-visible { outline: 2px solid var(--a-sec-text); outline-offset: 2px; }
+.admin input, .admin textarea { caret-color: var(--a-sec-text); }
+.admin h1 { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.01em; }
+.admin h2 { font-size: 1.0625rem; font-weight: 700; }
+.admin h3 { font-size: 0.9375rem; font-weight: 700; }
+.admin .muted { color: var(--a-mute); }
 .admin .num { font-variant-numeric: tabular-nums; }
+.admin .text-danger { color: var(--a-no-ink); }
+.admin .text-warn { color: var(--a-wait-ink); }
+.admin code { padding: 0.05rem 0.3rem; border-radius: 4px; background: var(--a-tint); font-size: 0.875em; }
+
+/* The coloured band at the top of every admin page, with the binder tabs hanging from it. */
+.a-band { background: var(--a-sec); color: var(--a-sec-ink); transition: background-color 0.25s ease; }
+.a-band h1 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.a-band .a-btn { background: transparent; border-color: color-mix(in srgb, var(--a-sec-ink) 45%, transparent); color: var(--a-sec-ink); }
+.a-band .a-btn:hover { background: color-mix(in srgb, var(--a-sec-ink) 14%, transparent); border-color: var(--a-sec-ink); }
+.a-band .a-btn-quiet { border-color: transparent; }
+.a-band :focus-visible { outline-color: var(--a-sec-ink); }
+.a-band .a-tag { background: color-mix(in srgb, var(--a-sec-ink) 16%, transparent); color: var(--a-sec-ink); }
+.a-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.a-tab {
+  --tab: var(--a-guests); --tab-ink: var(--a-guests-ink);
+  flex: none;
+  padding: 0.55rem 1rem;
+  border-radius: 9px 9px 0 0;
+  background: var(--tab);
+  color: var(--tab-ink);
+  font-weight: 650;
+  white-space: nowrap;
+  /* A hairline of the band colour keeps a tab distinct from a band of the same hue. */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a-sec-ink) 28%, transparent);
+  transition: transform 0.2s var(--ease-out-expo);
+}
+.a-tab:hover { transform: translateY(-2px); }
+.a-tab.is-current { background: var(--a-bg); color: var(--a-sec-text); box-shadow: none; transform: none; }
+.a-tab-import { --tab: var(--a-import); --tab-ink: var(--a-import-ink); }
+.a-tab-details { --tab: var(--a-details); --tab-ink: var(--a-details-ink); }
+.a-tab-design { --tab: var(--a-design); --tab-ink: var(--a-design-ink); }
+.a-tab-settings { --tab: var(--a-settings); --tab-ink: var(--a-settings-ink); }
 
 .a-btn {
   display: inline-flex;
@@ -180,22 +267,22 @@ textarea.field { min-height: 6.5rem; resize: vertical; line-height: 1.5; }
   gap: 0.4rem;
   min-height: 2.25rem;
   padding: 0.35rem 0.8rem;
-  border: 1px solid #3d3740;
-  border-radius: 6px;
-  background: #1c181e;
-  color: #e9e3d8;
-  font-weight: 550;
+  border: 1px solid var(--a-line-strong);
+  border-radius: 7px;
+  background: var(--a-surface);
+  color: var(--a-ink);
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-.a-btn:hover { background: #262027; border-color: #564d59; }
+.a-btn:hover { background: var(--a-hover); border-color: var(--a-line-hover); }
 .a-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.a-btn-primary { background: var(--color-gold); border-color: var(--color-gold); color: #17130c; }
-.a-btn-primary:hover { background: #d8ba76; border-color: #d8ba76; }
-.a-btn-danger { color: var(--color-danger); border-color: #6a3a35; }
-.a-btn-danger:hover { background: #2b1a19; border-color: #8a4a43; }
+.a-btn-primary { background: var(--a-sec); border-color: var(--a-sec); color: var(--a-sec-ink); }
+.a-btn-primary:hover { background: color-mix(in srgb, var(--a-sec) 88%, #000); border-color: color-mix(in srgb, var(--a-sec) 88%, #000); }
+.a-btn-danger { color: var(--a-no-ink); border-color: var(--a-no-line); }
+.a-btn-danger:hover { background: var(--a-no-bg); border-color: var(--a-no); }
 .a-btn-quiet { border-color: transparent; background: transparent; }
 .a-btn-sm { min-height: 1.875rem; padding: 0.2rem 0.55rem; font-size: 0.8125rem; }
 
@@ -203,34 +290,49 @@ textarea.field { min-height: 6.5rem; resize: vertical; line-height: 1.5; }
   width: 100%;
   min-height: 2.375rem;
   padding: 0.4rem 0.65rem;
-  border: 1px solid #3d3740;
-  border-radius: 6px;
-  background: #151216;
-  color: #f1ece2;
+  border: 1px solid var(--a-line-strong);
+  border-radius: 7px;
+  background: var(--a-surface);
+  color: var(--a-ink);
 }
-.a-field::placeholder { color: #8f8779; }
-.a-field:hover { border-color: #564d59; }
-.a-field:focus-visible { outline-offset: 0; border-color: var(--color-gold); }
-.a-label { display: block; margin-bottom: 0.3rem; font-weight: 550; font-size: 0.875rem; }
+.a-field::placeholder { color: #7b849b; }
+.a-field:hover { border-color: var(--a-line-hover); }
+.a-field:focus-visible { outline-offset: 0; border-color: var(--a-sec-text); }
+.a-field[readonly] { background: var(--a-tint); }
+.a-label { display: block; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.875rem; }
+.admin input[type='checkbox'], .admin input[type='radio'] { accent-color: var(--a-sec-text); }
 
-.a-panel { border: 1px solid #2b262d; border-radius: 10px; background: #161317; }
+.a-panel { border: 1px solid var(--a-line); border-radius: 10px; background: var(--a-surface); }
 
 .a-dialog {
   width: min(100% - 2rem, 34rem);
   max-height: calc(100svh - 2rem);
   margin: auto;
   padding: 0;
-  border: 1px solid #3d3740;
+  border: 1px solid var(--a-line);
   border-radius: 12px;
-  background: #18141a;
-  color: #e9e3d8;
-  box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.7);
+  background: var(--a-surface);
+  color: var(--a-ink);
+  box-shadow: 0 24px 60px -12px rgb(21 27 46 / 0.35);
   overflow: auto;
 }
-.a-dialog::backdrop { background: rgb(6 4 7 / 0.72); }
+.a-dialog::backdrop { background: rgb(21 27 46 / 0.45); }
 
-.a-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+.a-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.1rem 0.55rem; border-radius: 999px; font-size: 0.8125rem; font-weight: 650; white-space: nowrap; }
 .a-tag::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; }
-.a-tag-attending { background: #1d2a1a; color: var(--color-ok); }
-.a-tag-declined { background: #2e1a19; color: var(--color-danger); }
-.a-tag-pending { background: #262128; color: #c9c0b2; }
+.a-tag-attending { background: var(--a-ok-bg); color: var(--a-ok-ink); }
+.a-tag-declined { background: var(--a-no-bg); color: var(--a-no-ink); }
+.a-tag-pending { background: var(--a-wait-bg); color: var(--a-wait-ink); }
+
+/* A save bar that stays in reach on long admin forms. */
+.savebar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--a-line);
+  background: var(--a-bg);
+}

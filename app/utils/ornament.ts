@@ -223,6 +223,36 @@ export const heartArt: Art = (() => {
   return { viewBox: '0 0 300 268', body }
 })()
 
+/** A round wreath of briars and roses around the crescent in its braided ring. */
+export const wreathArt: Art = (() => {
+  const cx = 150, cy = 134
+  const arc = (a0: number, a1: number, r: number, n = 11): Pt[] => Array.from({ length: n }, (_, i) => {
+    const a = (a0 + (a1 - a0) * i / (n - 1)) * Math.PI / 180
+    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r]
+  })
+  let body = stars(40, 12, [10, 0, 280, 260])
+  body += vine(arc(95, 268, 108), { seed: 2, width: 1.8, thornEvery: 12, leafEvery: 26, leafLen: 15 })
+  body += vine(arc(85, -88, 108), { seed: 8, width: 1.8, thornEvery: 12, leafEvery: 26, leafLen: 15 })
+  body += vine(arc(110, 250, 101, 8), { seed: 3, width: 1, thornEvery: 15, delay: 0.25 }) + vine(arc(70, -70, 101, 8), { seed: 4, width: 1, thornEvery: 15, delay: 0.25 })
+  for (const [i, [a, r]] of ([[90, 20], [128, 14], [52, 14], [160, 10], [20, 10], [200, 9], [-20, 9], [270, 11], [235, 8], [305, 8]] as const).entries()) {
+    const t = a * Math.PI / 180
+    body += rose(cx + Math.cos(t) * 108, cy + Math.sin(t) * 108, r, i * 37)
+  }
+  body += ringBraid(cx, cy, 74, 5, 18, 5)
+  body += `<path class="o-moon o-bloom" d="${crescent(cx, cy, 50, 15, -11, 42)}"/>` + sparkle(cx + 16, cy - 15, 7) + sparkle(cx - 5, cy + 16, 3.5)
+  return { viewBox: '0 0 300 268', body }
+})()
+
+/** A large crescent inside a wide braided ring: the most Norse of the emblems, and the plainest. */
+export const moonRingArt: Art = (() => {
+  const cx = 150, cy = 134
+  let body = stars(60, 14, [0, 0, 300, 268])
+  body += ringBraid(cx, cy, 104, 7.5, 22, 6.2)
+  body += `<circle class="o-line o-bloom" stroke-width=".8" cx="${cx}" cy="${cy}" r="89"/><circle class="o-line o-bloom" stroke-width=".8" stroke-dasharray="1 6" stroke-linecap="round" cx="${cx}" cy="${cy}" r="120"/>`
+  body += `<path class="o-moon o-bloom" d="${crescent(cx, cy, 72, 18, -16, 61)}"/>` + sparkle(cx + 18, cy - 20, 8) + sparkle(cx - 3, cy + 22, 4) + sparkle(cx + 38, cy + 14, 3)
+  return { viewBox: '0 0 300 268', body }
+})()
+
 /**
  * The garden gate: a pointed iron arch with a rose roundel, railings and climbing briars.
  * The RSVP plate is laid over its lower half by the page.

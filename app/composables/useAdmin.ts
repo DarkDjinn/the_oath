@@ -1,4 +1,4 @@
-import { event } from '#shared/event'
+import { EVENT_TIMEZONE } from '#shared/campaign'
 
 /** Readable message from a failed API call. */
 export function apiError(error: unknown): string {
@@ -38,5 +38,10 @@ export async function copyText(text: string): Promise<boolean> {
 /** Timestamps are shown in the event's timezone so the server and every browser render the same text. */
 export function formatWhen(iso: string | null): string {
   if (!iso) return ''
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: event.timezone }).format(new Date(iso))
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: EVENT_TIMEZONE }).format(new Date(iso))
+}
+
+export async function signOut() {
+  await $fetch('/api/admin/logout', { method: 'POST' })
+  await navigateTo('/admin/login')
 }

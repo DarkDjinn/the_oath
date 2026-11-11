@@ -14,12 +14,20 @@ colors:
   moon: "#e8dcc0"
   danger: "#f0a091"
   ok: "#a9c79a"
-  admin-ground: "#100e11"
-  admin-panel: "#161317"
-  admin-control: "#1c181e"
-  admin-border: "#3d3740"
-  admin-ink: "#e9e3d8"
-  admin-mute: "#a79f92"
+  admin-ground: "#f7f8fb"
+  admin-panel: "#ffffff"
+  admin-control: "#ffffff"
+  admin-border: "#c5cbdb"
+  admin-ink: "#151b2e"
+  admin-mute: "#56607a"
+  admin-guests: "#1d2f6f"
+  admin-import: "#c2452a"
+  admin-details: "#e2b01e"
+  admin-design: "#157a66"
+  admin-settings: "#6a4bb8"
+  admin-ok: "#1f9d6b"
+  admin-wait: "#f0b93a"
+  admin-no: "#ef7b63"
 typography:
   display:
     fontFamily: "'Frank Ruhl Libre Variable', 'Frank Ruhl Libre', 'Times New Roman', serif"
@@ -69,7 +77,7 @@ typography:
     letterSpacing: "-0.01em"
 rounded:
   none: "0"
-  admin-control: "6px"
+  admin-control: "7px"
   admin-panel: "10px"
   admin-dialog: "12px"
   admin-tag: "999px"
@@ -136,7 +144,7 @@ The invitation is a gilded line engraving on black: a heart of thorns above, a p
 
 It is stationery, not an interface: a single centred column on a flat near-black ground, square corners, hairline rules, no cards, no glow. It refuses the dark wedding template (names in a thin gold rectangle, countdown, pill button).
 
-A second, deliberately plain system serves the admin dashboard: system UI font, dark neutral panels, small radii, gold only as the primary-action accent. The two systems never mix.
+A second system serves the admin panels ("Ink and citrus"): a light blue-white ground, Heebo for all text, white panels with small radii, and navigation as a row of binder tabs. Every section owns one colour (Guests navy, Import coral, Details mustard, Design green, Settings violet); the header band, the primary action, focus and selection take the colour of the section you are in. Green, amber and coral mean coming, waiting and not coming, and nothing else. The two systems never mix.
 
 **Key Characteristics:**
 - Gold is line; burgundy is fill; ivory is lettering.
@@ -165,7 +173,7 @@ A night palette: near-black ground, aged gold line work, one deep burgundy, warm
 - **Ivory** (`ivory`): names, body lettering, key values.
 - **Parchment Mute** (`mute`): supporting copy, labels, hints.
 - **Danger / OK** (`danger`, `ok`): form error line and border; admin status tags.
-- **Admin neutrals** (`admin-*`): dashboard ground, panels, controls, borders, ink. Admin only.
+- **Admin** (`admin-*`): light ground, white panels, ink, five section colours and three state colours. Admin only. Mustard carries dark ink; text in the section colour on white uses a darker mustard (`#8a6500`).
 
 ### Named Rules
 **The Line-Work Rule.** Gold is stroke, never a filled surface on the invitation. (Solid gold appears only as tiny ornament ink: thorns, finials, sparkles.)
@@ -179,7 +187,7 @@ A night palette: near-black ground, aged gold line work, one deep burgundy, warm
 **Display Font:** Frank Ruhl Libre Variable (Hebrew + Latin; fallback Times New Roman, serif)
 **Body Font:** David Libre (fallback Frank Ruhl Libre, Georgia, serif)
 **Blackletter:** UnifrakturCook (Latin names only); Pirata One (hero date numerals only)
-**Admin:** system UI sans.
+**Admin:** Heebo (self-hosted, Hebrew and Latin) for everything; the campaign name in the band is the one use of the display serif.
 
 All faces are self-hosted via @fontsource; no third-party requests.
 
@@ -204,13 +212,13 @@ One centred column, `min(100% - 2.5rem, 30rem)`, centre-aligned text; form group
 
 Short screens (max-height 43.75rem) shrink heart, names, and vines so the gate plate stays in the first view. From 48rem wide the column does not grow; vines and sprays move out to stand beside it. Touch targets are at least 2.75rem; primary controls 3.25 to 4rem.
 
-Admin is a conventional dense dashboard: stat row, bordered panels, a table that collapses to labelled two-column blocks below 60rem.
+Admin is a conventional dense dashboard under a coloured band with binder tabs: a four-count summary with colour-keyed top rules, one proportion bar (accepted, waiting, declined), bordered white panels, and a table that collapses to labelled two-column blocks below 60rem.
 
 ## Elevation & Depth
 
 The invitation is flat. Depth comes from line over ground and from two tonal steps (`plate`, `plate-2`); there are no shadows. The only inset is the selected choice's doubled gold line (`inset 0 0 0 1px` gold).
 
-Admin uses shadow only for things that float: the dialog (`0 24px 60px -12px rgb(0 0 0 / 0.7)`) and the toast (`0 10px 30px -8px rgb(0 0 0 / 0.6)`).
+Admin uses shadow only for things that float: the dialog (`0 24px 60px -12px rgb(21 27 46 / 0.35)`) and the toast (`0 10px 30px -8px rgb(21 27 46 / 0.45)`).
 
 ## Shapes
 
@@ -220,7 +228,7 @@ Square corners (radius 0) on every invitation control and frame, with 1px hairli
 
 **The Generated Ornament Rule.** Ornament is SVG generated in code from a fixed seed, styled only through the `o-*` class vocabulary (line, hair, ink, gap, leaf, rose, moon, star; `o-draw` and `o-bloom` for arrival). Never raster, never emoji, never an icon font.
 
-Admin shapes are ordinary: 6px controls, 10px panels, 12px dialog, pill status tags.
+Admin shapes are ordinary: 7px controls, 10px panels, 12px dialog, pill status tags, and tabs rounded on their top corners only.
 
 ## Components
 

@@ -16,12 +16,12 @@
       "mute": { "role": "neutral", "displayName": "Parchment Mute", "canonical": "#b7ad9c", "tonalRamp": ["#2b2720", "#4d473b", "#726a59", "#978e7b", "#b7ad9c", "#d5cbb9", "#efe6d6", "#f8f3ea"] },
       "danger": { "role": "neutral", "displayName": "Danger", "canonical": "#f0a091", "tonalRamp": ["#2b1a19", "#4d2924", "#6a3a35", "#8a4a43", "#c0705f", "#f0a091", "#f6c4ba", "#fbe6e1"] },
       "ok": { "role": "neutral", "displayName": "OK", "canonical": "#a9c79a", "tonalRamp": ["#1d2a1a", "#2f432a", "#48623f", "#658358", "#87a678", "#a9c79a", "#c9debf", "#e8f1e3"] },
-      "admin-ground": { "role": "neutral", "displayName": "Admin Ground", "canonical": "#100e11", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
-      "admin-panel": { "role": "neutral", "displayName": "Admin Panel", "canonical": "#161317", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
-      "admin-control": { "role": "neutral", "displayName": "Admin Control", "canonical": "#1c181e", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
-      "admin-border": { "role": "neutral", "displayName": "Admin Border", "canonical": "#3d3740", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
-      "admin-ink": { "role": "neutral", "displayName": "Admin Ink", "canonical": "#e9e3d8", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
-      "admin-mute": { "role": "neutral", "displayName": "Admin Mute", "canonical": "#a79f92", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] }
+      "admin-ground": { "role": "neutral", "displayName": "Admin Ground", "canonical": "#f7f8fb", "tonalRamp": ["#f7f8fb", "#ffffff", "#eef0f6", "#dfe3ee", "#c5cbdb", "#9aa3ba", "#56607a", "#151b2e"] },
+      "admin-panel": { "role": "neutral", "displayName": "Admin Panel", "canonical": "#ffffff", "tonalRamp": ["#f7f8fb", "#ffffff", "#eef0f6", "#dfe3ee", "#c5cbdb", "#9aa3ba", "#56607a", "#151b2e"] },
+      "admin-control": { "role": "neutral", "displayName": "Admin Control", "canonical": "#ffffff", "tonalRamp": ["#f7f8fb", "#ffffff", "#eef0f6", "#dfe3ee", "#c5cbdb", "#9aa3ba", "#56607a", "#151b2e"] },
+      "admin-border": { "role": "neutral", "displayName": "Admin Border", "canonical": "#c5cbdb", "tonalRamp": ["#f7f8fb", "#ffffff", "#eef0f6", "#dfe3ee", "#c5cbdb", "#9aa3ba", "#56607a", "#151b2e"] },
+      "admin-ink": { "role": "neutral", "displayName": "Admin Ink", "canonical": "#151b2e", "tonalRamp": ["#f7f8fb", "#ffffff", "#eef0f6", "#dfe3ee", "#c5cbdb", "#9aa3ba", "#56607a", "#151b2e"] },
+      "admin-mute": { "role": "neutral", "displayName": "Admin Mute", "canonical": "#56607a", "tonalRamp": ["#f7f8fb", "#ffffff", "#eef0f6", "#dfe3ee", "#c5cbdb", "#9aa3ba", "#56607a", "#151b2e"] }
     },
     "typographyMeta": {
       "display": { "displayName": "Display", "purpose": "The couple's names in the hero, stacked, ivory. Frank Ruhl Libre." },
@@ -31,14 +31,14 @@
       "body": { "displayName": "Body", "purpose": "Reading text and form controls. David Libre." },
       "label": { "displayName": "Label", "purpose": "Time labels and hints in mute. No uppercase, no tracking." },
       "numeral": { "displayName": "Numeral", "purpose": "The hero date only. Pirata One, LTR isolated." },
-      "admin-body": { "displayName": "Admin Body", "purpose": "All dashboard text. System UI sans." },
+      "admin-body": { "displayName": "Admin Body", "purpose": "All dashboard text. Heebo, self-hosted." },
       "admin-title": { "displayName": "Admin Title", "purpose": "Dashboard page title; section titles at 1.0625rem / 650." }
     },
     "shadows": [
       { "name": "choice-selected", "value": "inset 0 0 0 1px #c9a961", "purpose": "Doubles the gold border of a selected RSVP choice. The invitation's only box-shadow." },
       { "name": "ground-glow", "value": "radial-gradient(ellipse 34rem 26rem at 50% 15rem, #261915 0%, transparent 70%)", "purpose": "The single warm glow behind the heart. A background, not a shadow; the only gradient." },
-      { "name": "admin-dialog", "value": "0 24px 60px -12px rgb(0 0 0 / 0.7)", "purpose": "Admin modal dialog." },
-      { "name": "admin-toast", "value": "0 10px 30px -8px rgb(0 0 0 / 0.6)", "purpose": "Admin toast." }
+      { "name": "admin-dialog", "value": "0 24px 60px -12px rgb(21 27 46 / 0.35)", "purpose": "Admin modal dialog." },
+      { "name": "admin-toast", "value": "0 10px 30px -8px rgb(21 27 46 / 0.45)", "purpose": "Admin toast." }
     ],
     "motion": [
       { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Stem drawing, rose bloom in the choice socket, plate press." },

@@ -18,6 +18,7 @@ export const en: Messages = {
     waze: 'Navigate with Waze',
     maps: 'Open in Google Maps',
     dressCode: 'Dress code',
+    calendar: 'Add to calendar',
   },
   rsvp: {
     title: 'RSVP',
@@ -28,6 +29,8 @@ export const en: Messages = {
     declined: 'Unable to attend',
     guestsTitle: 'Who is coming with you?',
     guestsHint: 'Add everyone who is coming with you, each by full name.',
+    guestsHintLimit: 'You can add up to {n} guests, each by full name.',
+    guestsHintOne: 'You can add one guest, by full name.',
     guestLabel: 'Full name of guest {n}',
     guestPlaceholder: 'Full name',
     addGuest: 'Add a guest',
@@ -40,6 +43,8 @@ export const en: Messages = {
     submit: 'Send reply',
     saving: 'Saving…',
     onlyByLink: 'Replies are made through the personal link you received.',
+    closed: 'Replies are now closed. For changes, please contact us directly.',
+    closedPending: 'Replies are now closed. If you have not answered yet, please contact us directly.',
   },
   confirm: {
     attendingTitle: 'See you at the wedding!',
@@ -56,6 +61,10 @@ export const en: Messages = {
     network: 'We could not save your reply. Check your connection and try again.',
     rateLimited: 'Too many attempts. Please try again in a few minutes.',
     generic: 'Something went wrong on our side. Please try again in a moment.',
+  },
+  notOpen: {
+    title: 'This invitation is not open yet',
+    body: 'We are still preparing it. Please try again soon.',
   },
   invalid: {
     title: 'This link is no longer active',

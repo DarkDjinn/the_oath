@@ -5,7 +5,11 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint'],
   devtools: { enabled: false },
   css: ['~/assets/css/main.css'],
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    // Development only: campaign subdomains on *.localhost, and showing the site through an ngrok tunnel.
+    server: { allowedHosts: ['.localhost', '.ngrok-free.app', '.ngrok.app', '.ngrok.io'] },
+  },
   app: {
     head: {
       meta: [

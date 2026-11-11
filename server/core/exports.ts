@@ -6,8 +6,8 @@ const yesNo = (v: boolean) => (v ? 'yes' : 'no')
 /** One row per invitation: for keeping the links and tracking what was sent. */
 export function invitationsCsv(invitations: AdminInvitation[]): string {
   return toCsv(
-    ['Guest name', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'RSVP status', 'Confirmed attendees', 'Last response'],
-    invitations.map(i => [i.guestName, i.revoked ? '(link revoked)' : i.url, yesNo(i.guestsAllowed), i.language, yesNo(!!i.sentAt), i.rsvpStatus, i.confirmedCount, i.respondedAt ?? '']),
+    ['Guest name', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'Opened', 'RSVP status', 'Confirmed attendees', 'Last response'],
+    invitations.map(i => [i.guestName, i.revoked ? '(link revoked)' : i.url, i.guestsAllowed ? `up to ${i.guestLimit}` : 'no', i.language, yesNo(!!i.sentAt), yesNo(!!i.firstOpenedAt), i.rsvpStatus, i.confirmedCount, i.respondedAt ?? '']),
   )
 }
 
@@ -26,6 +26,6 @@ export function templateCsv(): string {
   return toCsv(['name', 'plus_one_allowed', 'language'], [
     ['דניאל כהן', 'true', 'he'],
     ['Alex Levi', 'false', 'en'],
-    ['נועה ישראלי', 'true', ''],
+    ['נועה ישראלי', '1', ''],
   ])
 }

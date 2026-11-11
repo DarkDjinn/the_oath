@@ -27,15 +27,15 @@ describe('CSV import preview', () => {
   })
 
   it('accepts an optional language column and common boolean spellings', () => {
-    const preview = buildPreview('name,plus_one_allowed,language\nA,yes,en\nB,כן,\nC,0,HE\nD,,he', [])
-    expect(preview.rows.map(r => [r.guestsAllowed, r.language])).toEqual([[true, 'en'], [true, 'he'], [false, 'he'], [false, 'he']])
+    const preview = buildPreview('name,plus_one_allowed,language\nA,yes,en\nB,כן,\nC,0,HE\nD,,he\nE,1,\nF,4,', [])
+    expect(preview.rows.map(r => [r.guestsAllowed, r.guestLimit, r.language])).toEqual([[true, null, 'en'], [true, null, 'he'], [false, null, 'he'], [false, null, 'he'], [true, 1, 'he'], [true, 4, 'he']])
   })
 
   it('reports errors with spreadsheet row numbers', () => {
     const preview = buildPreview('name,plus_one_allowed,language\n,true,\nBob,maybe,\nEve,true,fr\n' + 'x'.repeat(81) + ',false,\n', [])
     expect(preview.rows.map(r => r.row)).toEqual([2, 3, 4, 5])
     expect(preview.rows[0]!.errors[0]).toMatch(/name is empty/)
-    expect(preview.rows[1]!.errors[0]).toMatch(/must be true or false, found "maybe"/)
+    expect(preview.rows[1]!.errors[0]).toMatch(/must be true, false or a number, found "maybe"/)
     expect(preview.rows[2]!.errors[0]).toMatch(/must be he or en/)
     expect(preview.rows[3]!.errors[0]).toMatch(/longer than 80/)
     expect(preview.totals.errors).toBe(4)
@@ -64,7 +64,7 @@ describe('CSV import preview', () => {
 describe('CSV import commit', () => {
   it('creates invitations with working, distinct links', () => {
     const db = freshDb()
-    const created = commitImport(db, SECRET, 'name,plus_one_allowed\nדניאל כהן,true\nDavid Levi,false\nDavid Levi,false\n')
+    const created = commitImport(db, SECRET, 1, 'name,plus_one_allowed\nדניאל כהן,true\nDavid Levi,false\nDavid Levi,false\n')
     expect(created).toHaveLength(3)
     expect(new Set(created.map(tokenOf)).size).toBe(3)
     expect(getByToken(db, tokenOf(created[0]!))?.guest_name).toBe('דניאל כהן')
@@ -73,32 +73,32 @@ describe('CSV import commit', () => {
 
   it('writes nothing when any included row is invalid', () => {
     const db = freshDb()
-    expect(() => commitImport(db, SECRET, 'name,plus_one_allowed\nGood One,true\n,true\nGood Two,false\n')).toThrow(ValidationError)
-    expect(listInvitations(db)).toHaveLength(0)
+    expect(() => commitImport(db, SECRET, 1, 'name,plus_one_allowed\nGood One,true\n,true\nGood Two,false\n')).toThrow(ValidationError)
+    expect(listInvitations(db, 1)).toHaveLength(0)
   })
 
   it('rolls back the whole import if a write fails midway', () => {
     const db = freshDb()
     db.exec(`CREATE TRIGGER fail_on_third BEFORE INSERT ON invitations WHEN NEW.guest_name = 'Third' BEGIN SELECT RAISE(ABORT, 'disk full'); END`)
-    expect(() => commitImport(db, SECRET, 'name\nFirst\nSecond\nThird\nFourth\n')).toThrow(/disk full/)
-    expect(listInvitations(db)).toHaveLength(0)
+    expect(() => commitImport(db, SECRET, 1, 'name\nFirst\nSecond\nThird\nFourth\n')).toThrow(/disk full/)
+    expect(listInvitations(db, 1)).toHaveLength(0)
   })
 
   it('imports the rest when invalid or unwanted rows are unticked', () => {
     const db = freshDb()
-    const created = commitImport(db, SECRET, 'name,plus_one_allowed\nGood One,true\n,true\nGood Two,false\n', [3])
+    const created = commitImport(db, SECRET, 1, 'name,plus_one_allowed\nGood One,true\n,true\nGood Two,false\n', [3])
     expect(created.map(r => r.guest_name)).toEqual(['Good One', 'Good Two'])
-    expect(() => commitImport(db, SECRET, 'name\nOnly\n', [2])).toThrow(/No rows are selected/)
+    expect(() => commitImport(db, SECRET, 1, 'name\nOnly\n', [2])).toThrow(/No rows are selected/)
   })
 
   it('never touches existing invitations or their RSVPs', () => {
     const db = freshDb()
     const existing = invite(db, 'Daniel Cohen', true)
     submitRsvp(db, tokenOf(existing), { rsvpStatus: 'attending', extraGuests: ['Maya Cohen'] })
-    const before = listInvitations(db)[0]
+    const before = listInvitations(db, 1)[0]
 
-    commitImport(db, SECRET, 'name,plus_one_allowed\nDaniel Cohen,false\n')
-    const all = listInvitations(db)
+    commitImport(db, SECRET, 1, 'name,plus_one_allowed\nDaniel Cohen,false\n')
+    const all = listInvitations(db, 1)
     expect(all).toHaveLength(2)
     expect(all.find(r => r.id === existing.id)).toEqual(before)
   })
@@ -114,7 +114,7 @@ describe('CSV export', () => {
     const db = freshDb()
     const row = invite(db, '=cmd|calc', true)
     submitRsvp(db, tokenOf(row), { rsvpStatus: 'attending', extraGuests: ['+evil'], dietaryNotes: '@notes' })
-    const csv = plannerCsv(listInvitations(db).map(admin))
+    const csv = plannerCsv(listInvitations(db, 1).map(admin))
     expect(csv).toContain(`'=cmd|calc`)
     expect(csv).toContain(`'+evil`)
     expect(csv).toContain(`'@notes`)
@@ -138,7 +138,7 @@ describe('CSV export', () => {
     submitRsvp(db, tokenOf(b), { rsvpStatus: 'attending' })
     submitRsvp(db, tokenOf(c), { rsvpStatus: 'declined' })
 
-    const rows = parseCsv(plannerCsv(listInvitations(db).map(admin)))
+    const rows = parseCsv(plannerCsv(listInvitations(db, 1).map(admin)))
     expect(rows[0]).toEqual(['Name', 'Type', 'Guest of', 'Dietary and accessibility notes', 'Confirmed at'])
     expect(rows.slice(1).map(r => r.slice(0, 4))).toEqual([
       ['Alex Levi', 'Invited guest', '', ''],
@@ -153,13 +153,13 @@ describe('CSV export', () => {
     const a = invite(db, 'דניאל כהן', true)
     const b = invite(db, 'Revoked Guest')
     submitRsvp(db, tokenOf(a), { rsvpStatus: 'attending', extraGuests: ['מאיה כהן'] })
-    updateInvitation(db, a.id, { sent: true })
+    updateInvitation(db, 1, a.id, { sent: true })
     db.prepare('UPDATE invitations SET revoked_at = ? WHERE id = ?').run(new Date().toISOString(), b.id)
 
-    const rows = parseCsv(invitationsCsv(listInvitations(db).map(admin)))
-    expect(rows[0]).toEqual(['Guest name', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'RSVP status', 'Confirmed attendees', 'Last response'])
+    const rows = parseCsv(invitationsCsv(listInvitations(db, 1).map(admin)))
+    expect(rows[0]).toEqual(['Guest name', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'Opened', 'RSVP status', 'Confirmed attendees', 'Last response'])
     const daniel = rows.find(r => r[0] === 'דניאל כהן')!
-    expect(daniel.slice(1, 7)).toEqual([`${BASE}/i/${tokenOf(a)}`, 'yes', 'he', 'yes', 'attending', '2'])
+    expect(daniel.slice(1, 8)).toEqual([`${BASE}/i/${tokenOf(a)}`, 'up to 20', 'he', 'yes', 'no', 'attending', '2'])
     expect(rows.find(r => r[0] === 'Revoked Guest')![1]).toBe('(link revoked)')
   })
 

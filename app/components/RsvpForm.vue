@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { LIMITS, MAX_EXTRA_GUESTS, type GuestInvitation, type RsvpInput } from '#shared/types'
+import { LIMITS, type GuestInvitation, type RsvpInput } from '#shared/types'
 import { rose } from '~/utils/ornament'
 
-const props = defineProps<{ invitation: GuestInvitation, token: string, rsvpBy: string }>()
+const props = defineProps<{ invitation: GuestInvitation, token: string, rsvpBy: string, closed: boolean, askDietary: boolean, askMessage: boolean }>()
 const emit = defineEmits<{ update: [GuestInvitation] }>()
 const { m } = useI18n()
 
@@ -16,18 +16,21 @@ const message = ref(props.invitation.message)
 const notesOpen = ref(!!(dietary.value || message.value))
 
 /** The form shows until there is an answer; afterwards the confirmation shows until "change". */
-const editing = ref(props.invitation.rsvpStatus === 'pending')
+const editing = ref(props.invitation.rsvpStatus === 'pending' && !props.closed)
 const saving = ref(false)
 const error = ref('')
 const confirmation = ref<HTMLElement>()
 const guestInputs = ref<HTMLInputElement[]>([])
 
-const canBringGuests = computed(() => props.invitation.guestsAllowed && status.value === 'attending')
+/** Names already given are never taken away by a lowered limit. */
+const limit = computed(() => Math.max(props.invitation.guestLimit, props.invitation.extraGuests.length))
+const canBringGuests = computed(() => limit.value > 0 && status.value === 'attending')
+const guestsHint = computed(() => limit.value === 1 ? m.value.rsvp.guestsHintOne : limit.value < 20 ? fill(m.value.rsvp.guestsHintLimit, { n: limit.value }) : m.value.rsvp.guestsHint)
 const attendees = computed(() => [props.invitation.guestName, ...props.invitation.extraGuests])
 const bloom = rose(12, 12, 10)
 
 async function addGuest() {
-  if (guests.value.length >= MAX_EXTRA_GUESTS) return
+  if (guests.value.length >= limit.value) return
   guests.value.push({ id: nextId++, name: '' })
   await nextTick()
   guestInputs.value.at(-1)?.focus()
@@ -62,7 +65,9 @@ async function submit() {
   catch (e) {
     const code = (e as { statusCode?: number })?.statusCode
     if (code === 404) return reloadNuxtApp() // the link was revoked meanwhile
-    error.value = code === 429 ? m.value.errors.rateLimited : code === undefined ? m.value.errors.network : code === 400 && (e as { data?: { data?: { code?: string } } }).data?.data?.code?.startsWith('guest_name') ? m.value.errors.guestName : m.value.errors.generic
+    const reason = (e as { data?: { data?: { code?: string } } }).data?.data?.code ?? ''
+    if (reason === 'rsvp_closed' || reason === 'campaign_not_live') return reloadNuxtApp() // replies closed meanwhile
+    error.value = code === 429 ? m.value.errors.rateLimited : code === undefined ? m.value.errors.network : reason.startsWith('guest_name') ? m.value.errors.guestName : m.value.errors.generic
   }
   finally {
     saving.value = false
@@ -71,8 +76,11 @@ async function submit() {
 </script>
 
 <template>
+  <!-- Replies closed before this guest answered -->
+  <p v-if="closed && invitation.rsvpStatus === 'pending'" class="closed-note">{{ m.rsvp.closedPending }}</p>
+
   <!-- Confirmation -->
-  <div v-if="!editing" ref="confirmation" class="confirm" tabindex="-1" role="status">
+  <div v-else-if="!editing" ref="confirmation" class="confirm" tabindex="-1" role="status">
     <template v-if="invitation.rsvpStatus === 'attending'">
       <svg class="orn confirm-mark" viewBox="0 0 24 24" aria-hidden="true" v-html="bloom" />
       <p class="confirm-title">{{ m.confirm.attendingTitle }}</p>
@@ -88,8 +96,11 @@ async function submit() {
       <p class="confirm-title">{{ m.confirm.declinedTitle }}</p>
       <p class="confirm-body">{{ m.confirm.declinedBody }}</p>
     </template>
-    <button type="button" class="text-button confirm-change" @click="startEditing">{{ m.confirm.change }}</button>
-    <p v-if="invitation.rsvpStatus === 'attending'" class="confirm-hint">{{ m.confirm.changeHint }}</p>
+    <p v-if="closed" class="confirm-hint confirm-closed">{{ m.rsvp.closed }}</p>
+    <template v-else>
+      <button type="button" class="text-button confirm-change" @click="startEditing">{{ m.confirm.change }}</button>
+      <p v-if="invitation.rsvpStatus === 'attending'" class="confirm-hint">{{ m.confirm.changeHint }}</p>
+    </template>
   </div>
 
   <!-- Form -->
@@ -112,7 +123,7 @@ async function submit() {
 
     <fieldset v-if="canBringGuests" class="guests">
       <legend>{{ m.rsvp.guestsTitle }}</legend>
-      <p class="hint">{{ m.rsvp.guestsHint }}</p>
+      <p class="hint">{{ guestsHint }}</p>
       <ul v-if="guests.length" class="guest-rows">
         <li v-for="(guest, i) in guests" :key="guest.id">
           <input
@@ -124,20 +135,20 @@ async function submit() {
           </button>
         </li>
       </ul>
-      <button v-if="guests.length < MAX_EXTRA_GUESTS" type="button" class="add-guest" @click="addGuest">
+      <button v-if="guests.length < limit" type="button" class="add-guest" @click="addGuest">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
         {{ m.rsvp.addGuest }}
       </button>
     </fieldset>
 
-    <div v-if="status" class="notes">
+    <div v-if="status && (askMessage || (askDietary && status === 'attending'))" class="notes">
       <button v-if="!notesOpen" type="button" class="text-button" @click="notesOpen = true">{{ m.rsvp.notesToggle }}</button>
       <template v-else>
-        <label v-if="status === 'attending'" class="note-field">
+        <label v-if="askDietary && status === 'attending'" class="note-field">
           <span>{{ m.rsvp.dietary }} <small>({{ m.rsvp.optional }})</small></span>
           <textarea v-model="dietary" class="field" rows="2" dir="auto" :maxlength="LIMITS.notes" />
         </label>
-        <label class="note-field">
+        <label v-if="askMessage" class="note-field">
           <span>{{ m.rsvp.message }} <small>({{ m.rsvp.optional }})</small></span>
           <textarea v-model="message" class="field" rows="3" dir="auto" :maxlength="LIMITS.message" />
         </label>
@@ -204,6 +215,8 @@ async function submit() {
 .form-error { padding: 0.7rem 1rem; border: 1px solid var(--color-danger); color: var(--color-danger); }
 .form-submit { width: 100%; }
 
+.closed-note { margin-top: 1rem; color: var(--color-mute); text-wrap: pretty; }
+.confirm-closed { margin-top: 1.4rem; }
 .confirm { margin-top: 1rem; outline: none; }
 .confirm-mark { width: 2.4rem; height: 2.4rem; margin: 0.4rem auto 0.6rem; }
 .confirm-title { font-family: var(--font-display); font-size: 1.9rem; font-weight: 600; line-height: 1.25; }

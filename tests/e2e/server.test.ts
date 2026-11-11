@@ -7,28 +7,38 @@ import { spawn, type ChildProcess } from 'node:child_process'
 import { existsSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { hashPassword } from '../../server/core/auth'
 import { parseCsv } from '../../server/core/csv'
 
 const PORT = 4300 + Math.floor(Math.random() * 500)
 const ORIGIN = `http://127.0.0.1:${PORT}`
+const BASE_DOMAIN = 'wedding-example.duckdns.org'
 const PASSWORD = 'e2e-only-password-not-a-real-one'
 const dir = mkdtempSync(join(tmpdir(), 'oath-e2e-'))
 let server: ChildProcess
-let cookie = ''
+let owner = ''
+let nextIp = 10
 
-type Init = RequestInit & { json?: unknown, ip?: string }
+type Init = Omit<RequestInit, 'body'> & { json?: unknown, raw?: Uint8Array, ip?: string, host?: string, cookie?: string }
 function call(path: string, init: Init = {}) {
   const headers = new Headers(init.headers)
   if (init.json !== undefined) headers.set('content-type', 'application/json')
   if (init.ip) headers.set('x-forwarded-for', init.ip)
-  if (init.method && init.method !== 'GET' && !headers.has('origin')) headers.set('origin', ORIGIN)
-  return fetch(ORIGIN + path, { ...init, headers, body: init.json !== undefined ? JSON.stringify(init.json) : init.body, redirect: 'manual' })
+  if (init.host) headers.set('x-forwarded-host', init.host)
+  if (init.cookie) headers.set('cookie', init.cookie)
+  if (init.method && init.method !== 'GET' && !headers.has('origin')) headers.set('origin', init.host ? `https://${init.host}` : ORIGIN)
+  return fetch(ORIGIN + path, { ...init, headers, body: init.raw ?? (init.json !== undefined ? JSON.stringify(init.json) : undefined), redirect: 'manual' })
 }
-const asAdmin = (path: string, init: Init = {}) => call(path, { ...init, headers: { ...init.headers, cookie } })
+const asOwner = (path: string, init: Init = {}) => call(path, { ...init, cookie: owner })
 const tokenFrom = (url: string) => url.split('/i/')[1]!
 const guest = (token: string, init: Init = {}) => call('/api/rsvp', { ...init, headers: { authorization: `Bearer ${token}` } })
+/** Sign in from a fresh address each time so the per-address lockout never interferes. */
+async function signIn(username: string, password: string) {
+  const res = await call('/api/admin/login', { method: 'POST', json: { username, password }, ip: `10.50.0.${nextIp++}` })
+  return { res, cookie: res.headers.get('set-cookie')?.split(';')[0] ?? '' }
+}
 
 beforeAll(async () => {
   if (!existsSync('.output/server/index.mjs')) throw new Error('Build first: npm run build')
@@ -41,7 +51,8 @@ beforeAll(async () => {
       PHOTOS_DIR: join(dir, 'photos'),
       TOKEN_SECRET: 'e2e-token-secret-e2e-token-secret-0123456789',
       ADMIN_PASSWORD_HASH: hashPassword(PASSWORD),
-      SITE_URL: 'https://wedding-example.duckdns.org',
+      SITE_URL: `https://${BASE_DOMAIN}`,
+      BASE_DOMAIN,
       COOKIE_SECURE: 'false',
     },
     stdio: 'ignore',
@@ -51,12 +62,11 @@ beforeAll(async () => {
     catch { /* not up yet */ }
     await new Promise(r => setTimeout(r, 150))
   }
-  const login = await call('/api/admin/login', { method: 'POST', json: { password: PASSWORD } })
-  expect(login.status).toBe(200)
-  const setCookie = login.headers.get('set-cookie')!
-  expect(setCookie).toMatch(/HttpOnly/i)
-  expect(setCookie).toMatch(/SameSite=Strict/i)
-  cookie = setCookie.split(';')[0]!
+  const { res, cookie } = await signIn('admin', PASSWORD)
+  expect(res.status).toBe(200)
+  expect(res.headers.get('set-cookie')).toMatch(/HttpOnly/i)
+  expect(res.headers.get('set-cookie')).toMatch(/SameSite=Strict/i)
+  owner = cookie
 })
 
 afterAll(() => {
@@ -66,58 +76,70 @@ afterAll(() => {
 
 describe('admin access control', () => {
   const protectedRoutes: [string, string][] = [
-    ['GET', '/api/admin/invitations'],
-    ['POST', '/api/admin/invitations'],
-    ['PATCH', '/api/admin/invitations/1'],
-    ['DELETE', '/api/admin/invitations/1'],
-    ['POST', '/api/admin/invitations/1/regenerate'],
-    ['POST', '/api/admin/invitations/1/revoke'],
-    ['POST', '/api/admin/import/preview'],
-    ['POST', '/api/admin/import/commit'],
-    ['GET', '/api/admin/csv/invitations.csv'],
-    ['GET', '/api/admin/csv/planner.csv'],
-    ['GET', '/api/admin/csv/template.csv'],
-    ['GET', '/api/admin/settings'],
-    ['PUT', '/api/admin/settings'],
+    ['GET', '/api/admin/campaigns'],
+    ['POST', '/api/admin/campaigns'],
+    ['GET', '/api/admin/c/1'],
+    ['PATCH', '/api/admin/c/1'],
+    ['DELETE', '/api/admin/c/1'],
+    ['POST', '/api/admin/c/1/password'],
+    ['PUT', '/api/admin/c/1/content'],
+    ['PUT', '/api/admin/c/1/design'],
+    ['PUT', '/api/admin/c/1/whatsapp'],
+    ['PUT', '/api/admin/c/1/photos/hero'],
+    ['DELETE', '/api/admin/c/1/photos/hero'],
+    ['GET', '/api/admin/c/1/invitations'],
+    ['POST', '/api/admin/c/1/invitations'],
+    ['PATCH', '/api/admin/c/1/invitations/1'],
+    ['DELETE', '/api/admin/c/1/invitations/1'],
+    ['POST', '/api/admin/c/1/invitations/1/regenerate'],
+    ['POST', '/api/admin/c/1/invitations/1/revoke'],
+    ['POST', '/api/admin/c/1/import/preview'],
+    ['POST', '/api/admin/c/1/import/commit'],
+    ['GET', '/api/admin/c/1/csv/invitations.csv'],
+    ['GET', '/api/admin/c/1/csv/planner.csv'],
+    ['GET', '/api/admin/c/1/csv/template.csv'],
   ]
   it.each(protectedRoutes)('%s %s requires a session', async (method, path) => {
-    const anonymous = await call(path, { method, json: method === 'GET' ? undefined : {} })
-    expect(anonymous.status).toBe(401)
-    const forged = await call(path, { method, json: method === 'GET' ? undefined : {}, headers: { cookie: 'oath_admin=forged-session-value' } })
-    expect(forged.status).toBe(401)
+    const json = method === 'GET' ? undefined : {}
+    expect((await call(path, { method, json })).status).toBe(401)
+    expect((await call(path, { method, json, cookie: 'oath_admin=forged-session-value' })).status).toBe(401)
   })
 
-  it('redirects the dashboard to sign-in and never renders guest data', async () => {
-    const res = await call('/admin')
-    expect(res.status).toBe(302)
-    expect(res.headers.get('location')).toBe('/admin/login')
+  it('redirects admin pages to sign-in', async () => {
+    for (const path of ['/admin', '/admin/c/1', '/admin/c/1/settings']) {
+      const res = await call(path)
+      expect([res.status, res.headers.get('location')]).toEqual([302, '/admin/login'])
+    }
   })
 
-  it('rejects a wrong password', async () => {
-    const res = await call('/api/admin/login', { method: 'POST', json: { password: 'not-it' }, ip: '10.1.1.1' })
-    expect(res.status).toBe(401)
-    expect(res.headers.get('set-cookie')).toBeNull()
+  it('rejects wrong passwords and unknown names with the same answer', async () => {
+    const wrong = await signIn('admin', 'not-it')
+    const unknown = await signIn('no-such-campaign', PASSWORD)
+    const noLogin = await signIn('victor-and-dani', PASSWORD) // exists, but has no couple password
+    for (const { res, cookie } of [wrong, unknown, noLogin]) {
+      expect(res.status).toBe(401)
+      expect(cookie).toBe('')
+      expect((await res.json()).message).toBe('Wrong name or password.')
+    }
   })
 
   it('refuses cross-origin writes even with a valid session', async () => {
-    const res = await asAdmin('/api/admin/invitations', { method: 'POST', json: { guestName: 'CSRF' }, headers: { origin: 'https://evil.example' } })
+    const res = await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName: 'CSRF' }, headers: { origin: 'https://evil.example' } })
     expect(res.status).toBe(403)
   })
 
   it('locks out repeated sign-in failures from one address', async () => {
     const statuses: number[] = []
-    for (let i = 0; i < 7; i++) statuses.push((await call('/api/admin/login', { method: 'POST', json: { password: `guess-${i}` }, ip: '10.9.9.9' })).status)
+    for (let i = 0; i < 7; i++) statuses.push((await call('/api/admin/login', { method: 'POST', json: { username: 'admin', password: `guess-${i}` }, ip: '10.9.9.9' })).status)
     expect(statuses).toEqual([401, 401, 401, 401, 401, 429, 429])
-    // Even the right password is refused while locked out.
-    expect((await call('/api/admin/login', { method: 'POST', json: { password: PASSWORD }, ip: '10.9.9.9' })).status).toBe(429)
+    expect((await call('/api/admin/login', { method: 'POST', json: { username: 'admin', password: PASSWORD }, ip: '10.9.9.9' })).status).toBe(429)
   })
 
   it('logging out ends the session on the server', async () => {
-    const login = await call('/api/admin/login', { method: 'POST', json: { password: PASSWORD }, ip: '10.2.2.2' })
-    const session = login.headers.get('set-cookie')!.split(';')[0]!
-    expect((await call('/api/admin/invitations', { headers: { cookie: session } })).status).toBe(200)
-    await call('/api/admin/logout', { method: 'POST', headers: { cookie: session } })
-    expect((await call('/api/admin/invitations', { headers: { cookie: session } })).status).toBe(401)
+    const { cookie } = await signIn('admin', PASSWORD)
+    expect((await call('/api/admin/campaigns', { cookie })).status).toBe(200)
+    await call('/api/admin/logout', { method: 'POST', cookie })
+    expect((await call('/api/admin/campaigns', { cookie })).status).toBe(401)
   })
 })
 
@@ -127,37 +149,43 @@ describe('security headers', () => {
     expect(res.status).toBe(404)
     expect(res.headers.get('referrer-policy')).toBe('no-referrer')
     expect(res.headers.get('x-content-type-options')).toBe('nosniff')
-    expect(res.headers.get('x-frame-options')).toBe('DENY')
+    expect(res.headers.get('x-frame-options')).toBe('SAMEORIGIN')
     expect(res.headers.get('cache-control')).toBe('no-store')
     expect(res.headers.get('x-robots-tag')).toMatch(/noindex/)
     const csp = res.headers.get('content-security-policy')!
     expect(csp).toContain(`default-src 'self'`)
-    expect(csp).toContain(`frame-ancestors 'none'`)
+    expect(csp).toContain(`frame-ancestors 'self'`)
     expect(csp).not.toMatch(/https?:\/\//) // no third-party origins at all
   })
 })
 
-describe('the guest journey', () => {
+describe('the guest journey (campaign 1, Victor and Dani)', () => {
   let danielUrl = ''
   let alexUrl = ''
 
-  it('admin creates invitations and gets links on the public site URL', async () => {
-    const a = await (await asAdmin('/api/admin/invitations', { method: 'POST', json: { guestName: 'דניאל כהן', guestsAllowed: true } })).json()
-    const b = await (await asAdmin('/api/admin/invitations', { method: 'POST', json: { guestName: 'Alex Levi', guestsAllowed: false, language: 'en' } })).json()
+  it('links are issued on the campaign\'s own subdomain', async () => {
+    const a = await (await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName: 'דניאל כהן', guestsAllowed: true } })).json()
+    const b = await (await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName: 'Alex Levi', guestsAllowed: false, language: 'en' } })).json()
     danielUrl = a.url
     alexUrl = b.url
-    expect(danielUrl).toMatch(/^https:\/\/wedding-example\.duckdns\.org\/i\/[\w-]{43}$/)
+    expect(danielUrl).toMatch(/^https:\/\/victor-and-dani\.wedding-example\.duckdns\.org\/i\/[\w-]{43}$/)
     expect(alexUrl).not.toBe(danielUrl)
   })
 
   it('renders a personal Hebrew invitation that shows only that guest', async () => {
-    const res = await call(`/i/${tokenFrom(danielUrl)}`)
+    const res = await call(`/i/${tokenFrom(danielUrl)}`, { host: `victor-and-dani.${BASE_DOMAIN}` })
     expect(res.status).toBe(200)
     const html = await res.text()
     expect(html).toContain('דניאל כהן')
-    expect(html).toMatch(/<html[^>]*lang="he"[^>]*dir="rtl"|<html[^>]*dir="rtl"[^>]*lang="he"/)
+    expect(html).toContain('ודני')
+    expect(html).toMatch(/<html[^>]*lang="he"/)
+    expect(html).toMatch(/<html[^>]*dir="rtl"/)
     expect(html).not.toContain('Alex Levi')
     expect(html).not.toMatch(/<script[^>]+src="https?:\/\//) // no third-party scripts
+  })
+
+  it('a link works on any hostname, so links from before the platform keep working', async () => {
+    for (const host of [BASE_DOMAIN, 'some-tunnel.example']) expect((await call(`/i/${tokenFrom(danielUrl)}`, { host })).status).toBe(200)
   })
 
   it('renders an English invitation when the admin chose English', async () => {
@@ -175,35 +203,44 @@ describe('the guest journey', () => {
     expect((await guest(fake, { method: 'PUT', json: { rsvpStatus: 'attending' } })).status).toBe(404)
   })
 
+  it('records that a guest opened their link, but not when an admin checks it', async () => {
+    const list = async () => (await (await asOwner('/api/admin/c/1/invitations')).json()).invitations as { guestName: string, firstOpenedAt: string | null }[]
+    const fresh = await (await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName: 'Unopened Guest' } })).json()
+    await call('/api/rsvp', { headers: { authorization: `Bearer ${tokenFrom(fresh.url)}` }, cookie: owner })
+    await call(`/i/${tokenFrom(fresh.url)}`, { cookie: owner })
+    expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).toBeNull()
+    await call(`/i/${tokenFrom(fresh.url)}`)
+    expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).not.toBeNull()
+    await asOwner(`/api/admin/c/1/invitations/${fresh.id}`, { method: 'DELETE' })
+  })
+
   it('accepts an RSVP with guests, and updates it in place', async () => {
     const token = tokenFrom(danielUrl)
     const first = await guest(token, { method: 'PUT', json: { rsvpStatus: 'attending', extraGuests: ['מאיה כהן', 'Kid One'], dietaryNotes: 'צמחוני', message: '' } })
     expect(first.status).toBe(200)
     expect((await first.json()).extraGuests).toEqual(['מאיה כהן', 'Kid One'])
-
     const second = await guest(token, { method: 'PUT', json: { rsvpStatus: 'attending', extraGuests: ['מאיה כהן'], dietaryNotes: 'צמחוני', message: '' } })
     expect((await second.json()).extraGuests).toEqual(['מאיה כהן'])
-    expect((await (await guest(token)).json()).rsvpStatus).toBe('attending')
+    expect((await (await guest(token)).json()).invitation.rsvpStatus).toBe('attending')
   })
 
   it('rejects invalid submissions with a clear error and no change', async () => {
     const res = await guest(tokenFrom(alexUrl), { method: 'PUT', json: { rsvpStatus: 'attending', extraGuests: ['Uninvited'] } })
     expect(res.status).toBe(400)
-    const body = await res.json()
-    expect(body.data.code).toBe('guests_not_allowed')
-    expect((await (await guest(tokenFrom(alexUrl))).json()).rsvpStatus).toBe('pending')
+    expect((await res.json()).data.code).toBe('guests_not_allowed')
+    expect((await (await guest(tokenFrom(alexUrl))).json()).invitation.rsvpStatus).toBe('pending')
   })
 
   it('dashboard counts people, not links', async () => {
-    const { stats, invitations } = await (await asAdmin('/api/admin/invitations')).json()
+    const { stats, invitations } = await (await asOwner('/api/admin/c/1/invitations')).json()
     expect(invitations).toHaveLength(2)
-    expect(stats).toMatchObject({ invited: 2, accepted: 1, pending: 1, declined: 0, confirmedExtraGuests: 1, confirmedAttendees: 2 })
+    expect(stats).toMatchObject({ invited: 2, opened: 2, accepted: 1, pending: 1, declined: 0, confirmedExtraGuests: 1, confirmedAttendees: 2 })
   })
 
   it('exports the planner list as Excel-friendly CSV', async () => {
-    const res = await asAdmin('/api/admin/csv/planner.csv')
+    const res = await asOwner('/api/admin/c/1/csv/planner.csv')
     expect(res.headers.get('content-type')).toMatch(/text\/csv; charset=utf-8/)
-    expect(res.headers.get('content-disposition')).toMatch(/attachment; filename="wedding-planner-/)
+    expect(res.headers.get('content-disposition')).toMatch(/attachment; filename="victor-and-dani-planner-/)
     const bytes = new Uint8Array(await res.arrayBuffer())
     expect([...bytes.slice(0, 3)]).toEqual([0xEF, 0xBB, 0xBF]) // UTF-8 BOM
     const rows = parseCsv(new TextDecoder().decode(bytes))
@@ -211,32 +248,31 @@ describe('the guest journey', () => {
   })
 
   it('imports a CSV after preview, all or nothing', async () => {
-    const csv = '﻿name,plus_one_allowed\nנועה ישראלי,true\nTom Israeli,false\n'
-    const preview = await (await asAdmin('/api/admin/import/preview', { method: 'POST', json: { csv } })).json()
+    const csv = '﻿name,plus_one_allowed\nנועה ישראלי,true\nTom Israeli,1\n'
+    const preview = await (await asOwner('/api/admin/c/1/import/preview', { method: 'POST', json: { csv } })).json()
     expect(preview.totals).toMatchObject({ rows: 2, valid: 2, errors: 0 })
-    expect((await (await asAdmin('/api/admin/invitations')).json()).invitations).toHaveLength(2) // preview wrote nothing
+    expect((await (await asOwner('/api/admin/c/1/invitations')).json()).invitations).toHaveLength(2) // preview wrote nothing
 
-    const bad = await asAdmin('/api/admin/import/commit', { method: 'POST', json: { csv: `${csv},true\n` } })
+    const bad = await asOwner('/api/admin/c/1/import/commit', { method: 'POST', json: { csv: `${csv},true\n` } })
     expect(bad.status).toBe(400)
-    expect((await (await asAdmin('/api/admin/invitations')).json()).invitations).toHaveLength(2)
+    expect((await (await asOwner('/api/admin/c/1/invitations')).json()).invitations).toHaveLength(2)
 
-    const { created } = await (await asAdmin('/api/admin/import/commit', { method: 'POST', json: { csv } })).json()
-    expect(created.map((c: { guestName: string }) => c.guestName)).toEqual(['נועה ישראלי', 'Tom Israeli'])
+    const { created } = await (await asOwner('/api/admin/c/1/import/commit', { method: 'POST', json: { csv } })).json()
+    expect(created.map((c: { guestName: string, guestLimit: number }) => [c.guestName, c.guestLimit])).toEqual([['נועה ישראלי', 20], ['Tom Israeli', 1]])
     expect((await call(`/i/${tokenFrom(created[0].url)}`)).status).toBe(200)
 
-    const links = parseCsv(await (await asAdmin(`/api/admin/csv/invitations.csv?ids=${created.map((c: { id: number }) => c.id).join(',')}`)).text())
+    const links = parseCsv(await (await asOwner(`/api/admin/c/1/csv/invitations.csv?ids=${created.map((c: { id: number }) => c.id).join(',')}`)).text())
     expect(links.slice(1).map(r => r[0]).sort()).toEqual(['Tom Israeli', 'נועה ישראלי'])
     expect(links.find(r => r[0] === 'נועה ישראלי')![1]).toBe(created[0].url)
   })
 
   it('a regenerated link replaces the old one', async () => {
-    const { invitations } = await (await asAdmin('/api/admin/invitations')).json()
+    const { invitations } = await (await asOwner('/api/admin/c/1/invitations')).json()
     const daniel = invitations.find((i: { guestName: string }) => i.guestName === 'דניאל כהן')
-    const next = await (await asAdmin(`/api/admin/invitations/${daniel.id}/regenerate`, { method: 'POST' })).json()
+    const next = await (await asOwner(`/api/admin/c/1/invitations/${daniel.id}/regenerate`, { method: 'POST' })).json()
     expect(next.url).not.toBe(danielUrl)
     expect((await call(`/i/${tokenFrom(danielUrl)}`)).status).toBe(404)
-    const res = await guest(tokenFrom(next.url))
-    expect((await res.json()).rsvpStatus).toBe('attending') // the RSVP survived
+    expect((await (await guest(tokenFrom(next.url))).json()).invitation.rsvpStatus).toBe('attending') // the RSVP survived
   })
 
   it('rate limits invitation lookups per address', async () => {
@@ -244,5 +280,160 @@ describe('the guest journey', () => {
     for (let i = 0; i < 95; i++) statuses.add((await guest('B'.repeat(43), { ip: '10.7.7.7' })).status)
     expect([...statuses].sort()).toEqual([404, 429])
     expect((await guest('B'.repeat(43), { ip: '10.7.7.8' })).status).toBe(404) // other addresses are unaffected
+  })
+})
+
+describe('campaigns and couples', () => {
+  let danaId = 0
+  let danaCookie = ''
+  let danaGuestUrl = ''
+  const danaHost = `dana-and-omer.${BASE_DOMAIN}`
+
+  it('the owner creates a campaign, which starts as a draft', async () => {
+    const res = await asOwner('/api/admin/campaigns', { method: 'POST', json: { slug: 'Dana-And-Omer', couple: { en: { first: 'Dana', second: 'Omer' }, he: { first: 'דנה', second: 'עומר' } } } })
+    expect(res.status).toBe(201)
+    const created = await res.json()
+    danaId = created.id
+    expect(created).toMatchObject({ slug: 'dana-and-omer', status: 'draft', hasPassword: false, siteUrl: `https://${danaHost}` })
+    expect((await asOwner('/api/admin/campaigns', { method: 'POST', json: { slug: 'dana-and-omer' } })).status).toBe(400)
+    expect((await (await asOwner('/api/admin/campaigns')).json()).map((c: { slug: string }) => c.slug)).toEqual(['victor-and-dani', 'dana-and-omer'])
+  })
+
+  it('a draft is closed to the public and to guests, and open to its admins', async () => {
+    danaGuestUrl = (await (await asOwner(`/api/admin/c/${danaId}/invitations`, { method: 'POST', json: { guestName: 'אורחת של דנה', guestsAllowed: true } })).json()).url
+    expect(danaGuestUrl).toContain(`https://${danaHost}/i/`)
+    expect((await call('/', { host: danaHost })).status).toBe(404)
+    expect((await call('/w/dana-and-omer')).status).toBe(404)
+    const page = await call(`/i/${tokenFrom(danaGuestUrl)}`)
+    expect(page.status).toBe(404)
+    expect(await page.text()).not.toContain('אורחת של דנה')
+    expect((await guest(tokenFrom(danaGuestUrl), { method: 'PUT', json: { rsvpStatus: 'attending' } })).status).toBe(400)
+    expect((await call('/w/dana-and-omer', { cookie: owner })).status).toBe(200) // preview
+  })
+
+  it('HTTPS certificates are approved only for real, unarchived campaign hosts', async () => {
+    const check = async (domain: string) => (await call(`/api/tls-check?domain=${domain}`)).status
+    expect(await check(BASE_DOMAIN)).toBe(200)
+    expect(await check(`victor-and-dani.${BASE_DOMAIN}`)).toBe(200)
+    expect(await check(danaHost)).toBe(200)
+    expect(await check(`nobody.${BASE_DOMAIN}`)).toBe(404)
+    expect(await check(`a.victor-and-dani.${BASE_DOMAIN}`)).toBe(404)
+    expect(await check('evil.example')).toBe(404)
+  })
+
+  it('the owner issues the couple a password, shown once and stored hashed', async () => {
+    const { username, password } = await (await asOwner(`/api/admin/c/${danaId}/password`, { method: 'POST' })).json()
+    expect(username).toBe('dana-and-omer')
+    expect(password.length).toBeGreaterThanOrEqual(16)
+    const { res, cookie } = await signIn(username, password)
+    expect(await res.json()).toMatchObject({ role: 'couple', campaignId: danaId })
+    danaCookie = cookie
+    expect(JSON.stringify(await (await asOwner(`/api/admin/c/${danaId}`)).json())).not.toContain(password)
+  })
+
+  it('a couple sees and manages only their own campaign', async () => {
+    const mine = await (await call('/api/admin/campaigns', { cookie: danaCookie })).json()
+    expect(mine.map((c: { slug: string }) => c.slug)).toEqual(['dana-and-omer'])
+    expect((await call(`/api/admin/c/${danaId}/invitations`, { cookie: danaCookie })).status).toBe(200)
+
+    // Every route of someone else's campaign answers 404, exactly as if it did not exist.
+    const others: [string, string][] = [
+      ['GET', '/api/admin/c/1'], ['GET', '/api/admin/c/1/invitations'], ['POST', '/api/admin/c/1/invitations'], ['PATCH', '/api/admin/c/1/invitations/1'],
+      ['DELETE', '/api/admin/c/1/invitations/1'], ['PUT', '/api/admin/c/1/content'], ['PUT', '/api/admin/c/1/design'], ['PUT', '/api/admin/c/1/whatsapp'],
+      ['POST', '/api/admin/c/1/import/commit'], ['GET', '/api/admin/c/1/csv/planner.csv'], ['PUT', '/api/admin/c/1/photos/hero'], ['GET', '/api/admin/c/999'],
+    ]
+    for (const [method, path] of others) {
+      const res = await call(path, { method, json: method === 'GET' ? undefined : { guestName: 'x', csv: 'name\nx' }, cookie: danaCookie })
+      expect([path, res.status]).toEqual([path, 404])
+    }
+    expect((await (await asOwner('/api/admin/c/1/invitations')).json()).invitations.some((i: { guestName: string }) => i.guestName === 'x')).toBe(false)
+
+    // Their own campaign's ids cannot be used to reach into another campaign either.
+    const vdInvite = (await (await asOwner('/api/admin/c/1/invitations')).json()).invitations[0]
+    expect((await call(`/api/admin/c/${danaId}/invitations/${vdInvite.id}`, { method: 'PATCH', json: { guestName: 'Hijacked' }, cookie: danaCookie })).status).toBe(404)
+    expect((await call(`/api/admin/c/${danaId}/invitations/${vdInvite.id}`, { method: 'DELETE', cookie: danaCookie })).status).toBe(404)
+  })
+
+  it('owner-only actions are refused to a couple, even on their own campaign', async () => {
+    const attempts: [string, string, unknown][] = [
+      ['POST', '/api/admin/campaigns', { slug: 'sneaky-one' }],
+      ['PATCH', `/api/admin/c/${danaId}`, { status: 'live' }],
+      ['DELETE', `/api/admin/c/${danaId}`, { confirm: 'dana-and-omer' }],
+      ['POST', `/api/admin/c/${danaId}/password`, {}],
+    ]
+    for (const [method, path, json] of attempts) expect([path, (await call(path, { method, json, cookie: danaCookie })).status]).toEqual([path, 403])
+    const design = await (await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { theme: 'nocturne', options: { palette: 'oxblood' }, customCss: 'body{display:none}' }, cookie: danaCookie })).json()
+    expect(design.design).toMatchObject({ options: { palette: 'oxblood', emblem: 'heart' }, customCss: '' })
+  })
+
+  it('the couple edits details; unsafe links and bad values are refused', async () => {
+    const current = (await (await call(`/api/admin/c/${danaId}`, { cookie: danaCookie })).json()).content
+    const put = (content: unknown) => call(`/api/admin/c/${danaId}/content`, { method: 'PUT', json: content, cookie: danaCookie })
+    expect((await put({ ...current, links: { waze: 'javascript:alert(1)', googleMaps: '' } })).status).toBe(400)
+    expect((await put({ ...current, date: 'next spring' })).status).toBe(400)
+    const saved = await (await put({ ...current, date: '2027-09-09', ceremonyTime: '', languages: ['he'], venue: { ...current.venue, he: { name: 'גן <b>האירועים</b>', address: 'חיפה' } }, rsvp: { ...current.rsvp, guestLimit: 1 } })).json()
+    expect(saved.content).toMatchObject({ date: '2027-09-09', ceremonyTime: '', languages: ['he'] })
+  })
+
+  it('going live opens the couple\'s subdomain with their own names, escaped, in their only language', async () => {
+    expect((await asOwner(`/api/admin/c/${danaId}`, { method: 'PATCH', json: { status: 'live' } })).status).toBe(200)
+    const html = await (await call('/', { host: danaHost })).text()
+    expect(html).toContain('דנה')
+    expect(html).toContain('ועומר')
+    expect(html).not.toContain('ויקטור')
+    expect(html).toContain('pal-oxblood')
+    expect(html).toContain('גן &lt;b&gt;האירועים&lt;/b&gt;') // admin-entered text is never markup
+    expect(html).not.toContain('>English<') // one language: no switcher
+    // The platform's own address is not anybody's invitation.
+    expect(await (await call('/', { host: BASE_DOMAIN })).text()).not.toContain('דנה')
+    expect((await call('/api/calendar/dana-and-omer.ics')).headers.get('content-type')).toMatch(/text\/calendar/)
+  })
+
+  it('the campaign\'s guest limit applies to its guests', async () => {
+    const token = tokenFrom(danaGuestUrl)
+    expect((await (await guest(token)).json()).invitation.guestLimit).toBe(1)
+    const tooMany = await guest(token, { method: 'PUT', json: { rsvpStatus: 'attending', extraGuests: ['A', 'B'] } })
+    expect([tooMany.status, (await tooMany.json()).data.code]).toEqual([400, 'too_many_guests'])
+    expect((await guest(token, { method: 'PUT', json: { rsvpStatus: 'attending', extraGuests: ['A'] } })).status).toBe(200)
+  })
+
+  it('closing replies keeps the invitation visible and refuses new answers', async () => {
+    const current = (await (await asOwner(`/api/admin/c/${danaId}`)).json()).content
+    await asOwner(`/api/admin/c/${danaId}/content`, { method: 'PUT', json: { ...current, rsvp: { ...current.rsvp, closed: true } } })
+    const token = tokenFrom(danaGuestUrl)
+    expect((await call(`/i/${token}`)).status).toBe(200)
+    const res = await guest(token, { method: 'PUT', json: { rsvpStatus: 'declined' } })
+    expect([res.status, (await res.json()).data.code]).toEqual([400, 'rsvp_closed'])
+    expect((await (await guest(token)).json()).invitation.rsvpStatus).toBe('attending')
+  })
+
+  it('photos are uploaded per campaign, re-encoded, and anything else is refused', async () => {
+    const png = await sharp({ create: { width: 40, height: 60, channels: 3, background: '#803040' } }).png().toBuffer()
+    const up = await call(`/api/admin/c/${danaId}/photos/hero`, { method: 'PUT', raw: new Uint8Array(png), headers: { 'content-type': 'image/png' }, cookie: danaCookie })
+    expect(up.status).toBe(200)
+    expect((await up.json()).photos.hero).toBeTruthy()
+    const served = await call(`/photos/${danaId}/hero?w=480`)
+    expect([served.status, served.headers.get('content-type')]).toEqual([200, 'image/webp'])
+    expect((await call('/photos/1/hero?w=480')).status).toBe(404) // not shared with other campaigns
+
+    const notImage = await call(`/api/admin/c/${danaId}/photos/second`, { method: 'PUT', raw: new TextEncoder().encode('<svg onload=alert(1)>'), headers: { 'content-type': 'image/png' }, cookie: danaCookie })
+    expect([notImage.status, (await notImage.json()).data.code]).toEqual([400, 'photo_invalid'])
+    expect((await call(`/api/admin/c/${danaId}/photos/../../etc`, { method: 'PUT', raw: new Uint8Array(png), cookie: danaCookie })).status).not.toBe(200)
+
+    const removed = await (await call(`/api/admin/c/${danaId}/photos/hero`, { method: 'DELETE', cookie: danaCookie })).json()
+    expect(removed.photos.hero).toBeNull()
+  })
+
+  it('a reset password ends the couple\'s session', async () => {
+    await asOwner(`/api/admin/c/${danaId}/password`, { method: 'POST' })
+    expect((await call('/api/admin/campaigns', { cookie: danaCookie })).status).toBe(401)
+  })
+
+  it('deleting a campaign needs its address typed, and removes its guests and links only', async () => {
+    expect((await asOwner(`/api/admin/c/${danaId}`, { method: 'DELETE', json: { confirm: 'wrong' } })).status).toBe(400)
+    expect((await asOwner(`/api/admin/c/${danaId}`, { method: 'DELETE', json: { confirm: 'dana-and-omer' } })).status).toBe(200)
+    expect((await call(`/i/${tokenFrom(danaGuestUrl)}`)).status).toBe(404)
+    expect((await call('/', { host: danaHost })).status).toBe(404)
+    expect((await (await asOwner('/api/admin/c/1/invitations')).json()).invitations.length).toBeGreaterThan(0)
   })
 })

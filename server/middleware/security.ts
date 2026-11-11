@@ -1,3 +1,4 @@
+import { PHOTO_MAX_BYTES } from '../core/photos'
 import { createRateLimiter } from '../core/rateLimit'
 
 /** Guest-facing lookups: generous for a real guest, useless for guessing 256-bit tokens. */
@@ -12,7 +13,8 @@ const CSP = [
   'script-src \'self\' \'unsafe-inline\'',
   'connect-src \'self\'',
   'font-src \'self\'',
-  'frame-ancestors \'none\'',
+  // The admin's design preview frames the invitation from the same origin.
+  'frame-ancestors \'self\'',
   'base-uri \'self\'',
   'form-action \'self\'',
 ].join('; ')
@@ -24,18 +26,19 @@ export default defineEventHandler((event) => {
   setResponseHeaders(event, {
     'Referrer-Policy': 'no-referrer',
     'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
+    'X-Frame-Options': 'SAMEORIGIN',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     ...(import.meta.dev ? {} : { 'Content-Security-Policy': CSP }),
   })
 
-  const isGuest = path.startsWith('/i/') || path.startsWith('/api/rsvp')
+  const isGuest = /^\/(w\/[^/]+\/)?i\//.test(path) || path.startsWith('/api/rsvp')
   const isAdminApi = path.startsWith('/api/admin/')
   if (isGuest || isAdminApi || path.startsWith('/admin')) {
     setResponseHeaders(event, { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' })
   }
 
-  if (Number(getRequestHeader(event, 'content-length') || 0) > MAX_BODY_BYTES) {
+  const bodyLimit = /^\/api\/admin\/c\/\d+\/photos\//.test(path) ? PHOTO_MAX_BYTES : MAX_BODY_BYTES
+  if (Number(getRequestHeader(event, 'content-length') || 0) > bodyLimit) {
     throw createError({ statusCode: 413, message: 'Request too large.' })
   }
 

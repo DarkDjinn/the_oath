@@ -10,3 +10,6 @@ data/
 .impeccable/review
 .impeccable/decision-payload.json
 .impeccable/config.local.json
+
+# Temporary design mocks served by the dev server
+public/_*.html

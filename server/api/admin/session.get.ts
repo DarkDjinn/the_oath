@@ -1,1 +1,1 @@
-export default apiHandler(event => ({ authenticated: isAdmin(event) }))
+export default apiHandler(event => sessionInfo(event))

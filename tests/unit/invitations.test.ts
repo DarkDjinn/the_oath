@@ -21,8 +21,8 @@ describe('creating invitations', () => {
 
   it('stores the chosen language per invitation', () => {
     const db = freshDb()
-    expect(createInvitation(db, SECRET, { guestName: 'Alex', language: 'en' }).language).toBe('en')
-    expect(createInvitation(db, SECRET, { guestName: 'Alex', language: 'fr' }).language).toBe('he')
+    expect(createInvitation(db, SECRET, 1, { guestName: 'Alex', language: 'en' }).language).toBe('en')
+    expect(createInvitation(db, SECRET, 1, { guestName: 'Alex', language: 'fr' }).language).toBe('he')
   })
 
   it('rejects empty and over-long names', () => {
@@ -54,7 +54,7 @@ describe('invitation tokens', () => {
     expect(forged).toBe(`/i/${tokenOf(row)}`)
     expect(getByToken(db, tokenOf({ ...row, token_nonce: row.token_nonce }))).not.toBeNull()
     // Same nonce, different secret: a leaked database alone yields no working link.
-    const other = createInvitation(freshDb(), 'another-secret-another-secret-012345', { guestName: 'Guest' })
+    const other = createInvitation(freshDb(), 'another-secret-another-secret-012345', 1, { guestName: 'Guest' })
     expect(getByToken(db, tokenOf(other))).toBeNull()
   })
 
@@ -76,10 +76,10 @@ describe('invitation tokens', () => {
     for (const bad of ['', 'nope', token.slice(1), `${token}x`, token.replace(/.$/, '!'), null, undefined, 42, { token }]) {
       expect(getByToken(db, bad)).toBeNull()
     }
-    setRevoked(db, row.id, true)
+    setRevoked(db, 1, row.id, true)
     expect(getByToken(db, token)).toBeNull()
     expect(() => submitRsvp(db, token, { rsvpStatus: 'attending' })).toThrow(NotFoundError)
-    setRevoked(db, row.id, false)
+    setRevoked(db, 1, row.id, false)
     expect(getByToken(db, token)).not.toBeNull()
   })
 
@@ -88,8 +88,8 @@ describe('invitation tokens', () => {
     const row = invite(db, 'Guest')
     const oldToken = tokenOf(row)
     submitRsvp(db, oldToken, { rsvpStatus: 'attending' })
-    updateInvitation(db, row.id, { sent: true })
-    const next = regenerateToken(db, SECRET, row.id)
+    updateInvitation(db, 1, row.id, { sent: true })
+    const next = regenerateToken(db, SECRET, 1, row.id)
     expect(getByToken(db, oldToken)).toBeNull()
     expect(getByToken(db, tokenOf(next))?.rsvp_status).toBe('attending')
     expect(next.sent_at).toBeNull()
@@ -123,7 +123,7 @@ describe('RSVP', () => {
     for (const body of [null, {}, { rsvpStatus: 'pending' }, { rsvpStatus: 'maybe' }]) {
       expect(() => submitRsvp(db, token, body as never)).toThrow(ValidationError)
     }
-    expect(listInvitations(db)[0]!.rsvp_status).toBe('pending')
+    expect(listInvitations(db, 1)[0]!.rsvp_status).toBe('pending')
   })
 
   it('lets an allowed guest bring any number of named guests', () => {
@@ -138,7 +138,7 @@ describe('RSVP', () => {
     const db = freshDb()
     const row = invite(db, 'Guest', false)
     expect(() => submitRsvp(db, tokenOf(row), { rsvpStatus: 'attending', extraGuests: ['Sneaky'] })).toThrow(/does not include additional guests/)
-    expect(listInvitations(db)[0]!.rsvp_status).toBe('pending')
+    expect(listInvitations(db, 1)[0]!.rsvp_status).toBe('pending')
   })
 
   it('refuses unnamed guests, non-list input, and more than the safety cap', () => {
@@ -165,7 +165,7 @@ describe('RSVP', () => {
     submitRsvp(db, token, { rsvpStatus: 'attending', extraGuests: ['A', 'B'] })
     submitRsvp(db, token, { rsvpStatus: 'attending', extraGuests: ['A'] })
     const final = submitRsvp(db, token, { rsvpStatus: 'declined' })
-    expect(listInvitations(db)).toHaveLength(1)
+    expect(listInvitations(db, 1)).toHaveLength(1)
     expect(final.id).toBe(row.id)
     expect(final.rsvp_status).toBe('declined')
     expect(final.extra_guests).toBe('[]')
@@ -184,31 +184,31 @@ describe('admin edits', () => {
   it('edits names, flags and status, and marks sent with a timestamp', () => {
     const db = freshDb()
     const row = invite(db, 'Old Name')
-    const sent = updateInvitation(db, row.id, { guestName: 'New Name', guestsAllowed: true, language: 'en', sent: true })
+    const sent = updateInvitation(db, 1, row.id, { guestName: 'New Name', guestsAllowed: true, language: 'en', sent: true })
     expect(sent.guest_name).toBe('New Name')
     expect(sent.guests_allowed).toBe(1)
     expect(sent.language).toBe('en')
     expect(sent.sent_at).not.toBeNull()
-    expect(updateInvitation(db, row.id, { sent: true }).sent_at).toBe(sent.sent_at) // not re-stamped
-    expect(updateInvitation(db, row.id, { sent: false }).sent_at).toBeNull()
+    expect(updateInvitation(db, 1, row.id, { sent: true }).sent_at).toBe(sent.sent_at) // not re-stamped
+    expect(updateInvitation(db, 1, row.id, { sent: false }).sent_at).toBeNull()
   })
 
   it('drops additional guests when they are disallowed or the guest is no longer attending', () => {
     const db = freshDb()
     const row = invite(db, 'Guest', true)
     submitRsvp(db, tokenOf(row), { rsvpStatus: 'attending', extraGuests: ['A', 'B'] })
-    expect(updateInvitation(db, row.id, { rsvpStatus: 'pending' }).extra_guests).toBe('[]')
-    updateInvitation(db, row.id, { rsvpStatus: 'attending', extraGuests: ['A'] })
-    expect(updateInvitation(db, row.id, { guestsAllowed: false }).extra_guests).toBe('[]')
-    expect(() => updateInvitation(db, row.id, { rsvpStatus: 'attending', extraGuests: ['A'] })).toThrow(ValidationError)
+    expect(updateInvitation(db, 1, row.id, { rsvpStatus: 'pending' }).extra_guests).toBe('[]')
+    updateInvitation(db, 1, row.id, { rsvpStatus: 'attending', extraGuests: ['A'] })
+    expect(updateInvitation(db, 1, row.id, { guestsAllowed: false }).extra_guests).toBe('[]')
+    expect(() => updateInvitation(db, 1, row.id, { rsvpStatus: 'attending', extraGuests: ['A'] })).toThrow(ValidationError)
   })
 
   it('deletes an invitation and its link', () => {
     const db = freshDb()
     const row = invite(db, 'Guest')
-    deleteInvitation(db, row.id)
+    deleteInvitation(db, 1, row.id)
     expect(getByToken(db, tokenOf(row))).toBeNull()
-    expect(() => deleteInvitation(db, row.id)).toThrow(NotFoundError)
+    expect(() => deleteInvitation(db, 1, row.id)).toThrow(NotFoundError)
   })
 })
 
@@ -225,12 +225,13 @@ describe('counting', () => {
     submitRsvp(db, tokenOf(family), { rsvpStatus: 'attending', extraGuests: ['Spouse', 'Kid 1', 'Kid 2'] })
     submitRsvp(db, tokenOf(alone), { rsvpStatus: 'attending' })
     submitRsvp(db, tokenOf(no), { rsvpStatus: 'declined' })
-    updateInvitation(db, solo.id, { sent: true })
-    updateInvitation(db, family.id, { sent: true })
+    updateInvitation(db, 1, solo.id, { sent: true })
+    updateInvitation(db, 1, family.id, { sent: true })
 
-    expect(computeStats(listInvitations(db))).toEqual({
+    expect(computeStats(listInvitations(db, 1))).toEqual({
       invited: 6,
       sent: 2,
+      opened: 0,
       pending: 2,
       accepted: 3,
       declined: 1,

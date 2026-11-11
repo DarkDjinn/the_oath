@@ -1,5 +1,5 @@
 import type { ImportPreview, ImportRow, Language } from '../../shared/types'
-import { LIMITS } from '../../shared/types'
+import { LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
 import { parseCsv } from './csv'
 import type { DB } from './db'
 import { ValidationError } from './errors'
@@ -42,14 +42,20 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
     const rowNumber = index + 2
     if (cells.every(c => cleanText(c) === '')) return // blank spreadsheet line
 
-    const row: ImportRow = { row: rowNumber, name: cleanText(cells[nameCol]), guestsAllowed: false, language: 'he', errors: [], warnings: [] }
+    const row: ImportRow = { row: rowNumber, name: cleanText(cells[nameCol]), guestsAllowed: false, guestLimit: null, language: 'he', errors: [], warnings: [] }
 
     if (!row.name) row.errors.push('The name is empty.')
     else if (row.name.length > LIMITS.name) row.errors.push(`The name is longer than ${LIMITS.name} characters.`)
 
     const guests = cleanText(cells[guestsCol]).toLowerCase()
-    if (TRUE.has(guests)) row.guestsAllowed = true
-    else if (!FALSE.has(guests)) row.errors.push(`plus_one_allowed must be true or false, found "${cleanText(cells[guestsCol])}".`)
+    if (TRUE.has(guests) && guests !== '1') row.guestsAllowed = true
+    else if (/^\d+$/.test(guests)) {
+      // A number is that invitee's own limit: 0 none, 1 a plus-one, 4 a family, and so on.
+      const n = Number(guests)
+      if (n > MAX_EXTRA_GUESTS) row.errors.push(`plus_one_allowed can be at most ${MAX_EXTRA_GUESTS}, found ${n}.`)
+      else if (n > 0) { row.guestsAllowed = true; row.guestLimit = n }
+    }
+    else if (!FALSE.has(guests)) row.errors.push(`plus_one_allowed must be true, false or a number, found "${cleanText(cells[guestsCol])}".`)
 
     const lang = cleanText(cells[langCol]).toLowerCase()
     if (lang === 'en' || lang === 'he') row.language = lang as Language
@@ -79,12 +85,12 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
 }
 
 /**
- * Import-only: every included row becomes a new invitation. Existing invitations
+ * Import-only: every included row becomes a new invitation in this campaign. Existing invitations
  * and their RSVPs are never modified. The whole file is validated first and
  * inserted in one transaction, so an import either fully happens or not at all.
  */
-export function commitImport(db: DB, secret: string, csv: string, excludedRows: number[] = []): InvitationRow[] {
-  const preview = buildPreview(csv, listInvitations(db).map(r => r.guest_name))
+export function commitImport(db: DB, secret: string, campaignId: number, csv: string, excludedRows: number[] = []): InvitationRow[] {
+  const preview = buildPreview(csv, listInvitations(db, campaignId).map(r => r.guest_name))
   if (preview.fileErrors.length) throw new ValidationError('import_invalid', preview.fileErrors[0]!)
   const excluded = new Set(excludedRows)
   const included = preview.rows.filter(r => !excluded.has(r.row))
@@ -94,6 +100,6 @@ export function commitImport(db: DB, secret: string, csv: string, excludedRows: 
   }
   if (!included.length) throw new ValidationError('import_empty', 'No rows are selected for import.')
   return db.transaction(() =>
-    included.map(r => createInvitation(db, secret, { guestName: r.name, guestsAllowed: r.guestsAllowed, language: r.language })),
+    included.map(r => createInvitation(db, secret, campaignId, { guestName: r.name, guestsAllowed: r.guestsAllowed, guestLimit: r.guestLimit, language: r.language })),
   )()
 }

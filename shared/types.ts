@@ -10,6 +10,8 @@ export interface GuestInvitation {
   guestName: string
   language: Language
   guestsAllowed: boolean
+  /** How many guests this invitee may bring: 0 when not allowed. */
+  guestLimit: number
   rsvpStatus: RsvpStatus
   extraGuests: string[]
   dietaryNotes: string
@@ -29,6 +31,10 @@ export interface AdminInvitation extends GuestInvitation {
   id: number
   url: string
   revoked: boolean
+  /** The invitee's own limit, or null to follow the campaign's default. */
+  ownGuestLimit: number | null
+  /** When the personal link was first opened, if ever. */
+  firstOpenedAt: string | null
   sentAt: string | null
   createdAt: string
   updatedAt: string
@@ -39,6 +45,7 @@ export interface AdminInvitation extends GuestInvitation {
 export interface Stats {
   invited: number
   sent: number
+  opened: number
   pending: number
   accepted: number
   declined: number
@@ -54,6 +61,8 @@ export interface ImportRow {
   row: number
   name: string
   guestsAllowed: boolean
+  /** Set when the file gives a number instead of true/false. */
+  guestLimit: number | null
   language: Language
   errors: string[]
   warnings: string[]

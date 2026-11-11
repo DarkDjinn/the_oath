@@ -1,8 +1,11 @@
 import type { EventHandlerRequest, H3Event } from 'h3'
-import { isValidSession } from '../core/auth'
+import type { SessionInfo } from '#shared/campaign'
+import { canAccess, getSession, type Session } from '../core/auth'
+import { contentOf, getCampaign, getCampaignBySlug, toAdminCampaign, toPublic, type CampaignRow } from '../core/campaigns'
 import { openDatabase, type DB } from '../core/db'
 import { NotFoundError, ValidationError } from '../core/errors'
 import { listInvitations, toAdmin, type InvitationRow } from '../core/invitations'
+import { findPhotos } from '../core/photos'
 
 export const SESSION_COOKIE = 'oath_admin'
 
@@ -23,31 +26,82 @@ export function tokenSecret(): string {
   throw new Error('TOKEN_SECRET must be set to at least 32 random characters.')
 }
 
-/** Public origin used in invitation links. Set SITE_URL in production. */
+// ------------------------------------------------------------- addresses
+
+/** The platform's own origin (owner panel). Set SITE_URL in production. */
 export function siteUrl(event: H3Event): string {
-  return process.env.SITE_URL || getRequestURL(event, { xForwardedHost: true, xForwardedProto: true }).origin
+  return (process.env.SITE_URL || getRequestURL(event, { xForwardedHost: true, xForwardedProto: true }).origin).replace(/\/+$/, '')
 }
 
-/** Guests send their invitation token in the Authorization header, which keeps it out of API URLs and logs. */
-export function bearerToken(event: H3Event): string {
-  return (getRequestHeader(event, 'authorization') ?? '').replace(/^Bearer\s+/i, '')
+/** Host under which each campaign gets `<slug>.<BASE_DOMAIN>`, e.g. `wedding-example.duckdns.org`. Empty disables subdomains. */
+export const baseDomain = () => (process.env.BASE_DOMAIN || '').trim().toLowerCase().replace(/^\.+|\.+$/g, '')
+
+export const requestHost = (event: H3Event) => (getRequestHeader(event, 'x-forwarded-host') || getRequestHeader(event, 'host') || '').toLowerCase()
+
+/** A campaign's own site address: its subdomain when BASE_DOMAIN is set, otherwise a path on the platform. */
+export function campaignUrl(event: H3Event, row: Pick<CampaignRow, 'slug'>): string {
+  const base = baseDomain()
+  if (!base) return `${siteUrl(event)}/w/${row.slug}`
+  const scheme = new URL(siteUrl(event)).protocol
+  return `${scheme}//${row.slug}.${base}`
+}
+/** Where a campaign's personal links start. With subdomains: `<slug>.<base>`; without: the platform origin. */
+export const linkBase = (event: H3Event, row: Pick<CampaignRow, 'slug'>) => (baseDomain() ? campaignUrl(event, row) : siteUrl(event))
+
+/** The campaign whose subdomain this request came in on, if any. */
+export function campaignFromHost(event: H3Event): CampaignRow | null {
+  const base = baseDomain(), host = requestHost(event)
+  if (!base || !host.endsWith(`.${base}`)) return null
+  const label = host.slice(0, -base.length - 1)
+  return label.includes('.') ? null : getCampaignBySlug(useDb(), label)
 }
 
-export function isAdmin(event: H3Event): boolean {
-  return isValidSession(useDb(), getCookie(event, SESSION_COOKIE))
+// ---------------------------------------------------------------- sessions
+
+export const sessionOf = (event: H3Event): Session | null => getSession(useDb(), getCookie(event, SESSION_COOKIE))
+export const isAdmin = (event: H3Event): boolean => sessionOf(event) !== null
+export function sessionInfo(event: H3Event): SessionInfo {
+  const s = sessionOf(event)
+  return { authenticated: !!s, role: s?.role ?? null, campaignId: s?.campaignId ?? null }
 }
 
-export function adminView(event: H3Event, row: InvitationRow) {
-  return toAdmin(row, tokenSecret(), siteUrl(event))
+export function requireOwner(event: H3Event): void {
+  if (sessionOf(event)?.role !== 'owner') throw createError({ statusCode: 403, message: 'Only the owner can do this.', data: { code: 'forbidden' } })
 }
-export function allAdminViews(event: H3Event) {
-  return listInvitations(useDb()).map(row => adminView(event, row))
+
+/**
+ * The campaign named in the route, after checking this session may act on it.
+ * A couple asking for someone else's campaign gets the same 404 as a campaign that does not exist.
+ */
+export function requireCampaign(event: H3Event): CampaignRow {
+  const id = Number(getRouterParam(event, 'cid'))
+  const notFound = createError({ statusCode: 404, message: 'Campaign not found.', data: { code: 'not_found' } })
+  if (!Number.isInteger(id) || id < 1 || !canAccess(sessionOf(event), id)) throw notFound
+  try { return getCampaign(useDb(), id) }
+  catch { throw notFound }
+}
+
+// ------------------------------------------------------------------- views
+
+export const publicView = (row: CampaignRow) => toPublic(row, findPhotos(row.id))
+export const adminCampaignView = (event: H3Event, row: CampaignRow) => toAdminCampaign(row, findPhotos(row.id), campaignUrl(event, row))
+
+export function adminView(event: H3Event, campaign: CampaignRow, row: InvitationRow) {
+  return toAdmin(row, tokenSecret(), linkBase(event, campaign), contentOf(campaign).rsvp.guestLimit)
+}
+export function allAdminViews(event: H3Event, campaign: CampaignRow) {
+  return listInvitations(useDb(), campaign.id).map(row => adminView(event, campaign, row))
 }
 
 export function invitationId(event: H3Event): number {
   const id = Number(getRouterParam(event, 'id'))
   if (!Number.isInteger(id) || id < 1) throw createError({ statusCode: 404, message: 'Invitation not found.' })
   return id
+}
+
+/** Guests send their invitation token in the Authorization header, which keeps it out of API URLs and logs. */
+export function bearerToken(event: H3Event): string {
+  return (getRequestHeader(event, 'authorization') ?? '').replace(/^Bearer\s+/i, '')
 }
 
 /**
