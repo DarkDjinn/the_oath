@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AdminCampaign, CampaignStatus } from '#shared/campaign'
-import { MAX_EXTRA_GUESTS } from '#shared/types'
+import { directionOf, LANGUAGE_NAMES, MAX_EXTRA_GUESTS } from '#shared/types'
 
 const { campaign, api, isOwner, update } = useCampaignAdmin()
 const notice = ref('')
@@ -80,7 +80,7 @@ const remove = () => run('delete', async () => {
         <label><span class="a-label">Reply-by date <span class="muted font-normal">(optional)</span></span><input v-model="rsvp.rsvpBy" class="a-field" type="date"></label>
         <label><span class="a-label">Guests an invitee may bring, at most</span><input v-model.number="rsvp.guestLimit" class="a-field num" type="number" min="1" :max="MAX_EXTRA_GUESTS" required></label>
       </div>
-      <p class="muted mt-1 text-[0.8125rem]">The limit applies to invitees marked "May bring guests". Set 1 for a plus-one. An invitee can be given their own limit in the guest list.</p>
+      <p class="muted mt-1 text-[0.8125rem]">Every invitee may bring guests up to this limit. Set 1 for a plus-one. An invitee can be given their own limit, or 0, in the guest list.</p>
       <div class="mt-4 grid gap-2">
         <label class="flex items-center gap-2"><input v-model="rsvp.askDietary" type="checkbox" class="size-4 accent-[var(--a-sec-text)]">Ask about dietary and accessibility needs</label>
         <label class="flex items-center gap-2"><input v-model="rsvp.askMessage" type="checkbox" class="size-4 accent-[var(--a-sec-text)]">Let guests write a few words to the couple</label>
@@ -94,10 +94,10 @@ const remove = () => run('delete', async () => {
     <form class="mt-10" @submit.prevent="saveWhatsapp">
       <h2>WhatsApp messages</h2>
       <p class="muted mt-1"><code>{name}</code> becomes the guest's name and <code>{link}</code> their personal link. Nothing is sent automatically.</p>
-      <label class="a-label mt-3" for="wa-he">For Hebrew invitations</label>
-      <textarea id="wa-he" v-model="whatsapp.he" class="a-field" rows="5" dir="rtl" lang="he" />
-      <label class="a-label mt-3" for="wa-en">For English invitations</label>
-      <textarea id="wa-en" v-model="whatsapp.en" class="a-field" rows="5" dir="ltr" />
+      <template v-for="l in campaign.content.languages" :key="l">
+        <label class="a-label mt-3" :for="`wa-${l}`">For {{ LANGUAGE_NAMES[l] }} invitations</label>
+        <textarea :id="`wa-${l}`" v-model="whatsapp[l]" class="a-field" rows="5" :dir="directionOf(l)" :lang="l" />
+      </template>
       <p v-if="errors.whatsapp" class="mt-3 text-danger" role="alert">{{ errors.whatsapp }}</p>
       <button class="a-btn a-btn-primary mt-4" type="submit" :disabled="busy === 'whatsapp'">Save messages</button>
     </form>

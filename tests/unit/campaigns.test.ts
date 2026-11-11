@@ -10,7 +10,7 @@ import {
 import { migrate } from '../../server/core/db'
 import { NotFoundError, ValidationError } from '../../server/core/errors'
 import { buildPreview, commitImport } from '../../server/core/importer'
-import { deleteInvitation, getById, getByToken, listInvitations, markOpened, submitRsvp, toGuest, updateInvitation } from '../../server/core/invitations'
+import { createInvitation, deleteInvitation, getById, getByToken, listInvitations, markOpened, submitRsvp, toGuest, updateInvitation } from '../../server/core/invitations'
 import { freshDb, invite, SECRET, tokenOf } from './helpers'
 
 const newCampaign = (db: ReturnType<typeof freshDb>, slug = 'dana-and-omer') =>
@@ -44,7 +44,8 @@ describe('migration to campaigns', () => {
     const rows = listInvitations(db, 1)
     expect(rows.map(r => [r.guest_name, r.campaign_id, r.rsvp_status, r.extra_guests])).toEqual([['Alex Levi', 1, 'pending', '[]'], ['דניאל כהן', 1, 'attending', '["מאיה כהן"]']])
     expect(JSON.parse(getCampaign(db, 1).whatsapp).he).toBe('היי {name} {link}')
-    expect(db.pragma('user_version', { simple: true })).toBe(2)
+    expect(db.pragma('user_version', { simple: true })).toBe(4)
+    expect(rows.every(r => r.guests_allowed === 1)).toBe(true) // migration 3: everyone may bring guests
   })
 })
 
@@ -169,8 +170,23 @@ describe('guest limits', () => {
     expect(submitRsvp(db, tokenOf(family), { rsvpStatus: 'attending', extraGuests: ['A', 'B', 'C', 'D'] }).rsvp_status).toBe('attending')
     expect(() => submitRsvp(db, tokenOf(family), { rsvpStatus: 'attending', extraGuests: ['A', 'B', 'C', 'D', 'E'] })).toThrow(/At most 4/)
     expect(() => updateInvitation(db, 1, family.id, { guestLimit: 99 })).toThrow(ValidationError)
+    expect(() => updateInvitation(db, 1, family.id, { guestLimit: -1 })).toThrow(ValidationError)
     expect(updateInvitation(db, 1, family.id, { guestLimit: '' }).guest_limit).toBeNull()
     expect(toGuest(invite(db, 'No guests', false), 5).guestLimit).toBe(0)
+  })
+
+  it('everyone may bring guests by default; an own limit of 0 means they come alone', () => {
+    const db = freshDb()
+    const byDefault = createInvitation(db, SECRET, 1, { guestName: 'Default' })
+    expect(byDefault.guests_allowed).toBe(1)
+    const alone = createInvitation(db, SECRET, 1, { guestName: 'Alone', guestLimit: 0 })
+    expect([alone.guests_allowed, alone.guest_limit]).toEqual([0, null])
+    expect(() => submitRsvp(db, tokenOf(alone), { rsvpStatus: 'attending', extraGuests: ['A'] })).toThrow(/does not include/)
+    // Setting 0 later removes guests already named; clearing the limit allows them again.
+    submitRsvp(db, tokenOf(byDefault), { rsvpStatus: 'attending', extraGuests: ['A'] })
+    const restricted = updateInvitation(db, 1, byDefault.id, { guestLimit: 0 })
+    expect([restricted.guests_allowed, restricted.extra_guests]).toEqual([0, '[]'])
+    expect(updateInvitation(db, 1, byDefault.id, { guestLimit: '' }).guests_allowed).toBe(1)
   })
 
   it('lowering a limit keeps names already given but lets no more be added', () => {
@@ -220,6 +236,27 @@ describe('campaign content', () => {
     const db = freshDb()
     expect(() => setWhatsapp(db, 1, { he: 'בלי קישור', en: 'Hi {link}' })).toThrow(/\{link\}/)
     expect(JSON.parse(setWhatsapp(db, 1, { he: 'היי {link}', en: 'Hi {link}' }).whatsapp).he).toBe('היי {link}')
+  })
+})
+
+describe('Russian', () => {
+  it('is a language for campaigns, invitations and imports, and old campaigns gain its empty fields', () => {
+    const db = freshDb()
+    // Campaign 1 was stored before Russian existed in some databases: reading it must still give every language.
+    db.prepare('UPDATE campaigns SET content = ? WHERE id = 1').run(JSON.stringify({ couple: { he: { first: 'א', second: 'ב' }, en: { first: 'A', second: 'B' } }, languages: ['he', 'en'] }))
+    const old = contentOf(getCampaign(db, 1))
+    expect(old.couple.ru).toEqual({ first: '', second: '' })
+    expect(old.copy.ru).toEqual({ invite: '', intro: '', footer: '' })
+
+    const saved = contentOf(setContent(db, 1, { ...old, languages: ['ru', 'he'], couple: { ...old.couple, ru: { first: 'Виктор', second: 'Дани' } } }))
+    expect(saved.languages).toEqual(['ru', 'he'])
+    expect(saved.couple.ru.first).toBe('Виктор')
+
+    expect(createInvitation(db, SECRET, 1, { guestName: 'Анна Петрова', language: 'ru' }).language).toBe('ru')
+    const preview = buildPreview('name,language\nАнна Петрова,ru\nBad,de\n', [])
+    expect(preview.rows[0]).toMatchObject({ name: 'Анна Петрова', language: 'ru', errors: [] })
+    expect(preview.rows[1]!.errors[0]).toMatch(/he, en or ru/)
+    expect(JSON.parse(setWhatsapp(db, 1, { he: 'היי {link}', en: 'Hi {link}' }).whatsapp).ru).toContain('{link}')
   })
 })
 

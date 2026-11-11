@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminInvitation, ImportPreview } from '#shared/types'
+import { LANGUAGE_NAMES, type AdminInvitation, type ImportPreview } from '#shared/types'
 
 const { campaign, api } = useCampaignAdmin()
 
@@ -98,11 +98,11 @@ const linksCsv = computed(() => `${api}/csv/invitations.csv?ids=${created.value?
             <table class="spec mt-3">
               <tbody>
                 <tr><th><code>name</code></th><td>The guest's full name, in Hebrew or English. Required.</td></tr>
-                <tr><th><code>plus_one_allowed</code></th><td><code>true</code> if they may bring guests (up to the campaign's limit), <code>false</code> if not, or a number for that guest's own limit: <code>1</code> for a plus-one, <code>4</code> for a family. Blank means false.</td></tr>
-                <tr><th><code>language</code></th><td>Optional. <code>he</code> or <code>en</code> for that guest's invitation. Blank means Hebrew.</td></tr>
+                <tr><th><code>plus_one_allowed</code></th><td>Optional. Every guest may bring guests, up to the campaign's limit, unless you say otherwise: a number sets that guest's own limit (<code>1</code> for a plus-one, <code>4</code> for a family) and <code>0</code> or <code>false</code> means they come alone.</td></tr>
+                <tr><th><code>language</code></th><td>Optional. <code>he</code>, <code>en</code> or <code>ru</code> for that guest's invitation. Blank means Hebrew.</td></tr>
               </tbody>
             </table>
-            <p class="muted mt-3">For a couple or a family, add one row for one of them and set <code>plus_one_allowed</code> to <code>true</code>.</p>
+            <p class="muted mt-3">For a couple or a family, add one row for one of them; they add the others by name when they reply.</p>
             <a class="a-btn mt-3" :href="`${api}/csv/template.csv`" download>Download template</a>
           </div>
           <div class="a-panel p-4 text-[0.875rem]">
@@ -147,7 +147,7 @@ const linksCsv = computed(() => `${api}/csv/invitations.csv?ids=${created.value?
                     <td class="muted num">{{ r.row }}</td>
                     <td class="whitespace-nowrap"><bdi class="font-semibold">{{ r.name || '(empty)' }}</bdi></td>
                     <td>{{ r.guestsAllowed ? (r.guestLimit ? `Up to ${r.guestLimit}` : 'Yes') : 'No' }}</td>
-                    <td>{{ r.language === 'he' ? 'Hebrew' : 'English' }}</td>
+                    <td>{{ LANGUAGE_NAMES[r.language] }}</td>
                     <td>
                       <p v-for="e in r.errors" :key="e" class="text-danger">{{ e }}</p>
                       <p v-for="w in r.warnings" :key="w" class="text-warn">{{ w }}</p>

@@ -1,5 +1,5 @@
 import type { AdminInvitation, GuestInvitation, Language, RsvpInput, RsvpStatus, Stats } from '../../shared/types'
-import { LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
+import { isLanguage, LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
 import { contentOf, getCampaign } from './campaigns'
 import type { DB } from './db'
 import { rsvpClosed } from '../../shared/campaign'
@@ -69,7 +69,7 @@ export function guestLimitOf(row: Pick<InvitationRow, 'guests_allowed' | 'guest_
 function validateOwnLimit(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null
   const n = Number(value)
-  if (!Number.isInteger(n) || n < 1 || n > MAX_EXTRA_GUESTS) throw new ValidationError('guest_limit_invalid', `A guest limit must be between 1 and ${MAX_EXTRA_GUESTS}, or empty to use the campaign's.`)
+  if (!Number.isInteger(n) || n < 0 || n > MAX_EXTRA_GUESTS) throw new ValidationError('guest_limit_invalid', `A guest limit must be between 0 and ${MAX_EXTRA_GUESTS}, or empty to use the campaign's.`)
   return n
 }
 
@@ -116,8 +116,11 @@ export function toAdmin(row: InvitationRow, secret: string, baseUrl: string, cam
 export interface NewInvitation { guestName: unknown; guestsAllowed?: unknown; language?: unknown; guestLimit?: unknown }
 
 export function validateNewInvitation(input: NewInvitation) {
-  const language: Language = input.language === 'en' ? 'en' : 'he'
-  return { guestName: validateName(input.guestName), guestsAllowed: input.guestsAllowed === true, language, guestLimit: validateOwnLimit(input.guestLimit) }
+  const language: Language = isLanguage(input.language) ? input.language : 'he'
+  // Everyone may bring guests by default. Only an explicit `false`, or an own limit of 0, says otherwise.
+  const limit = validateOwnLimit(input.guestLimit)
+  const guestsAllowed = input.guestsAllowed !== false && limit !== 0
+  return { guestName: validateName(input.guestName), guestsAllowed, language, guestLimit: guestsAllowed ? limit : null }
 }
 
 export function createInvitation(db: DB, secret: string, campaignId: number, input: NewInvitation): InvitationRow {
@@ -205,9 +208,12 @@ export interface AdminPatch {
 export function updateInvitation(db: DB, campaignId: number, id: number, patch: AdminPatch): InvitationRow {
   const row = getById(db, campaignId, id)
   const guestName = patch.guestName === undefined ? row.guest_name : validateName(patch.guestName)
-  const guestsAllowed = patch.guestsAllowed === undefined ? row.guests_allowed === 1 : patch.guestsAllowed === true
-  const ownLimit = !guestsAllowed ? null : patch.guestLimit === undefined ? row.guest_limit : validateOwnLimit(patch.guestLimit)
-  const language: Language = patch.language === undefined ? row.language : patch.language === 'en' ? 'en' : 'he'
+  // An own limit of 0 means "no guests"; any other limit (or clearing it) means they may bring guests.
+  const patchedLimit = patch.guestLimit === undefined ? undefined : validateOwnLimit(patch.guestLimit)
+  const guestsAllowed = patchedLimit !== undefined ? patchedLimit !== 0 && patch.guestsAllowed !== false
+    : patch.guestsAllowed === undefined ? row.guests_allowed === 1 : patch.guestsAllowed === true
+  const ownLimit = !guestsAllowed ? null : patchedLimit === undefined ? row.guest_limit : patchedLimit
+  const language: Language = patch.language === undefined ? row.language : isLanguage(patch.language) ? patch.language : 'he'
   let status = row.rsvp_status
   if (patch.rsvpStatus !== undefined) {
     if (patch.rsvpStatus !== 'pending' && patch.rsvpStatus !== 'attending' && patch.rsvpStatus !== 'declined') {

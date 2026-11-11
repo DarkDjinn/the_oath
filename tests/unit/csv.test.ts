@@ -26,9 +26,10 @@ describe('CSV import preview', () => {
     expect(preview.totals).toEqual({ rows: 3, valid: 3, withGuestsAllowed: 2, errors: 0, warnings: 0 })
   })
 
-  it('accepts an optional language column and common boolean spellings', () => {
+  it('allows guests unless the file says otherwise, and accepts an optional language column', () => {
+    expect(buildPreview('name\nNo Column', []).rows[0]!.guestsAllowed).toBe(true)
     const preview = buildPreview('name,plus_one_allowed,language\nA,yes,en\nB,כן,\nC,0,HE\nD,,he\nE,1,\nF,4,', [])
-    expect(preview.rows.map(r => [r.guestsAllowed, r.guestLimit, r.language])).toEqual([[true, null, 'en'], [true, null, 'he'], [false, null, 'he'], [false, null, 'he'], [true, 1, 'he'], [true, 4, 'he']])
+    expect(preview.rows.map(r => [r.guestsAllowed, r.guestLimit, r.language])).toEqual([[true, null, 'en'], [true, null, 'he'], [false, null, 'he'], [true, null, 'he'], [true, 1, 'he'], [true, 4, 'he']])
   })
 
   it('reports errors with spreadsheet row numbers', () => {
@@ -36,7 +37,7 @@ describe('CSV import preview', () => {
     expect(preview.rows.map(r => r.row)).toEqual([2, 3, 4, 5])
     expect(preview.rows[0]!.errors[0]).toMatch(/name is empty/)
     expect(preview.rows[1]!.errors[0]).toMatch(/must be true, false or a number, found "maybe"/)
-    expect(preview.rows[2]!.errors[0]).toMatch(/must be he or en/)
+    expect(preview.rows[2]!.errors[0]).toMatch(/must be he, en or ru/)
     expect(preview.rows[3]!.errors[0]).toMatch(/longer than 80/)
     expect(preview.totals.errors).toBe(4)
   })
@@ -165,6 +166,6 @@ describe('CSV export', () => {
 
   it('the downloadable template imports cleanly', () => {
     const preview = buildPreview(templateCsv(), [])
-    expect(preview.totals).toMatchObject({ rows: 3, valid: 3, errors: 0 })
+    expect(preview.totals).toMatchObject({ rows: 4, valid: 4, errors: 0 })
   })
 })

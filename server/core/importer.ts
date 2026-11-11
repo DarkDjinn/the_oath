@@ -1,5 +1,5 @@
-import type { ImportPreview, ImportRow, Language } from '../../shared/types'
-import { LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
+import type { ImportPreview, ImportRow } from '../../shared/types'
+import { isLanguage, LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
 import { parseCsv } from './csv'
 import type { DB } from './db'
 import { ValidationError } from './errors'
@@ -8,11 +8,11 @@ import { cleanText, createInvitation, listInvitations, type InvitationRow } from
 export const IMPORT_MAX_ROWS = 2000
 export const IMPORT_TEMPLATE_HEADER = ['name', 'plus_one_allowed', 'language']
 
-const NAME_HEADERS = ['name', 'guest_name', 'guest', 'שם']
+const NAME_HEADERS = ['name', 'guest_name', 'guest', 'שם', 'имя']
 const GUESTS_HEADERS = ['plus_one_allowed', 'guests_allowed', 'plus_one']
-const LANGUAGE_HEADERS = ['language', 'lang', 'שפה']
+const LANGUAGE_HEADERS = ['language', 'lang', 'שפה', 'язык']
 const TRUE = new Set(['true', '1', 'yes', 'y', 'כן'])
-const FALSE = new Set(['false', '0', 'no', 'n', 'לא', ''])
+const FALSE = new Set(['false', 'no', 'n', 'לא'])
 
 const normaliseHeader = (h: string) => cleanText(h).toLowerCase().replace(/[\s-]+/g, '_')
 /** Names are compared loosely for duplicate *warnings* only. They are never treated as identifiers. */
@@ -48,9 +48,10 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
     else if (row.name.length > LIMITS.name) row.errors.push(`The name is longer than ${LIMITS.name} characters.`)
 
     const guests = cleanText(cells[guestsCol]).toLowerCase()
-    if (TRUE.has(guests) && guests !== '1') row.guestsAllowed = true
+    // Guests are allowed unless the file says otherwise: blank or true follows the campaign's limit,
+    // a number is that invitee's own limit (0 for none), and false means none.
+    if (guests === '' || (TRUE.has(guests) && guests !== '1')) row.guestsAllowed = true
     else if (/^\d+$/.test(guests)) {
-      // A number is that invitee's own limit: 0 none, 1 a plus-one, 4 a family, and so on.
       const n = Number(guests)
       if (n > MAX_EXTRA_GUESTS) row.errors.push(`plus_one_allowed can be at most ${MAX_EXTRA_GUESTS}, found ${n}.`)
       else if (n > 0) { row.guestsAllowed = true; row.guestLimit = n }
@@ -58,8 +59,8 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
     else if (!FALSE.has(guests)) row.errors.push(`plus_one_allowed must be true, false or a number, found "${cleanText(cells[guestsCol])}".`)
 
     const lang = cleanText(cells[langCol]).toLowerCase()
-    if (lang === 'en' || lang === 'he') row.language = lang as Language
-    else if (lang !== '') row.errors.push(`language must be he or en, found "${cleanText(cells[langCol])}".`)
+    if (isLanguage(lang)) row.language = lang
+    else if (lang !== '') row.errors.push(`language must be he, en or ru, found "${cleanText(cells[langCol])}".`)
 
     if (row.name) {
       const key = nameKey(row.name)

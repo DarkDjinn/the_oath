@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LIMITS, MAX_EXTRA_GUESTS, type AdminInvitation, type Language, type RsvpStatus, type Stats } from '#shared/types'
+import { LANGUAGE_NAMES, LIMITS, MAX_EXTRA_GUESTS, type AdminInvitation, type Language, type RsvpStatus, type Stats } from '#shared/types'
 
 const { campaign, api } = useCampaignAdmin()
 const { data, refresh } = await useAsyncData(`invitations-${campaign.value.id}`, () =>
@@ -24,7 +24,7 @@ const filters: Record<string, { label: string, test: (i: AdminInvitation) => boo
 }
 const statusOrder: Record<RsvpStatus, number> = { pending: 0, attending: 1, declined: 2 }
 const sorters: Record<string, { label: string, by: (a: AdminInvitation, b: AdminInvitation) => number }> = {
-  name: { label: 'Name', by: (a, b) => a.guestName.localeCompare(b.guestName, ['he', 'en']) },
+  name: { label: 'Name', by: (a, b) => a.guestName.localeCompare(b.guestName, ['he', 'ru', 'en']) },
   status: { label: 'RSVP status', by: (a, b) => statusOrder[a.rsvpStatus] - statusOrder[b.rsvpStatus] },
   responded: { label: 'Latest response', by: (a, b) => (b.respondedAt ?? '').localeCompare(a.respondedAt ?? '') },
   created: { label: 'Newest first', by: (a, b) => b.id - a.id },
@@ -34,7 +34,7 @@ const visible = computed(() => {
   return invitations.value
     .filter(i => filters[filter.value]!.test(i))
     .filter(i => !q || [i.guestName, ...i.extraGuests].some(n => n.toLowerCase().includes(q)))
-    .sort((a, b) => sorters[sort.value]!.by(a, b) || a.guestName.localeCompare(b.guestName, ['he', 'en']))
+    .sort((a, b) => sorters[sort.value]!.by(a, b) || a.guestName.localeCompare(b.guestName, ['he', 'ru', 'en']))
 })
 
 // ------------------------------------------------------------------ actions
@@ -67,7 +67,7 @@ async function copyLink(i: AdminInvitation) {
 // ------------------------------------------------------- create / edit form
 const editor = ref<HTMLDialogElement>()
 const editing = ref<AdminInvitation | null>(null)
-const form = reactive({ guestName: '', language: 'he' as Language, guestsAllowed: false, guestLimit: '' as number | '', rsvpStatus: 'pending' as RsvpStatus, extraGuests: '', dietaryNotes: '', sent: false })
+const form = reactive({ guestName: '', language: 'he' as Language, guestsAllowed: true, guestLimit: '' as number | '', rsvpStatus: 'pending' as RsvpStatus, extraGuests: '', dietaryNotes: '', sent: false })
 const formError = ref('')
 const saving = ref(false)
 
@@ -75,8 +75,8 @@ function openEditor(i: AdminInvitation | null) {
   editing.value = i
   formError.value = ''
   Object.assign(form, i
-    ? { guestName: i.guestName, language: i.language, guestsAllowed: i.guestsAllowed, guestLimit: i.ownGuestLimit ?? '', rsvpStatus: i.rsvpStatus, extraGuests: i.extraGuests.join('\n'), dietaryNotes: i.dietaryNotes, sent: !!i.sentAt }
-    : { guestName: '', language: campaign.value.content.languages[0] ?? 'he', guestsAllowed: false, guestLimit: '', rsvpStatus: 'pending', extraGuests: '', dietaryNotes: '', sent: false })
+    ? { guestName: i.guestName, language: i.language, guestsAllowed: i.guestsAllowed, guestLimit: i.guestsAllowed ? (i.ownGuestLimit ?? '') : 0, rsvpStatus: i.rsvpStatus, extraGuests: i.extraGuests.join('\n'), dietaryNotes: i.dietaryNotes, sent: !!i.sentAt }
+    : { guestName: '', language: campaign.value.content.languages[0] ?? 'he', guestsAllowed: true, guestLimit: '', rsvpStatus: 'pending', extraGuests: '', dietaryNotes: '', sent: false })
   editor.value?.showModal()
 }
 async function save() {
@@ -87,12 +87,12 @@ async function save() {
     if (editing.value) {
       await adminFetch(`${api}/invitations/${editing.value.id}`, {
         method: 'PATCH',
-        body: { ...form, extraGuests: form.extraGuests.split('\n').map(n => n.trim()).filter(Boolean) },
+        body: { ...form, guestsAllowed: undefined, extraGuests: form.guestLimit === 0 ? [] : form.extraGuests.split('\n').map(n => n.trim()).filter(Boolean) },
       })
       say(`Saved ${form.guestName}.`)
     }
     else {
-      await adminFetch(`${api}/invitations`, { method: 'POST', body: { guestName: form.guestName, language: form.language, guestsAllowed: form.guestsAllowed, guestLimit: form.guestLimit } })
+      await adminFetch(`${api}/invitations`, { method: 'POST', body: { guestName: form.guestName, language: form.language, guestLimit: form.guestLimit } })
       say(`Invitation for ${form.guestName} created.`)
       sort.value = 'created'
     }
@@ -226,13 +226,13 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
             <tr v-for="i in visible" :key="i.id">
               <td data-label="Guest">
                 <bdi class="font-bold">{{ i.guestName }}</bdi>
-                <span v-if="i.language === 'en'" class="muted ml-2 text-[0.75rem]">EN</span>
+                <span v-if="i.language !== (campaign.content.languages[0] ?? 'he')" class="muted ml-2 text-[0.75rem] uppercase">{{ i.language }}</span>
                 <span v-if="i.revoked" class="ml-2 text-[0.75rem] font-semibold text-danger">Link revoked</span>
                 <span v-else-if="i.firstOpenedAt" class="muted ml-2 text-[0.75rem]" :title="`First opened ${formatWhen(i.firstOpenedAt)}`">Opened</span>
               </td>
               <td data-label="RSVP"><span class="a-tag" :class="`a-tag-${i.rsvpStatus}`">{{ statusLabel[i.rsvpStatus] }}</span></td>
               <td data-label="Bringing">
-                <span v-if="!i.guestsAllowed" class="muted">Not allowed</span>
+                <span v-if="!i.guestsAllowed" class="muted">Comes alone</span>
                 <span v-else-if="!i.extraGuests.length" class="muted">None yet (up to {{ i.guestLimit }})</span>
                 <bdi v-else dir="auto">{{ i.extraGuests.join(', ') }}</bdi>
               </td>
@@ -263,14 +263,14 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
         <label class="a-label mt-4" for="f-name">Guest name</label>
         <input id="f-name" v-model="form.guestName" class="a-field" required dir="auto" :maxlength="LIMITS.name" autocomplete="off">
         <div class="mt-4 grid grid-cols-2 gap-3">
-          <label v-if="campaign.content.languages.length > 1"><span class="a-label">Invitation language</span><select v-model="form.language" class="a-field"><option value="he">Hebrew</option><option value="en">English</option></select></label>
+          <label v-if="campaign.content.languages.length > 1"><span class="a-label">Invitation language</span><select v-model="form.language" class="a-field"><option v-for="l in campaign.content.languages" :key="l" :value="l">{{ LANGUAGE_NAMES[l] }}</option></select></label>
           <label v-if="editing"><span class="a-label">RSVP</span><select v-model="form.rsvpStatus" class="a-field"><option value="pending">No response</option><option value="attending">Attending</option><option value="declined">Declined</option></select></label>
         </div>
-        <label class="mt-4 flex items-start gap-2"><input v-model="form.guestsAllowed" type="checkbox" class="mt-1 size-4 accent-[var(--a-sec-text)]"><span><span class="font-semibold">May bring guests</span><br><span class="muted">They add each guest by name when they reply.</span></span></label>
-        <label v-if="form.guestsAllowed" class="mt-3 block max-w-56"><span class="a-label">How many at most</span><input v-model="form.guestLimit" class="a-field num" type="number" min="1" :max="MAX_EXTRA_GUESTS" inputmode="numeric" :placeholder="`Campaign default (${campaign.content.rsvp.guestLimit})`"></label>
+        <label class="mt-4 block max-w-72"><span class="a-label">Guests they may bring, at most</span><input v-model="form.guestLimit" class="a-field num" type="number" min="0" :max="MAX_EXTRA_GUESTS" inputmode="numeric" :placeholder="`Campaign default (${campaign.content.rsvp.guestLimit})`"></label>
+        <p class="muted mt-1 text-[0.8125rem]">Leave empty to follow the campaign's limit. Enter 0 if this guest should come alone.</p>
 
         <template v-if="editing">
-          <template v-if="form.guestsAllowed && form.rsvpStatus === 'attending'">
+          <template v-if="form.guestLimit !== 0 && form.rsvpStatus === 'attending'">
             <label class="a-label mt-4" for="f-extra">Guests they are bringing <span class="muted font-normal">(one name per line)</span></label>
             <textarea id="f-extra" v-model="form.extraGuests" class="a-field" rows="3" dir="auto" />
           </template>

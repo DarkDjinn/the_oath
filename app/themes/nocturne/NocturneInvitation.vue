@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PublicCampaign } from '#shared/campaign'
-import type { GuestInvitation } from '#shared/types'
+import { directionOf, joinNames, LANGUAGES, LOCALES, type GuestInvitation, type Language } from '#shared/types'
 import { backdropStyle, type Backdrop, type Palette } from '~/utils/backdrop'
 import { braidArt, gateArt, heartArt, moonRingArt, phasesArt, railArt, roseRuleArt, sealArt, sideVineArt, sprayArt, wreathArt } from '~/utils/ornament'
 
@@ -12,8 +12,7 @@ import { braidArt, gateArt, heartArt, moonRingArt, phasesArt, railArt, roseRuleA
 const props = defineProps<{ campaign: PublicCampaign, invitation: GuestInvitation | null, token?: string }>()
 const emit = defineEmits<{ update: [GuestInvitation] }>()
 
-const { lang, m, dir, available, setLang } = useI18n()
-const other = computed(() => (lang.value === 'he' ? 'en' : 'he'))
+const { lang, m, dir, others, setLang } = useI18n()
 const content = computed(() => props.campaign.content)
 const options = computed(() => props.campaign.design.options)
 const photos = computed(() => props.campaign.photos)
@@ -24,17 +23,22 @@ const hasGate = computed(() => options.value.gate !== 'plain')
 const backdrop = computed(() => backdropStyle((options.value.backdrop ?? 'stars') as Backdrop, palette.value))
 
 const couple = computed(() => content.value.couple[lang.value])
-const coupleOther = computed(() => content.value.couple[other.value])
-const joined = (c: { first: string, second: string }, l: 'he' | 'en') => (l === 'he' ? `${c.first} ו${c.second}` : `${c.first} & ${c.second}`)
-const names = computed(() => joined(couple.value, lang.value))
-/** The names in the other language appear under the main ones, when they were filled in. */
-const otherNames = computed(() => (coupleOther.value.first && coupleOther.value.second ? joined(coupleOther.value, other.value) : ''))
+const names = computed(() => joinNames(couple.value, lang.value))
+/**
+ * The names once more, in a second language, under the main ones: English under Hebrew or Russian,
+ * Hebrew under English. Shown only when that language's names were filled in.
+ */
+const second = computed(() => {
+  const order: Language[] = [lang.value === 'en' ? 'he' : 'en', ...LANGUAGES]
+  const id = order.find(l => l !== lang.value && content.value.couple[l].first && content.value.couple[l].second)
+  return id ? { id, dir: directionOf(id), names: joinNames(content.value.couple[id], id) } : null
+})
 const venue = computed(() => content.value.venue[lang.value])
 const dressCode = computed(() => content.value.dressCode[lang.value])
 const notes = computed(() => content.value.notes[lang.value])
 const copy = computed(() => content.value.copy[lang.value])
 
-const locale = computed(() => (lang.value === 'he' ? 'he-IL' : 'en-GB'))
+const locale = computed(() => LOCALES[lang.value])
 const at = (iso: string) => new Date(`${iso}T12:00:00Z`)
 const longDate = computed(() => content.value.date
   ? new Intl.DateTimeFormat(locale.value, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(at(content.value.date))
@@ -66,7 +70,9 @@ useHead(() => ({
 <template>
   <div class="inv" :class="[`inv-${lang}`, `pal-${palette}`]" :style="backdrop">
     <header class="hero orn-arrive">
-      <button v-if="available.length > 1" type="button" class="text-button hero-lang" :lang="other" @click="setLang(other)">{{ m.switchTo }}</button>
+      <nav v-if="others.length" class="hero-lang" aria-label="Language">
+        <button v-for="o in others" :key="o.id" type="button" class="text-button" :lang="o.id" :dir="o.dir" @click="setLang(o.id)">{{ o.name }}</button>
+      </nav>
 
       <OrnamentArt :art="phasesArt" class="hero-phases" />
       <OrnamentArt :art="sideVineArt" class="hero-vine hero-vine-start" />
@@ -78,10 +84,10 @@ useHead(() => ({
         <h1 class="hero-names">
           <span>{{ couple.first }}</span>
           <!-- Hebrew joins "and" to the second name; a lone vav would read as a stray mark. -->
-          <span v-if="lang === 'en'" class="hero-and">{{ m.hero.and }}</span>
+          <span v-if="lang !== 'he'" class="hero-and">{{ m.hero.and }}</span>
           <span>{{ lang === 'he' ? `ו${couple.second}` : couple.second }}</span>
         </h1>
-        <p v-if="otherNames" class="hero-other" :lang="other" :dir="other === 'he' ? 'rtl' : 'ltr'">{{ otherNames }}</p>
+        <p v-if="second" class="hero-other" :lang="second.id" :dir="second.dir">{{ second.names }}</p>
         <p v-if="content.date" class="hero-date numeral">{{ numericDate }}</p>
       </div>
 
@@ -169,7 +175,8 @@ useHead(() => ({
   padding-top: 2rem;
   text-align: center;
 }
-.hero-lang { position: absolute; inset-block-start: 0; inset-inline-end: 0.9rem; z-index: 2; font-size: 1rem; min-height: 2.75rem; padding-inline: 0.5rem; }
+.hero-lang { position: absolute; inset-block-start: 0; inset-inline-end: 0.9rem; z-index: 2; display: flex; gap: 0.9rem; }
+.hero-lang .text-button { font-size: 1rem; min-height: 2.75rem; padding-inline: 0.25rem; }
 .hero-phases { width: min(100%, 30rem, 50svh); }
 .hero-body { display: flex; flex-direction: column; align-items: center; flex: 1; }
 .hero-heart { width: min(66vw, 19rem, 27svh); margin-top: -0.75rem; }
@@ -189,8 +196,10 @@ useHead(() => ({
 .hero-and { font-size: 0.42em; font-weight: 300; line-height: 1.25; color: var(--color-gold); }
 .inv-en .hero-names { font-family: var(--font-fraktur); font-weight: 700; font-size: clamp(3.2rem, 15vw, 4.75rem); line-height: 1.08; }
 .inv-en .hero-and { font-family: var(--font-display); }
+.inv-ru .hero-names { font-weight: 700; font-size: clamp(3rem, 14vw, 4.6rem); line-height: 1.08; }
+.inv-ru .hero-and { font-style: italic; }
 .hero-other { margin-top: 0.7rem; color: var(--color-gold); font-family: var(--font-fraktur); font-size: 1.45rem; line-height: 1.2; }
-.hero-other:lang(he) { font-family: var(--font-display); font-weight: 500; }
+.hero-other:lang(he), .hero-other:lang(ru) { font-family: var(--font-display); font-weight: 500; }
 .hero-date { margin-top: 0.5rem; font-size: 1.6rem; line-height: 1.3; }
 
 .hero-vine { position: absolute; inset-block-start: 38%; width: 3.4rem; opacity: 0.9; }
@@ -240,6 +249,8 @@ html[dir='rtl'] .spray-start, html[dir='ltr'] .spray-end { transform: scaleX(-1)
 .rule { width: min(15rem, 62%); margin-inline: auto; margin-bottom: 1.6rem; }
 
 .details-intro { margin-top: 0.9rem; color: var(--color-mute); text-wrap: pretty; }
+/* Russian writes weekdays in lower case; a date standing alone starts with a capital. */
+.details-date::first-letter { text-transform: uppercase; }
 .details-date { margin-top: 2.2rem; font-family: var(--font-display); font-size: 1.6rem; font-weight: 500; line-height: 1.3; }
 .details-rail { width: 100%; margin-top: 1.4rem; }
 .details-times { display: grid; grid-template-columns: 1fr 1fr; border-block-end: 1px solid var(--color-gold); }

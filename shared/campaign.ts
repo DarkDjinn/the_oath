@@ -1,5 +1,5 @@
 import type { Design } from './themes'
-import type { Language, PhotoInfo } from './types'
+import { LANGUAGES, type Language, type PhotoInfo } from './types'
 
 export type CampaignStatus = 'draft' | 'live' | 'archived'
 type PerLanguage<T> = Record<Language, T>
@@ -35,30 +35,33 @@ export interface CampaignContent {
   }
 }
 
-export interface WhatsappTemplates { he: string, en: string }
+export type WhatsappTemplates = PerLanguage<string>
 
 /** `{name}` and `{link}` are replaced per invitation. */
 export const DEFAULT_WHATSAPP: WhatsappTemplates = {
   he: 'שלום {name} ❤️\nאנחנו מתרגשים להזמין אתכם לחגוג איתנו את החתונה שלנו!\nכל פרטי האירוע ואישור ההגעה נמצאים בקישור האישי שלכם:\n{link}',
   en: 'Hi {name} ❤️\nWe would love for you to celebrate our wedding with us!\nAll the details and your RSVP are at your personal link:\n{link}',
+  ru: 'Здравствуйте, {name} ❤️\nМы будем очень рады, если вы отпразднуете нашу свадьбу вместе с нами!\nВсе подробности и подтверждение участия — по вашей личной ссылке:\n{link}',
 }
 
 export const EVENT_TIMEZONE = 'Asia/Jerusalem'
 export const CONTENT_LIMITS = { name: 40, venue: 80, address: 160, url: 500, line: 160, paragraph: 600 } as const
 
+const perLanguage = <T>(make: (lang: Language) => T) => Object.fromEntries(LANGUAGES.map(l => [l, make(l)])) as PerLanguage<T>
+
 export function defaultContent(names?: Partial<CampaignContent['couple']>): CampaignContent {
   return {
-    couple: { he: { first: '', second: '', ...names?.he }, en: { first: '', second: '', ...names?.en } },
+    couple: perLanguage(l => ({ first: '', second: '', ...names?.[l] })),
     date: '',
     receptionTime: '19:00',
     ceremonyTime: '20:00',
-    venue: { he: { name: '', address: '' }, en: { name: '', address: '' } },
+    venue: perLanguage(() => ({ name: '', address: '' })),
     links: { googleMaps: '', waze: '' },
-    dressCode: { he: '', en: '' },
-    notes: { he: '', en: '' },
+    dressCode: perLanguage(() => ''),
+    notes: perLanguage(() => ''),
     rsvpBy: '',
     languages: ['he', 'en'],
-    copy: { he: { invite: '', intro: '', footer: '' }, en: { invite: '', intro: '', footer: '' } },
+    copy: perLanguage(() => ({ invite: '', intro: '', footer: '' })),
     rsvp: { closed: false, closeAfterDeadline: false, askDietary: true, askMessage: true, guestLimit: 20 },
   }
 }

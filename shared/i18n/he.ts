@@ -1,7 +1,6 @@
 /** Hebrew copy for the invitation. `{name}`, `{count}` and `{date}` are filled in at runtime. */
 export const he = {
   langName: 'עברית',
-  switchTo: 'English',
   hero: {
     invite: 'הנכם מוזמנים לחתונתם של',
     invitePersonal: '{name}, הנכם מוזמנים לחתונתם של',

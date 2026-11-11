@@ -23,5 +23,7 @@ export function campaignName(c: Pick<AdminCampaign, 'content' | 'slug'>): string
   const en = c.content.couple.en, he = c.content.couple.he
   if (en.first && en.second) return `${en.first} & ${en.second}`
   if (he.first && he.second) return `${he.first} ו${he.second}`
+  const ru = c.content.couple.ru
+  if (ru?.first && ru.second) return `${ru.first} и ${ru.second}`
   return c.slug
 }

@@ -11,6 +11,8 @@
 @import '@fontsource/unifrakturcook/latin-700.css';
 @import '@fontsource/pirata-one/latin-400.css';
 @import '@fontsource-variable/heebo/wght.css';
+/* Cyrillic for Russian invitations: the Hebrew and Latin faces above have none, so text falls through to this one. */
+@import '@fontsource-variable/vollkorn/wght.css';
 
 /* ------------------------------------------------------------------ tokens */
 @theme {
@@ -30,11 +32,11 @@
   --color-ok: #a9c79a;
 
   /* Display: Hebrew and Latin serif with dramatic weight range. */
-  --font-display: 'Frank Ruhl Libre Variable', 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --font-display: 'Frank Ruhl Libre Variable', 'Frank Ruhl Libre', 'Vollkorn Variable', 'Times New Roman', serif;
   /* Reading and forms: the classic Israeli book face. */
-  --font-body: 'David Libre', 'Frank Ruhl Libre Variable', Georgia, serif;
+  --font-body: 'David Libre', 'Vollkorn Variable', 'Frank Ruhl Libre Variable', Georgia, serif;
   /* Blackletter, Latin only: the couple's Latin names. */
-  --font-fraktur: 'UnifrakturCook', 'Frank Ruhl Libre Variable', serif;
+  --font-fraktur: 'UnifrakturCook', 'Frank Ruhl Libre Variable', 'Vollkorn Variable', serif;
   /* Blackletter numerals for dates and times. */
   --font-numeral: 'Pirata One', 'Frank Ruhl Libre Variable', serif;
   /* Admin: a clear workhorse with real Hebrew, so guest names sit well in tables. */
@@ -121,6 +123,7 @@ a { text-underline-offset: 0.22em; text-decoration-thickness: 1px; }
 .inv h1, .inv h2 { font-family: var(--font-display); text-wrap: balance; }
 .inv h2 { font-size: clamp(2rem, 8.5vw, 2.6rem); font-weight: 800; line-height: 1.15; color: var(--color-gold); }
 .inv :lang(en) h2, .inv h2:lang(en) { font-weight: 600; }
+.inv-en h2, .inv-ru h2 { font-weight: 600; }
 
 .numeral { font-family: var(--font-numeral); font-variant-numeric: lining-nums; letter-spacing: 0.06em; direction: ltr; unicode-bidi: isolate; }
 

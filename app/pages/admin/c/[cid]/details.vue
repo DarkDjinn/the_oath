@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { AdminCampaign, CampaignContent } from '#shared/campaign'
-import { he } from '#shared/i18n/he'
-import { en } from '#shared/i18n/en'
-import type { Language } from '#shared/types'
+import { directionOf, LANGUAGE_NAMES, LANGUAGES, type Language } from '#shared/types'
 
 const { campaign, api, update } = useCampaignAdmin()
 const form = reactive<CampaignContent>(structuredClone(toRaw(campaign.value.content)))
@@ -12,10 +10,7 @@ const error = ref('')
 const notice = ref('')
 const busy = ref(false)
 
-const langs: { id: Language, label: string, dir: 'rtl' | 'ltr', dict: typeof he }[] = [
-  { id: 'he', label: 'Hebrew', dir: 'rtl', dict: he },
-  { id: 'en', label: 'English', dir: 'ltr', dict: en },
-]
+const langs = LANGUAGES.map(id => ({ id, label: LANGUAGE_NAMES[id], dir: directionOf(id), dict: dictionaries[id] }))
 const enabled = (l: Language) => form.languages.includes(l)
 function toggleLanguage(l: Language, on: boolean) {
   form.languages = on ? [...form.languages, l] : form.languages.filter(x => x !== l)
@@ -48,8 +43,8 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved change
   <form class="max-w-3xl" @submit.prevent="save">
     <section class="mt-6">
       <h2>The couple</h2>
-      <p class="muted mt-1">Names appear large on the invitation. Fill in each language you offer.</p>
-      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+      <p class="muted mt-1">Names appear large on the invitation. Fill in each language you offer; a language you switch off below is greyed out here.</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-3">
         <fieldset v-for="l in langs" :key="l.id" class="a-panel p-4" :class="{ 'opacity-60': !enabled(l.id) }">
           <legend class="px-1 font-semibold">{{ l.label }}</legend>
           <label class="a-label" :for="`first-${l.id}`">First name</label>

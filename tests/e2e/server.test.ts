@@ -437,3 +437,24 @@ describe('campaigns and couples', () => {
     expect((await (await asOwner('/api/admin/c/1/invitations')).json()).invitations.length).toBeGreaterThan(0)
   })
 })
+
+describe('Russian', () => {
+  it('serves a left-to-right Russian invitation once the campaign offers it', async () => {
+    const current = (await (await asOwner('/api/admin/c/1')).json()).content
+    expect(current.couple.ru).toEqual({ first: '', second: '' })
+    const saved = await asOwner('/api/admin/c/1/content', { method: 'PUT', json: { ...current, languages: ['he', 'en', 'ru'], couple: { ...current.couple, ru: { first: 'Виктор', second: 'Дани' } } } })
+    expect(saved.status).toBe(200)
+    const anna = await (await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName: 'Анна Петрова', language: 'ru' } })).json()
+    expect(anna).toMatchObject({ language: 'ru', guestsAllowed: true })
+
+    const html = await (await call(`/i/${tokenFrom(anna.url)}`)).text()
+    expect(html).toMatch(/<html[^>]*lang="ru"/)
+    expect(html).toMatch(/<html[^>]*dir="ltr"/)
+    expect(html).toContain('Анна Петрова')
+    expect(html).toContain('<title>Виктор и Дани</title>')
+    expect(html).toContain('Подтверждение участия')
+    // The switcher offers the other two languages by their own names.
+    expect(html).toContain('>עברית<')
+    expect(html).toContain('>English<')
+  })
+})

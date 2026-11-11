@@ -27,5 +27,6 @@ export function templateCsv(): string {
     ['דניאל כהן', 'true', 'he'],
     ['Alex Levi', 'false', 'en'],
     ['נועה ישראלי', '1', ''],
+    ['Анна Петрова', '', 'ru'],
   ])
 }

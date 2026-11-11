@@ -1,6 +1,6 @@
 import { CONTENT_LIMITS, DEFAULT_WHATSAPP, defaultContent, rsvpClosed, type AdminCampaign, type CampaignContent, type CampaignStatus, type PublicCampaign, type WhatsappTemplates } from '../../shared/campaign'
 import { normaliseDesign, THEMES, type Design } from '../../shared/themes'
-import { MAX_EXTRA_GUESTS, type Language, type PhotoInfo } from '../../shared/types'
+import { isLanguage, LANGUAGES, MAX_EXTRA_GUESTS, type Language, type PhotoInfo } from '../../shared/types'
 import { hashPassword } from './auth'
 import type { DB } from './db'
 import { NotFoundError, ValidationError } from './errors'
@@ -63,8 +63,8 @@ const link = (value: unknown, field: string): string => {
 export function validateContent(input: unknown): CampaignContent {
   const c = (input ?? {}) as Partial<CampaignContent> & Record<string, unknown>
   const base = defaultContent()
-  const L: Language[] = ['he', 'en']
-  const languages = Array.isArray(c.languages) ? [...new Set(c.languages.filter((l): l is Language => l === 'he' || l === 'en'))] : base.languages
+  const L: readonly Language[] = LANGUAGES
+  const languages = Array.isArray(c.languages) ? [...new Set(c.languages.filter(isLanguage))] : base.languages
   if (!languages.length) throw new ValidationError('languages_required', 'Choose at least one language.')
   const guestLimit = Number(c.rsvp?.guestLimit ?? base.rsvp.guestLimit)
   if (!Number.isInteger(guestLimit) || guestLimit < 1 || guestLimit > MAX_EXTRA_GUESTS) {
@@ -99,8 +99,9 @@ export function validateContent(input: unknown): CampaignContent {
 
 export function validateWhatsapp(input: unknown): WhatsappTemplates {
   const next = { ...DEFAULT_WHATSAPP }
-  for (const lang of ['he', 'en'] as const) {
-    const value = (input as Partial<WhatsappTemplates> | undefined)?.[lang]
+  for (const lang of LANGUAGES) {
+    // A language the caller did not send keeps its standard message.
+    const value = (input as Partial<WhatsappTemplates> | undefined)?.[lang] ?? DEFAULT_WHATSAPP[lang]
     if (typeof value !== 'string' || !value.trim() || value.length > 2000) throw new ValidationError('template_invalid', 'Each message needs some text, up to 2000 characters.')
     if (!value.includes('{link}')) throw new ValidationError('template_no_link', 'Each message must contain {link} so the guest receives their invitation.')
     next[lang] = value
@@ -114,9 +115,19 @@ const parse = <T>(json: string, fallback: T): T => {
   try { return { ...fallback, ...JSON.parse(json) } }
   catch { return fallback }
 }
+/** Stored content, with anything added to the model since it was saved (a new language, a new setting) filled in. */
 export const contentOf = (row: CampaignRow): CampaignContent => {
   const base = defaultContent(), c = parse(row.content, base)
-  return { ...c, rsvp: { ...base.rsvp, ...c.rsvp } }
+  return {
+    ...c,
+    couple: { ...base.couple, ...c.couple },
+    venue: { ...base.venue, ...c.venue },
+    dressCode: { ...base.dressCode, ...c.dressCode },
+    notes: { ...base.notes, ...c.notes },
+    copy: { ...base.copy, ...c.copy },
+    languages: (c.languages ?? []).filter(isLanguage),
+    rsvp: { ...base.rsvp, ...c.rsvp },
+  }
 }
 export const designOf = (row: CampaignRow): Design => parse(row.design, { theme: 'nocturne', options: THEMES.nocturne!.defaults, customCss: '' })
 export const whatsappOf = (row: CampaignRow): WhatsappTemplates => parse(row.whatsapp, DEFAULT_WHATSAPP)

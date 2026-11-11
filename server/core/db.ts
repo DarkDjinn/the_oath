@@ -76,16 +76,51 @@ const MIGRATIONS: Migration[] = [
     )
     db.exec('DROP TABLE settings')
   },
+
+  // 3: every invitee may bring guests unless their own limit is set to 0.
+  'UPDATE invitations SET guests_allowed = 1 WHERE guests_allowed = 0',
+
+  // 4: Russian. SQLite cannot alter a CHECK constraint, so the table is rebuilt with the wider one.
+  `
+  CREATE TABLE invitations_new (
+    id              INTEGER PRIMARY KEY,
+    campaign_id     INTEGER NOT NULL DEFAULT 1,
+    guest_name      TEXT NOT NULL,
+    language        TEXT NOT NULL DEFAULT 'he' CHECK (language IN ('he', 'en', 'ru')),
+    token_hash      TEXT NOT NULL UNIQUE,
+    token_nonce     TEXT NOT NULL,
+    revoked_at      TEXT,
+    guests_allowed  INTEGER NOT NULL DEFAULT 1 CHECK (guests_allowed IN (0, 1)),
+    guest_limit     INTEGER,
+    rsvp_status     TEXT NOT NULL DEFAULT 'pending' CHECK (rsvp_status IN ('pending', 'attending', 'declined')),
+    extra_guests    TEXT NOT NULL DEFAULT '[]',
+    dietary_notes   TEXT NOT NULL DEFAULT '',
+    message         TEXT NOT NULL DEFAULT '',
+    sent_at         TEXT,
+    first_opened_at TEXT,
+    responded_at    TEXT,
+    created_at      TEXT NOT NULL,
+    updated_at      TEXT NOT NULL
+  );
+  INSERT INTO invitations_new (id, campaign_id, guest_name, language, token_hash, token_nonce, revoked_at, guests_allowed, guest_limit,
+                               rsvp_status, extra_guests, dietary_notes, message, sent_at, first_opened_at, responded_at, created_at, updated_at)
+    SELECT id, campaign_id, guest_name, language, token_hash, token_nonce, revoked_at, guests_allowed, guest_limit,
+           rsvp_status, extra_guests, dietary_notes, message, sent_at, first_opened_at, responded_at, created_at, updated_at FROM invitations;
+  DROP TABLE invitations;
+  ALTER TABLE invitations_new RENAME TO invitations;
+  CREATE INDEX invitations_status ON invitations (rsvp_status);
+  CREATE INDEX invitations_campaign ON invitations (campaign_id);
+  `,
 ]
 
 /** The event details the site had before campaigns existed. Date and venue are still placeholders. */
 const FIRST_CAMPAIGN: CampaignContent = {
   ...defaultContent(),
-  couple: { he: { first: 'ויקטור', second: 'דני' }, en: { first: 'Victor', second: 'Dani' } },
+  couple: { he: { first: 'ויקטור', second: 'דני' }, en: { first: 'Victor', second: 'Dani' }, ru: { first: '', second: '' } },
   date: '2027-05-20',
-  venue: { he: { name: 'שם המקום', address: 'רחוב לדוגמה 1, עיר' }, en: { name: 'Venue Name', address: '1 Example Street, City' } },
+  venue: { he: { name: 'שם המקום', address: 'רחוב לדוגמה 1, עיר' }, en: { name: 'Venue Name', address: '1 Example Street, City' }, ru: { name: '', address: '' } },
   links: { googleMaps: 'https://maps.google.com/?q=Venue+Name', waze: 'https://waze.com/ul?q=Venue%20Name&navigate=yes' },
-  dressCode: { he: 'לבוש ערב. שחור תמיד מתקבל בברכה.', en: 'Evening attire. Black is always welcome.' },
+  dressCode: { he: 'לבוש ערב. שחור תמיד מתקבל בברכה.', en: 'Evening attire. Black is always welcome.', ru: '' },
   rsvpBy: '2027-04-20',
 }
 

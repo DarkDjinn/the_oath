@@ -72,7 +72,8 @@ const statusText = { draft: 'Draft', live: 'Live', archived: 'Archived' }
           </dl>
           <div class="flex gap-2">
             <NuxtLink class="a-btn" :to="`/admin/c/${c.id}`">Open</NuxtLink>
-            <a class="a-btn" :href="`/w/${c.slug}`" target="_blank" rel="noopener">View</a>
+            <!-- A draft is only visible to a signed-in admin, and the session belongs to this address, so drafts preview by path. -->
+            <a class="a-btn" :href="c.status === 'draft' ? `/w/${c.slug}` : c.siteUrl" target="_blank" rel="noopener">{{ c.status === 'draft' ? 'Preview' : 'View' }}</a>
           </div>
         </li>
       </ul>

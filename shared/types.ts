@@ -1,5 +1,16 @@
 export type RsvpStatus = 'pending' | 'attending' | 'declined'
-export type Language = 'he' | 'en'
+export const LANGUAGES = ['he', 'en', 'ru'] as const
+export type Language = typeof LANGUAGES[number]
+export const LANGUAGE_NAMES: Record<Language, string> = { he: 'Hebrew', en: 'English', ru: 'Russian' }
+export const isLanguage = (value: unknown): value is Language => (LANGUAGES as readonly unknown[]).includes(value)
+/** BCP 47 locale for dates, and text direction, per language. */
+export const LOCALES: Record<Language, string> = { he: 'he-IL', en: 'en-GB', ru: 'ru-RU' }
+export const directionOf = (lang: Language): 'rtl' | 'ltr' => (lang === 'he' ? 'rtl' : 'ltr')
+/** "A and B" as each language writes it. Hebrew joins the vav to the second name. */
+export function joinNames(couple: { first: string, second: string }, lang: Language): string {
+  if (lang === 'he') return `${couple.first} ו${couple.second}`
+  return `${couple.first} ${lang === 'ru' ? 'и' : '&'} ${couple.second}`
+}
 
 /** Hard ceiling on additional guests per invitation. Not a product rule, only abuse protection. */
 export const MAX_EXTRA_GUESTS = 20

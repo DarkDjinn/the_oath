@@ -2,7 +2,6 @@ import type { Messages } from './he'
 
 export const en: Messages = {
   langName: 'English',
-  switchTo: 'עברית',
   hero: {
     invite: 'You are invited to the wedding of',
     invitePersonal: '{name}, you are invited to the wedding of',

@@ -37,7 +37,7 @@ const statusText = { draft: 'Draft: guests cannot open it yet', live: 'Live', ar
         <h1 class="min-w-0 truncate"><bdi>{{ campaignName(campaign) }}</bdi></h1>
         <span class="a-tag">{{ statusText[campaign.status] }}</span>
         <span class="grow" />
-        <a class="a-btn a-btn-sm" :href="`/w/${campaign.slug}`" target="_blank" rel="noopener">{{ campaign.status === 'draft' ? 'Preview' : 'View invitation' }}</a>
+        <a class="a-btn a-btn-sm" :href="campaign.status === 'draft' ? `/w/${campaign.slug}` : campaign.siteUrl" target="_blank" rel="noopener">{{ campaign.status === 'draft' ? 'Preview' : 'View invitation' }}</a>
         <button class="a-btn a-btn-quiet a-btn-sm" type="button" @click="signOut">Sign out</button>
       </div>
       <nav class="a-tabs mx-auto mt-3 max-w-7xl px-4" aria-label="Campaign sections">

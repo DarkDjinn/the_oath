@@ -4,7 +4,7 @@ A self-hosted platform for wedding invitations with personal RSVP links. Each co
 
 - **Owner panel**: create and manage campaigns for couples.
 - **Couple login**: each couple manages only their own campaign: details, wording, design, photos, guests.
-- **Invitation**: Hebrew-first (RTL) with English, phone-first and checked on desktop, complete without photographs.
+- **Invitation**: Hebrew-first (RTL), with English and Russian, phone-first and checked on desktop, complete without photographs.
 - **Personal links**: every invited guest gets an unguessable URL. No guest accounts.
 - **RSVP**: attend or decline, bring named guests up to a limit, change the answer later through the same link.
 
@@ -29,8 +29,8 @@ one invitation  →  one invited guest  →  zero or more guests they bring  →
 ```
 
 - The invited guest is `pending`, `attending` or `declined`.
-- If **May bring guests** is ticked, an attending guest adds each guest by name, up to a limit: the campaign's default (Settings → Replies; set `1` for a plus-one) or that invitee's own limit. The hard ceiling is 20 (`MAX_EXTRA_GUESTS`).
-- A guest who declines, or who may not bring guests, brings nobody. The server enforces this, not just the form.
+- Every invitee may bring guests. An attending guest adds each one by name, up to a limit: the campaign's default (Settings → Replies; set `1` for a plus-one) or that invitee's own limit, where `0` means they come alone. The hard ceiling is 20 (`MAX_EXTRA_GUESTS`).
+- A guest who declines, or whose own limit is 0, brings nobody. The server enforces this, not just the form.
 - Lowering a limit never removes names already given; it only stops more being added.
 - Attendees are counted as people: an attending guest who brings three counts as four.
 
@@ -63,7 +63,7 @@ In development `TOKEN_SECRET` may be left empty (a fixed dev secret is used). Th
 
 1. **Create it** (owner): Campaigns → *New campaign*. Give the couple's names and an address (slug). It starts as a **draft**: guests cannot open it.
 2. **Give the couple access** (optional): Settings → *Create the couple's password*. The sign-in link, name and password are shown once; send them to the couple. Issuing a new password signs them out.
-3. **Details**: names in each language, languages offered and the default, date, reception and ceremony times (ceremony optional), venue, navigation links, wording, dress code, notes.
+3. **Details**: names in each language (Hebrew, English, Russian), which of them to offer and the default, date, reception and ceremony times (ceremony optional), venue, navigation links, wording, dress code, notes.
 4. **Design**: choose the theme and its options with a live phone and computer preview; upload up to two photos. Photos are re-encoded on upload (which also strips location data) and served resized as WebP.
 5. **Guests**: add them one by one or *Import* a CSV.
 
@@ -74,7 +74,7 @@ In development `TOKEN_SECRET` may be left empty (a fixed dev secret is used). Th
    נועה ישראלי,1,
    ```
 
-   - `plus_one_allowed`: `true` (up to the campaign's limit), `false`, or a number for that guest's own limit (`1` a plus-one, `4` a family). Also accepts `yes/no`, `כן/לא`; blank means false. `language` is optional.
+   - `plus_one_allowed` is optional. Blank or `true` means up to the campaign's limit; a number is that guest's own limit (`1` a plus-one, `4` a family); `0` or `false` means they come alone. Also accepts `yes/no`, `כן/לא`. `language` is optional: `he`, `en` or `ru`.
    - Each row becomes exactly one invitation with its own link.
    - UTF-8 with or without BOM, Excel's Windows-1255 "CSV", UTF-16 "Unicode Text", and `;` or tab separators are read correctly. Quoted values may contain commas and line breaks.
    - **Import only adds**, and only to this campaign. Existing invitations and RSVPs are never modified or merged. Matching names produce a warning in the preview; names are never treated as identity.
@@ -193,7 +193,7 @@ docker compose up -d
 ```
 shared/campaign.ts         A campaign's content model, defaults, reply-closing rule
 shared/themes.ts           Theme catalogue and option validation
-shared/i18n/               Standard Hebrew and English copy
+shared/i18n/               Standard Hebrew, English and Russian copy
 shared/types.ts            Types and limits shared by client and server
 server/core/               Framework-free logic, unit-tested directly
   db.ts                      SQLite connection and migrations (PRAGMA user_version)
@@ -233,7 +233,8 @@ Every API error has the shape `{ statusCode, message, data: { code } }`, with a 
 ## Assumptions made
 
 - Victor and Dani's date (20 May 2027) and venue are still placeholders; edit them in the Details tab.
-- The admin panels are English-only; invitations are Hebrew and English.
+- The admin panels are English-only; invitations are Hebrew, English and Russian. New campaigns start with Hebrew and English; Russian is switched on in Details.
+- Russian text is set in Vollkorn, because the Hebrew and blackletter faces have no Cyrillic.
 - All events are in Israel time (`EVENT_TIMEZONE`).
 - Couples cannot take their own campaign live, change its address or delete it; the owner does.
 - Guests answer only "attending" or "declined"; returning to "no response" is an admin action.
