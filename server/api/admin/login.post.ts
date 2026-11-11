@@ -33,6 +33,7 @@ export default apiHandler(async (event) => {
     sameSite: 'strict',
     secure: !import.meta.dev && process.env.COOKIE_SECURE !== 'false',
     path: '/',
+    domain: cookieDomain(),
     maxAge: session.maxAge,
   })
   return { ok: true, role: isOwner ? 'owner' : 'couple', campaignId: campaign?.id ?? null }

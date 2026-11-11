@@ -158,10 +158,10 @@ describe('CSV export', () => {
     db.prepare('UPDATE invitations SET revoked_at = ? WHERE id = ?').run(new Date().toISOString(), b.id)
 
     const rows = parseCsv(invitationsCsv(listInvitations(db, 1).map(admin)))
-    expect(rows[0]).toEqual(['Guest name', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'Opened', 'RSVP status', 'Confirmed attendees', 'Last response'])
+    expect(rows[0]).toEqual(['Guest name', 'Phone', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'Opened', 'RSVP status', 'Confirmed attendees', 'Last response'])
     const daniel = rows.find(r => r[0] === 'דניאל כהן')!
-    expect(daniel.slice(1, 8)).toEqual([`${BASE}/i/${tokenOf(a)}`, 'up to 20', 'he', 'yes', 'no', 'attending', '2'])
-    expect(rows.find(r => r[0] === 'Revoked Guest')![1]).toBe('(link revoked)')
+    expect(daniel.slice(1, 9)).toEqual(['', `${BASE}/i/${tokenOf(a)}`, 'up to 20', 'he', 'yes', 'no', 'attending', '2'])
+    expect(rows.find(r => r[0] === 'Revoked Guest')![2]).toBe('(link revoked)')
   })
 
   it('the downloadable template imports cleanly', () => {

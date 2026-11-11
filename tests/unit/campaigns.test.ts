@@ -44,7 +44,7 @@ describe('migration to campaigns', () => {
     const rows = listInvitations(db, 1)
     expect(rows.map(r => [r.guest_name, r.campaign_id, r.rsvp_status, r.extra_guests])).toEqual([['Alex Levi', 1, 'pending', '[]'], ['דניאל כהן', 1, 'attending', '["מאיה כהן"]']])
     expect(JSON.parse(getCampaign(db, 1).whatsapp).he).toBe('היי {name} {link}')
-    expect(db.pragma('user_version', { simple: true })).toBe(4)
+    expect(db.pragma('user_version', { simple: true })).toBe(freshDb().pragma('user_version', { simple: true })) // fully migrated
     expect(rows.every(r => r.guests_allowed === 1)).toBe(true) // migration 3: everyone may bring guests
   })
 })

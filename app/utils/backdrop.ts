@@ -1,4 +1,4 @@
-import { rose, sparkle, stars, vine } from './ornament'
+import { rose, stars, vine } from './ornament'
 
 /**
  * Page backdrops, drawn with the same engraving tools as the ornament and
@@ -13,7 +13,7 @@ const doc = (w: number, h: number, style: string, body: string) =>
 
 /** A night sky that runs the whole length of the page. */
 function starsTile(ink: string): string {
-  return doc(640, 960, `.o-star{fill:${ink}}`, stars(150, 3, [0, 0, 640, 960]) + sparkle(120, 210, 6, 'o-star') + sparkle(520, 640, 5, 'o-star') + sparkle(360, 880, 4, 'o-star'))
+  return doc(640, 960, `.o-star{fill:${ink}}`, stars(170, 3, [0, 0, 640, 960], false))
 }
 
 /** Tone-on-tone rose-and-briar wallpaper, like blind embossing on black card. */

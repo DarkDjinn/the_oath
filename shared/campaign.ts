@@ -88,6 +88,8 @@ export interface PublicCampaign {
 /** A campaign as the admin panel sees it. */
 export interface AdminCampaign extends PublicCampaign {
   siteUrl: string
+  /** Where the admin's View button goes. */
+  previewUrl: string
   hasPassword: boolean
   whatsapp: WhatsappTemplates
   createdAt: string

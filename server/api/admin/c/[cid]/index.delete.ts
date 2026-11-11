@@ -7,6 +7,8 @@ export default apiHandler(async (event) => {
   const row = requireCampaign(event)
   const body = (await readBody(event)) ?? {}
   if (body.confirm !== row.slug) throw createError({ statusCode: 400, message: 'Type the campaign address to confirm.', data: { code: 'confirm_required' } })
+  useSendQueue().cancel(row.id)
+  await useWhatsapp().unlink(ownSender(row.id))
   deleteCampaign(useDb(), row.id)
   removeCampaignPhotos(row.id)
   return { ok: true }

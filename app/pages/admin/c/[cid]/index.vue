@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LANGUAGE_NAMES, LIMITS, MAX_EXTRA_GUESTS, type AdminInvitation, type Language, type RsvpStatus, type Stats } from '#shared/types'
+import { LANGUAGE_NAMES, LIMITS, MAX_EXTRA_GUESTS, type AdminInvitation, type InvitationEvent, type Language, type RsvpStatus, type Stats } from '#shared/types'
 
 const { campaign, api } = useCampaignAdmin()
 const { data, refresh } = await useAsyncData(`invitations-${campaign.value.id}`, () =>
@@ -18,6 +18,8 @@ const filters: Record<string, { label: string, test: (i: AdminInvitation) => boo
   attending: { label: 'Attending', test: i => i.rsvpStatus === 'attending' },
   declined: { label: 'Declined', test: i => i.rsvpStatus === 'declined' },
   unsent: { label: 'Not sent yet', test: i => !i.sentAt },
+  nophone: { label: 'No phone number', test: i => !i.phone },
+  sendfailed: { label: 'Could not be sent', test: i => !!i.sendError && !i.sentAt },
   unopened: { label: 'Sent, not opened', test: i => !!i.sentAt && !i.firstOpenedAt },
   chase: { label: 'Sent, no response', test: i => !!i.sentAt && i.rsvpStatus === 'pending' },
   bringing: { label: 'Bringing guests', test: i => i.extraGuests.length > 0 },
@@ -67,16 +69,23 @@ async function copyLink(i: AdminInvitation) {
 // ------------------------------------------------------- create / edit form
 const editor = ref<HTMLDialogElement>()
 const editing = ref<AdminInvitation | null>(null)
-const form = reactive({ guestName: '', language: 'he' as Language, guestsAllowed: true, guestLimit: '' as number | '', rsvpStatus: 'pending' as RsvpStatus, extraGuests: '', dietaryNotes: '', sent: false })
+const form = reactive({ guestName: '', phone: '', language: 'he' as Language, guestsAllowed: true, guestLimit: '' as number | '', rsvpStatus: 'pending' as RsvpStatus, extraGuests: '', dietaryNotes: '', sent: false })
 const formError = ref('')
 const saving = ref(false)
 
+const history = ref<InvitationEvent[]>([])
+const eventLabel: Record<InvitationEvent['kind'], string> = {
+  created: 'Invitation created', opened: 'Guest opened the link', answered: 'Guest answered', edited: 'Edited by an admin', sent: 'Sent',
+  send_failed: 'Could not be sent', unsent: 'Marked as not sent', link_replaced: 'Link replaced', link_revoked: 'Link revoked', link_restored: 'Link restored',
+}
 function openEditor(i: AdminInvitation | null) {
   editing.value = i
+  history.value = []
+  if (i) adminFetch<InvitationEvent[]>(`${api}/invitations/${i.id}/events`).then(e => (history.value = e)).catch(() => {})
   formError.value = ''
   Object.assign(form, i
-    ? { guestName: i.guestName, language: i.language, guestsAllowed: i.guestsAllowed, guestLimit: i.guestsAllowed ? (i.ownGuestLimit ?? '') : 0, rsvpStatus: i.rsvpStatus, extraGuests: i.extraGuests.join('\n'), dietaryNotes: i.dietaryNotes, sent: !!i.sentAt }
-    : { guestName: '', language: campaign.value.content.languages[0] ?? 'he', guestsAllowed: true, guestLimit: '', rsvpStatus: 'pending', extraGuests: '', dietaryNotes: '', sent: false })
+    ? { guestName: i.guestName, phone: i.phone, language: i.language, guestsAllowed: i.guestsAllowed, guestLimit: i.guestsAllowed ? (i.ownGuestLimit ?? '') : 0, rsvpStatus: i.rsvpStatus, extraGuests: i.extraGuests.join('\n'), dietaryNotes: i.dietaryNotes, sent: !!i.sentAt }
+    : { guestName: '', phone: '', language: campaign.value.content.languages[0] ?? 'he', guestsAllowed: true, guestLimit: '', rsvpStatus: 'pending', extraGuests: '', dietaryNotes: '', sent: false })
   editor.value?.showModal()
 }
 async function save() {
@@ -92,7 +101,7 @@ async function save() {
       say(`Saved ${form.guestName}.`)
     }
     else {
-      await adminFetch(`${api}/invitations`, { method: 'POST', body: { guestName: form.guestName, language: form.language, guestLimit: form.guestLimit } })
+      await adminFetch(`${api}/invitations`, { method: 'POST', body: { guestName: form.guestName, phone: form.phone, language: form.language, guestLimit: form.guestLimit } })
       say(`Invitation for ${form.guestName} created.`)
       sort.value = 'created'
     }
@@ -161,6 +170,7 @@ async function markSentAndClose() {
   whatsapp.value?.close()
 }
 
+const sender = ref<{ open: () => void }>()
 const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attending: 'Attending', declined: 'Declined' }
 </script>
 
@@ -196,6 +206,7 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
         <label class="grow basis-56"><span class="a-label">Search</span><input v-model="search" class="a-field" type="search" placeholder="Guest name" dir="auto"></label>
         <label><span class="a-label">Show</span><select v-model="filter" class="a-field"><option v-for="(f, key) in filters" :key="key" :value="key">{{ f.label }}</option></select></label>
         <label><span class="a-label">Sort by</span><select v-model="sort" class="a-field"><option v-for="(s, key) in sorters" :key="key" :value="key">{{ s.label }}</option></select></label>
+        <button class="a-btn" type="button" @click="sender?.open()">Send by WhatsApp…</button>
         <a class="a-btn" :href="`${api}/csv/invitations.csv`" download>Export links</a>
         <a class="a-btn" :href="`${api}/csv/planner.csv`" download>Export for planner</a>
         <button class="a-btn a-btn-primary" type="button" @click="openEditor(null)">New invitation</button>
@@ -228,6 +239,8 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
                 <bdi class="font-bold">{{ i.guestName }}</bdi>
                 <span v-if="i.language !== (campaign.content.languages[0] ?? 'he')" class="muted ml-2 text-[0.75rem] uppercase">{{ i.language }}</span>
                 <span v-if="i.revoked" class="ml-2 text-[0.75rem] font-semibold text-danger">Link revoked</span>
+                <span v-if="i.sendError && !i.sentAt" class="block text-[0.75rem] text-danger">Not sent: {{ i.sendError }}</span>
+                <span v-else-if="!i.phone && !i.sentAt" class="muted block text-[0.75rem]">No phone number</span>
                 <span v-else-if="i.firstOpenedAt" class="muted ml-2 text-[0.75rem]" :title="`First opened ${formatWhen(i.firstOpenedAt)}`">Opened</span>
               </td>
               <td data-label="RSVP"><span class="a-tag" :class="`a-tag-${i.rsvpStatus}`">{{ statusLabel[i.rsvpStatus] }}</span></td>
@@ -255,6 +268,7 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
     </div>
 
     <p v-if="notice" class="toast" role="status">{{ notice }}</p>
+    <WhatsappSend ref="sender" :api="api" :campaign-id="campaign.id" :live="campaign.status === 'live'" @changed="refresh()" />
 
     <!-- Create / edit -->
     <dialog ref="editor" class="a-dialog" @click.self="editor?.close()">
@@ -262,6 +276,8 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
         <h2>{{ editing ? 'Edit invitation' : 'New invitation' }}</h2>
         <label class="a-label mt-4" for="f-name">Guest name</label>
         <input id="f-name" v-model="form.guestName" class="a-field" required dir="auto" :maxlength="LIMITS.name" autocomplete="off">
+        <label class="a-label mt-4" for="f-phone">Phone <span class="muted font-normal">(for sending by WhatsApp; optional)</span></label>
+        <input id="f-phone" v-model="form.phone" class="a-field num" type="tel" inputmode="tel" autocomplete="off" placeholder="054-123-4567" dir="ltr">
         <div class="mt-4 grid grid-cols-2 gap-3">
           <label v-if="campaign.content.languages.length > 1"><span class="a-label">Invitation language</span><select v-model="form.language" class="a-field"><option v-for="l in campaign.content.languages" :key="l" :value="l">{{ LANGUAGE_NAMES[l] }}</option></select></label>
           <label v-if="editing"><span class="a-label">RSVP</span><select v-model="form.rsvpStatus" class="a-field"><option value="pending">No response</option><option value="attending">Attending</option><option value="declined">Declined</option></select></label>
@@ -287,6 +303,16 @@ const statusLabel: Record<RsvpStatus, string> = { pending: 'No response', attend
             <button class="a-btn a-btn-sm a-btn-danger ml-auto" type="button" @click="askDelete(editing)">Delete invitation…</button>
           </div>
         </template>
+
+        <details v-if="editing && history.length" class="mt-5">
+          <summary class="cursor-pointer font-semibold">History ({{ history.length }})</summary>
+          <ol class="mt-2 grid gap-1.5 text-[0.8125rem]">
+            <li v-for="(e, n) in history" :key="n" class="grid grid-cols-[7.5rem_1fr] gap-x-3">
+              <time class="muted num" :datetime="e.at">{{ formatWhen(e.at) }}</time>
+              <span><span :class="{ 'text-danger': e.kind === 'send_failed' }">{{ eventLabel[e.kind] }}</span><span v-if="e.detail" class="muted" dir="auto">: {{ e.detail }}</span></span>
+            </li>
+          </ol>
+        </details>
 
         <p v-if="formError" class="mt-4 text-danger" role="alert">{{ formError }}</p>
         <div class="mt-6 flex justify-end gap-2">

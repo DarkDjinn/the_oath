@@ -98,6 +98,7 @@ const linksCsv = computed(() => `${api}/csv/invitations.csv?ids=${created.value?
             <table class="spec mt-3">
               <tbody>
                 <tr><th><code>name</code></th><td>The guest's full name, in Hebrew or English. Required.</td></tr>
+                <tr><th><code>phone</code></th><td>Optional. Their mobile number, for sending the invitation by WhatsApp. Israeli numbers can be written as usual (<code>054-123-4567</code>); others need the country code (<code>+44…</code>).</td></tr>
                 <tr><th><code>plus_one_allowed</code></th><td>Optional. Every guest may bring guests, up to the campaign's limit, unless you say otherwise: a number sets that guest's own limit (<code>1</code> for a plus-one, <code>4</code> for a family) and <code>0</code> or <code>false</code> means they come alone.</td></tr>
                 <tr><th><code>language</code></th><td>Optional. <code>he</code>, <code>en</code> or <code>ru</code> for that guest's invitation. Blank means Hebrew.</td></tr>
               </tbody>
@@ -140,12 +141,13 @@ const linksCsv = computed(() => `${api}/csv/invitations.csv?ids=${created.value?
 
             <div class="a-panel mt-4 overflow-x-auto">
               <table class="preview w-full">
-                <thead><tr><th>Import</th><th>Row</th><th>Name</th><th>May bring guests</th><th>Language</th><th>Notes</th></tr></thead>
+                <thead><tr><th>Import</th><th>Row</th><th>Name</th><th>Phone</th><th>May bring guests</th><th>Language</th><th>Notes</th></tr></thead>
                 <tbody>
                   <tr v-for="r in preview.rows" :key="r.row" :class="{ 'opacity-50': excluded.has(r.row) }">
                     <td><input type="checkbox" class="size-4 accent-[var(--a-sec-text)]" :checked="!excluded.has(r.row)" :disabled="r.errors.length > 0" :aria-label="`Import row ${r.row}`" @change="toggle(r.row, ($event.target as HTMLInputElement).checked)"></td>
                     <td class="muted num">{{ r.row }}</td>
                     <td class="whitespace-nowrap"><bdi class="font-semibold">{{ r.name || '(empty)' }}</bdi></td>
+                    <td class="num whitespace-nowrap" dir="ltr">{{ r.phone || '—' }}</td>
                     <td>{{ r.guestsAllowed ? (r.guestLimit ? `Up to ${r.guestLimit}` : 'Yes') : 'No' }}</td>
                     <td>{{ LANGUAGE_NAMES[r.language] }}</td>
                     <td>

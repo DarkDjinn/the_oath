@@ -99,12 +99,12 @@ export function sparkle(x: number, y: number, s: number, cls = 'o-ink'): string 
   return `<path class="${cls} o-bloom" d="M${f(x)} ${f(y - s)}Q${f(x)} ${f(y)} ${f(x + s)} ${f(y)}Q${f(x)} ${f(y)} ${f(x)} ${f(y + s)}Q${f(x)} ${f(y)} ${f(x - s)} ${f(y)}Q${f(x)} ${f(y)} ${f(x)} ${f(y - s)}Z"/>`
 }
 
-export function stars(n: number, seed: number, box: [number, number, number, number]): string {
+export function stars(n: number, seed: number, box: [number, number, number, number], sparkles = true): string {
   const R = rng(seed)
   let o = ''
   for (let i = 0; i < n; i++) {
     const x = box[0] + R() * box[2], y = box[1] + R() * box[3], r = R()
-    o += r > 0.88
+    o += sparkles && r > 0.88
       ? sparkle(x, y, 3 + R() * 3.5, 'o-star')
       : `<circle class="o-star" cx="${f(x)}" cy="${f(y)}" r="${f(0.4 + r * 0.8)}" opacity="${f(0.3 + R() * 0.55)}"/>`
   }

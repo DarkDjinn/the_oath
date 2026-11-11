@@ -102,6 +102,13 @@ const remove = () => run('delete', async () => {
       <button class="a-btn a-btn-primary mt-4" type="submit" :disabled="busy === 'whatsapp'">Save messages</button>
     </form>
 
+    <section id="whatsapp" class="mt-10 scroll-mt-4">
+      <h2>Sending from your own WhatsApp</h2>
+      <p class="muted mt-1">Link a WhatsApp account once, and the guest list can send every invitation for you from that number, a few each minute.</p>
+      <p class="mt-2 rounded-md bg-[var(--a-wait-bg)] px-3 py-2 text-[var(--a-wait-ink)]">This works like WhatsApp Web and is not an official WhatsApp feature. WhatsApp may limit an account it believes is sending in bulk. Sending to people who have your number saved, at this slow pace, keeps that unlikely.</p>
+      <WhatsappLink class="mt-4" :api="api" />
+    </section>
+
     <template v-if="isOwner">
       <section class="mt-10">
         <h2>Status</h2>

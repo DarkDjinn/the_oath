@@ -111,6 +111,25 @@ const MIGRATIONS: Migration[] = [
   CREATE INDEX invitations_status ON invitations (rsvp_status);
   CREATE INDEX invitations_campaign ON invitations (campaign_id);
   `,
+
+  // 5: phone numbers and the outcome of automatic WhatsApp sending.
+  `
+  ALTER TABLE invitations ADD COLUMN phone TEXT NOT NULL DEFAULT '';
+  ALTER TABLE invitations ADD COLUMN send_error TEXT NOT NULL DEFAULT '';
+  `,
+
+  // 6: a history of what happened to each invitation.
+  `
+  CREATE TABLE invitation_events (
+    id            INTEGER PRIMARY KEY,
+    invitation_id INTEGER NOT NULL,
+    campaign_id   INTEGER NOT NULL,
+    at            TEXT NOT NULL,
+    kind          TEXT NOT NULL,
+    detail        TEXT NOT NULL DEFAULT ''
+  );
+  CREATE INDEX invitation_events_invitation ON invitation_events (invitation_id, id);
+  `,
 ]
 
 /** The event details the site had before campaigns existed. Date and venue are still placeholders. */

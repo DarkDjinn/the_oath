@@ -6,8 +6,8 @@ const yesNo = (v: boolean) => (v ? 'yes' : 'no')
 /** One row per invitation: for keeping the links and tracking what was sent. */
 export function invitationsCsv(invitations: AdminInvitation[]): string {
   return toCsv(
-    ['Guest name', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'Opened', 'RSVP status', 'Confirmed attendees', 'Last response'],
-    invitations.map(i => [i.guestName, i.revoked ? '(link revoked)' : i.url, i.guestsAllowed ? `up to ${i.guestLimit}` : 'no', i.language, yesNo(!!i.sentAt), yesNo(!!i.firstOpenedAt), i.rsvpStatus, i.confirmedCount, i.respondedAt ?? '']),
+    ['Guest name', 'Phone', 'Invitation URL', 'Guests allowed', 'Language', 'Sent', 'Opened', 'RSVP status', 'Confirmed attendees', 'Last response'],
+    invitations.map(i => [i.guestName, i.phone, i.revoked ? '(link revoked)' : i.url, i.guestsAllowed ? `up to ${i.guestLimit}` : 'no', i.language, yesNo(!!i.sentAt), yesNo(!!i.firstOpenedAt), i.rsvpStatus, i.confirmedCount, i.respondedAt ?? '']),
   )
 }
 
@@ -23,10 +23,10 @@ export function plannerCsv(invitations: AdminInvitation[]): string {
 }
 
 export function templateCsv(): string {
-  return toCsv(['name', 'plus_one_allowed', 'language'], [
-    ['דניאל כהן', 'true', 'he'],
-    ['Alex Levi', 'false', 'en'],
-    ['נועה ישראלי', '1', ''],
-    ['Анна Петрова', '', 'ru'],
+  return toCsv(['name', 'phone', 'plus_one_allowed', 'language'], [
+    ['דניאל כהן', '054-123-4567', 'true', 'he'],
+    ['Alex Levi', '+44 7700 900123', 'false', 'en'],
+    ['נועה ישראלי', '', '1', ''],
+    ['Анна Петрова', '0521234567', '', 'ru'],
   ])
 }

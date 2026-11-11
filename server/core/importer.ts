@@ -1,15 +1,17 @@
 import type { ImportPreview, ImportRow } from '../../shared/types'
 import { isLanguage, LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
+import { normalisePhone } from './phone'
 import { parseCsv } from './csv'
 import type { DB } from './db'
 import { ValidationError } from './errors'
 import { cleanText, createInvitation, listInvitations, type InvitationRow } from './invitations'
 
 export const IMPORT_MAX_ROWS = 2000
-export const IMPORT_TEMPLATE_HEADER = ['name', 'plus_one_allowed', 'language']
+export const IMPORT_TEMPLATE_HEADER = ['name', 'phone', 'plus_one_allowed', 'language']
 
 const NAME_HEADERS = ['name', 'guest_name', 'guest', 'שם', 'имя']
 const GUESTS_HEADERS = ['plus_one_allowed', 'guests_allowed', 'plus_one']
+const PHONE_HEADERS = ['phone', 'mobile', 'whatsapp', 'טלפון', 'נייד', 'телефон']
 const LANGUAGE_HEADERS = ['language', 'lang', 'שפה', 'язык']
 const TRUE = new Set(['true', '1', 'yes', 'y', 'כן'])
 const FALSE = new Set(['false', 'no', 'n', 'לא'])
@@ -29,6 +31,7 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
   const nameCol = header.findIndex(h => NAME_HEADERS.includes(h))
   const guestsCol = header.findIndex(h => GUESTS_HEADERS.includes(h))
   const langCol = header.findIndex(h => LANGUAGE_HEADERS.includes(h))
+  const phoneCol = header.findIndex(h => PHONE_HEADERS.includes(h))
 
   if (!table.length) preview.fileErrors.push('The file is empty.')
   else if (nameCol === -1) preview.fileErrors.push('The first row must be a header containing a "name" column. Download the template to see the expected format.')
@@ -42,7 +45,7 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
     const rowNumber = index + 2
     if (cells.every(c => cleanText(c) === '')) return // blank spreadsheet line
 
-    const row: ImportRow = { row: rowNumber, name: cleanText(cells[nameCol]), guestsAllowed: false, guestLimit: null, language: 'he', errors: [], warnings: [] }
+    const row: ImportRow = { row: rowNumber, name: cleanText(cells[nameCol]), guestsAllowed: false, guestLimit: null, phone: '', language: 'he', errors: [], warnings: [] }
 
     if (!row.name) row.errors.push('The name is empty.')
     else if (row.name.length > LIMITS.name) row.errors.push(`The name is longer than ${LIMITS.name} characters.`)
@@ -61,6 +64,9 @@ export function buildPreview(csv: string, existingNames: string[]): ImportPrevie
     const lang = cleanText(cells[langCol]).toLowerCase()
     if (isLanguage(lang)) row.language = lang
     else if (lang !== '') row.errors.push(`language must be he, en or ru, found "${cleanText(cells[langCol])}".`)
+
+    try { row.phone = normalisePhone(cleanText(cells[phoneCol])) }
+    catch (e) { row.errors.push((e as Error).message) }
 
     if (row.name) {
       const key = nameKey(row.name)
@@ -101,6 +107,6 @@ export function commitImport(db: DB, secret: string, campaignId: number, csv: st
   }
   if (!included.length) throw new ValidationError('import_empty', 'No rows are selected for import.')
   return db.transaction(() =>
-    included.map(r => createInvitation(db, secret, campaignId, { guestName: r.name, guestsAllowed: r.guestsAllowed, guestLimit: r.guestLimit, language: r.language })),
+    included.map(r => createInvitation(db, secret, campaignId, { guestName: r.name, guestsAllowed: r.guestsAllowed, guestLimit: r.guestLimit, language: r.language, phone: r.phone })),
   )()
 }

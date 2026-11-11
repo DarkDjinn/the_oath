@@ -55,6 +55,7 @@ In development `TOKEN_SECRET` may be left empty (a fixed dev secret is used). Th
 | `npm run build` / `npm start` | Production build, then run it |
 | `npm test` | Unit tests (campaigns, isolation, tokens, RSVP rules, CSV, auth, migration) |
 | `npm run test:e2e` | End-to-end tests against the production build (`npm run build` first) |
+| `npm run test:browser` | Drives headless Chrome through the guest and admin flows on the production build (needs Chrome, Node 22) |
 | `npm run typecheck` / `npm run lint` | Type check and ESLint |
 | `npm run hash-password` | Create the `ADMIN_PASSWORD_HASH` line |
 | `npm run backup` | Consistent backup of the database |
@@ -81,10 +82,22 @@ In development `TOKEN_SECRET` may be left empty (a fixed dev secret is used). Th
    - The whole file is validated first and written in one transaction: all or nothing.
 6. **Go live** (owner): Settings → Status → *Live*.
 7. **Send**: each guest row has *Copy link* and *WhatsApp* (a personalised message to copy or open in WhatsApp). Nothing is sent automatically. Copying does not mark an invitation as sent; *Mark sent* does. The list shows which links have been opened.
+   **Or send to everyone at once.** Give guests a phone number (in the guest list or the CSV `phone` column), link a WhatsApp account, and *Send by WhatsApp…* sends every unsent invitation in the background, one about every half minute, marking each guest sent or failed. Two accounts can send: the couple's own (linked by QR code in Settings) and the service's shared account (linked by the owner on the Campaigns page). See [Automatic WhatsApp sending](#automatic-whatsapp-sending).
 8. **Track and export**: counts keep invitations, people and attendees apart. *Export links* gives one row per invitation; *Export for planner* one row per confirmed attendee, with brought guests naming who invited them. Both open in Excel and Google Sheets with Hebrew intact and are protected against formula injection.
 9. **Close**: Settings → Replies can close replies by hand or automatically after the reply-by date; the invitation stays visible. *Archived* keeps the invitation readable and the data exportable.
 
 Guests also get an *Add to calendar* link once a date is set.
+
+## Automatic WhatsApp sending
+
+This uses the Baileys library, which speaks the WhatsApp Web protocol. **It is unofficial.** WhatsApp does not sanction automated sending this way and may restrict an account it believes is sending in bulk; that risk sits with whoever's number is linked. The app reduces it by sending slowly (20 to 40 seconds apart, at most 150 a day per account; see `.env.example`), by checking a number is on WhatsApp before sending, and by defaulting to the couple's own number, whose guests mostly know it. The official alternative is the WhatsApp Business API.
+
+- **Linking** works like WhatsApp Web: scan a QR code from *Linked devices* on the phone. The login is stored under `/data/whatsapp/<account>/` and survives restarts; unlinking signs it out and deletes it. Deleting a campaign unlinks its account.
+- **The couple's own account** is linked in Settings → *Sending from your own WhatsApp*. **The service's account** is linked by the owner (Campaigns → *Service WhatsApp*) and is offered to every campaign as "The service's WhatsApp".
+- **Sending** needs the campaign to be live and covers guests who have a phone number and are not yet marked sent. Guests without a number are skipped and listed under the *No phone number* filter. A failure (for example a number that is not on WhatsApp) is shown under the guest's name and under *Could not be sent*; fixing the number and sending again retries only those.
+- Every invitation keeps a **history** (Edit → History): created, sent and by which account, send failures with the reason, first opened, each answer, admin edits, link changes.
+- A run continues if the page is closed and can be stopped at any time. It does not resume by itself after a server restart; press send again and only unsent guests are queued.
+- Phone numbers are stored in international form. Israeli numbers may be typed locally (`054-123-4567`); others need a country code. Guests never see any phone number.
 
 ## Designs
 

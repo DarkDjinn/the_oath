@@ -54,6 +54,10 @@ beforeAll(async () => {
       SITE_URL: `https://${BASE_DOMAIN}`,
       BASE_DOMAIN,
       COOKIE_SECURE: 'false',
+      WHATSAPP_DIR: join(dir, 'whatsapp'),
+      WHATSAPP_TRANSPORT: 'fake',
+      WHATSAPP_MIN_GAP_MS: '0',
+      WHATSAPP_MAX_GAP_MS: '0',
     },
     stdio: 'ignore',
   })
@@ -66,6 +70,7 @@ beforeAll(async () => {
   expect(res.status).toBe(200)
   expect(res.headers.get('set-cookie')).toMatch(/HttpOnly/i)
   expect(res.headers.get('set-cookie')).toMatch(/SameSite=Strict/i)
+  expect(res.headers.get('set-cookie')).toMatch(/Domain=wedding-example\.duckdns\.org/i) // shared with campaign subdomains
   owner = cookie
 })
 
@@ -98,6 +103,14 @@ describe('admin access control', () => {
     ['GET', '/api/admin/c/1/csv/invitations.csv'],
     ['GET', '/api/admin/c/1/csv/planner.csv'],
     ['GET', '/api/admin/c/1/csv/template.csv'],
+    ['GET', '/api/admin/c/1/whatsapp'],
+    ['POST', '/api/admin/c/1/whatsapp/link'],
+    ['DELETE', '/api/admin/c/1/whatsapp/link'],
+    ['POST', '/api/admin/c/1/whatsapp/send'],
+    ['DELETE', '/api/admin/c/1/whatsapp/send'],
+    ['GET', '/api/admin/whatsapp'],
+    ['POST', '/api/admin/whatsapp'],
+    ['DELETE', '/api/admin/whatsapp'],
   ]
   it.each(protectedRoutes)('%s %s requires a session', async (method, path) => {
     const json = method === 'GET' ? undefined : {}
@@ -263,7 +276,7 @@ describe('the guest journey (campaign 1, Victor and Dani)', () => {
 
     const links = parseCsv(await (await asOwner(`/api/admin/c/1/csv/invitations.csv?ids=${created.map((c: { id: number }) => c.id).join(',')}`)).text())
     expect(links.slice(1).map(r => r[0]).sort()).toEqual(['Tom Israeli', 'נועה ישראלי'])
-    expect(links.find(r => r[0] === 'נועה ישראלי')![1]).toBe(created[0].url)
+    expect(links.find(r => r[0] === 'נועה ישראלי')![2]).toBe(created[0].url)
   })
 
   it('a regenerated link replaces the old one', async () => {
@@ -309,6 +322,8 @@ describe('campaigns and couples', () => {
     expect(await page.text()).not.toContain('אורחת של דנה')
     expect((await guest(tokenFrom(danaGuestUrl), { method: 'PUT', json: { rsvpStatus: 'attending' } })).status).toBe(400)
     expect((await call('/w/dana-and-omer', { cookie: owner })).status).toBe(200) // preview
+    expect((await call('/', { host: danaHost, cookie: owner })).status).toBe(200) // and at its own address
+    expect((await (await asOwner(`/api/admin/c/${danaId}`)).json()).previewUrl).toBe(`https://${danaHost}`)
   })
 
   it('HTTPS certificates are approved only for real, unarchived campaign hosts', async () => {
@@ -360,7 +375,13 @@ describe('campaigns and couples', () => {
       ['PATCH', `/api/admin/c/${danaId}`, { status: 'live' }],
       ['DELETE', `/api/admin/c/${danaId}`, { confirm: 'dana-and-omer' }],
       ['POST', `/api/admin/c/${danaId}/password`, {}],
+      ['POST', '/api/admin/whatsapp', {}],
+      ['DELETE', '/api/admin/whatsapp', {}],
     ]
+    expect((await call('/api/admin/whatsapp', { cookie: danaCookie })).status).toBe(403)
+    for (const [method, path] of [['GET', '/api/admin/c/1/whatsapp'], ['POST', '/api/admin/c/1/whatsapp/link'], ['POST', '/api/admin/c/1/whatsapp/send']] as const) {
+      expect([path, (await call(path, { method, json: method === 'GET' ? undefined : {}, cookie: danaCookie })).status]).toEqual([path, 404])
+    }
     for (const [method, path, json] of attempts) expect([path, (await call(path, { method, json, cookie: danaCookie })).status]).toEqual([path, 403])
     const design = await (await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { theme: 'nocturne', options: { palette: 'oxblood' }, customCss: 'body{display:none}' }, cookie: danaCookie })).json()
     expect(design.design).toMatchObject({ options: { palette: 'oxblood', emblem: 'heart' }, customCss: '' })
@@ -456,5 +477,60 @@ describe('Russian', () => {
     // The switcher offers the other two languages by their own names.
     expect(html).toContain('>עברית<')
     expect(html).toContain('>English<')
+  })
+})
+
+describe('automatic WhatsApp sending (stand-in account)', () => {
+  const overview = async () => (await asOwner('/api/admin/c/1/whatsapp')).json()
+  const waitUntilDone = async () => { for (let i = 0; i < 100; i++) { const o = await overview(); if (o.progress.state !== 'running') return o; await new Promise(r => setTimeout(r, 50)) } throw new Error('send did not finish') }
+
+  it('refuses to send before an account is linked', async () => {
+    const res = await asOwner('/api/admin/c/1/whatsapp/send', { method: 'POST', json: { sender: 'own' } })
+    expect([res.status, (await res.json()).data.code]).toEqual([400, 'sender_not_linked'])
+  })
+
+  it('sends to guests with a phone number, marks them, and reports the ones that fail', async () => {
+    const add = async (guestName: string, phone: string) => (await asOwner('/api/admin/c/1/invitations', { method: 'POST', json: { guestName, phone } })).json()
+    const good = await add('Has WhatsApp', '054-555-1234')
+    const bad = await add('No WhatsApp', '054-555-0000')
+    expect(good.phone).toBe('+972545551234')
+
+    expect((await (await asOwner('/api/admin/c/1/whatsapp/link', { method: 'POST' })).json()).state).toBe('linked')
+    const before = await overview()
+    expect(before.own.state).toBe('linked')
+    expect(before.ready).toBeGreaterThanOrEqual(2)
+    expect(before.withoutPhone).toBeGreaterThan(0)
+
+    expect((await asOwner('/api/admin/c/1/whatsapp/send', { method: 'POST', json: { sender: 'own' } })).status).toBe(200)
+    const after = await waitUntilDone()
+    expect(after.progress).toMatchObject({ state: 'done', sender: 'own', failed: 1 })
+    expect(after.progress.sent).toBeGreaterThanOrEqual(1)
+
+    const list = (await (await asOwner('/api/admin/c/1/invitations')).json()).invitations as { id: number, sentAt: string | null, sendError: string, phone: string }[]
+    expect(list.find(i => i.id === good.id)).toMatchObject({ sendError: '' })
+    expect(list.find(i => i.id === good.id)!.sentAt).not.toBeNull()
+    expect(list.find(i => i.id === bad.id)).toMatchObject({ sentAt: null, sendError: 'This number is not on WhatsApp.' })
+    // Guests without a phone number were left alone.
+    expect(list.filter(i => !i.phone).every(i => !i.sendError)).toBe(true)
+
+    // A guest never sees phone numbers or sending details.
+    const guestView = JSON.stringify(await (await guest(tokenFrom(good.url))).json())
+    expect(guestView).not.toContain('545551234')
+  })
+
+  it('the shared account is linked by the owner and offered to campaigns without its pairing code', async () => {
+    expect((await (await asOwner('/api/admin/whatsapp', { method: 'POST' })).json()).state).toBe('linked')
+    const o = await overview()
+    expect(o.platform.state).toBe('linked')
+    expect(o.platform).not.toHaveProperty('qr')
+    await asOwner('/api/admin/whatsapp', { method: 'DELETE' })
+    expect((await overview()).platform.state).toBe('unlinked')
+  })
+
+  it('unlinking stops automatic sending', async () => {
+    await asOwner('/api/admin/c/1/whatsapp/link', { method: 'DELETE' })
+    expect((await overview()).own.state).toBe('unlinked')
+    const res = await asOwner('/api/admin/c/1/whatsapp/send', { method: 'POST', json: { sender: 'own' } })
+    expect(res.status).toBe(400)
   })
 })

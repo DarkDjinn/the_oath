@@ -1,8 +1,9 @@
-import type { AdminInvitation, GuestInvitation, Language, RsvpInput, RsvpStatus, Stats } from '../../shared/types'
+import type { AdminInvitation, GuestInvitation, InvitationEvent, Language, RsvpInput, RsvpStatus, Stats } from '../../shared/types'
 import { isLanguage, LIMITS, MAX_EXTRA_GUESTS } from '../../shared/types'
 import { contentOf, getCampaign } from './campaigns'
 import type { DB } from './db'
 import { rsvpClosed } from '../../shared/campaign'
+import { normalisePhone } from './phone'
 import { NotFoundError, ValidationError } from './errors'
 import { deriveToken, hashToken, looksLikeToken, newNonce } from './tokens'
 
@@ -11,6 +12,8 @@ export interface InvitationRow {
   campaign_id: number
   guest_limit: number | null
   first_opened_at: string | null
+  phone: string
+  send_error: string
   guest_name: string
   language: Language
   token_hash: string
@@ -28,6 +31,15 @@ export interface InvitationRow {
 }
 
 const now = () => new Date().toISOString()
+
+/** Append to an invitation's history. Details are short, human-readable, and never contain a link token. */
+export function logEvent(db: DB, row: Pick<InvitationRow, 'id' | 'campaign_id'>, kind: InvitationEvent['kind'], detail = ''): void {
+  db.prepare('INSERT INTO invitation_events (invitation_id, campaign_id, at, kind, detail) VALUES (?, ?, ?, ?, ?)').run(row.id, row.campaign_id, now(), kind, detail.slice(0, 300))
+}
+
+export function listEvents(db: DB, campaignId: number, invitationId: number): InvitationEvent[] {
+  return db.prepare('SELECT at, kind, detail FROM invitation_events WHERE invitation_id = ? AND campaign_id = ? ORDER BY id DESC LIMIT 200').all(invitationId, campaignId) as InvitationEvent[]
+}
 
 /** Collapse whitespace and strip control characters; names keep any script and punctuation. */
 export function cleanText(value: unknown, multiline = false): string {
@@ -105,6 +117,8 @@ export function toAdmin(row: InvitationRow, secret: string, baseUrl: string, cam
     url: `${baseUrl.replace(/\/+$/, '')}/i/${deriveToken(secret, row.token_nonce)}`,
     revoked: row.revoked_at !== null,
     ownGuestLimit: row.guest_limit,
+    phone: row.phone,
+    sendError: row.send_error,
     firstOpenedAt: row.first_opened_at,
     sentAt: row.sent_at,
     createdAt: row.created_at,
@@ -113,14 +127,14 @@ export function toAdmin(row: InvitationRow, secret: string, baseUrl: string, cam
   }
 }
 
-export interface NewInvitation { guestName: unknown; guestsAllowed?: unknown; language?: unknown; guestLimit?: unknown }
+export interface NewInvitation { guestName: unknown; guestsAllowed?: unknown; language?: unknown; guestLimit?: unknown; phone?: unknown }
 
 export function validateNewInvitation(input: NewInvitation) {
   const language: Language = isLanguage(input.language) ? input.language : 'he'
   // Everyone may bring guests by default. Only an explicit `false`, or an own limit of 0, says otherwise.
   const limit = validateOwnLimit(input.guestLimit)
   const guestsAllowed = input.guestsAllowed !== false && limit !== 0
-  return { guestName: validateName(input.guestName), guestsAllowed, language, guestLimit: guestsAllowed ? limit : null }
+  return { guestName: validateName(input.guestName), guestsAllowed, language, guestLimit: guestsAllowed ? limit : null, phone: normalisePhone(input.phone) }
 }
 
 export function createInvitation(db: DB, secret: string, campaignId: number, input: NewInvitation): InvitationRow {
@@ -128,10 +142,12 @@ export function createInvitation(db: DB, secret: string, campaignId: number, inp
   const nonce = newNonce()
   const ts = now()
   const info = db.prepare(`
-    INSERT INTO invitations (campaign_id, guest_name, language, token_hash, token_nonce, guests_allowed, guest_limit, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(campaignId, v.guestName, v.language, hashToken(deriveToken(secret, nonce)), nonce, v.guestsAllowed ? 1 : 0, v.guestsAllowed ? v.guestLimit : null, ts, ts)
-  return getById(db, campaignId, Number(info.lastInsertRowid))
+    INSERT INTO invitations (campaign_id, guest_name, language, token_hash, token_nonce, guests_allowed, guest_limit, phone, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(campaignId, v.guestName, v.language, hashToken(deriveToken(secret, nonce)), nonce, v.guestsAllowed ? 1 : 0, v.guestsAllowed ? v.guestLimit : null, v.phone, ts, ts)
+  const row = getById(db, campaignId, Number(info.lastInsertRowid))
+  logEvent(db, row, 'created')
+  return row
 }
 
 /** Always scoped to a campaign: an id from another campaign is "not found". */
@@ -150,7 +166,9 @@ export function getByToken(db: DB, token: unknown): InvitationRow | null {
 
 /** Record the first time a personal link is opened. */
 export function markOpened(db: DB, row: InvitationRow): void {
-  if (!row.first_opened_at) db.prepare('UPDATE invitations SET first_opened_at = ? WHERE id = ? AND first_opened_at IS NULL').run(now(), row.id)
+  if (row.first_opened_at) return
+  const info = db.prepare('UPDATE invitations SET first_opened_at = ? WHERE id = ? AND first_opened_at IS NULL').run(now(), row.id)
+  if (info.changes) logEvent(db, row, 'opened')
 }
 
 export function listInvitations(db: DB, campaignId: number): InvitationRow[] {
@@ -191,6 +209,7 @@ export function submitRsvp(db: DB, token: unknown, input: Partial<RsvpInput> | n
     SET rsvp_status = ?, extra_guests = ?, dietary_notes = ?, message = ?, responded_at = ?, updated_at = ?
     WHERE id = ?
   `).run(body.rsvpStatus, extrasJson, dietary, message, ts, ts, row.id)
+  logEvent(db, row, 'answered', body.rsvpStatus === 'attending' ? `Attending${extras.length ? `, bringing ${extras.length}: ${extras.join(', ')}` : ''}` : 'Not attending')
   return getById(db, row.campaign_id, row.id)
 }
 
@@ -203,6 +222,7 @@ export interface AdminPatch {
   extraGuests?: unknown
   dietaryNotes?: unknown
   sent?: unknown
+  phone?: unknown
 }
 
 export function updateInvitation(db: DB, campaignId: number, id: number, patch: AdminPatch): InvitationRow {
@@ -226,18 +246,34 @@ export function updateInvitation(db: DB, campaignId: number, id: number, patch: 
   if (status !== 'attending' || !guestsAllowed) extras = []
   const dietary = patch.dietaryNotes === undefined ? row.dietary_notes : validateNotes(patch.dietaryNotes, LIMITS.notes, 'notes_too_long')
   const sentAt = patch.sent === undefined ? row.sent_at : patch.sent === true ? (row.sent_at ?? now()) : null
+  const phone = patch.phone === undefined ? row.phone : normalisePhone(patch.phone)
 
   db.prepare(`
     UPDATE invitations
-    SET guest_name = ?, guests_allowed = ?, guest_limit = ?, language = ?, rsvp_status = ?, extra_guests = ?, dietary_notes = ?, sent_at = ?, updated_at = ?
+    SET guest_name = ?, guests_allowed = ?, guest_limit = ?, language = ?, rsvp_status = ?, extra_guests = ?, dietary_notes = ?, sent_at = ?, phone = ?,
+        send_error = CASE WHEN ? THEN '' ELSE send_error END, updated_at = ?
     WHERE id = ?
-  `).run(guestName, guestsAllowed ? 1 : 0, ownLimit, language, status, JSON.stringify(extras), dietary, sentAt, now(), id)
+  `).run(guestName, guestsAllowed ? 1 : 0, ownLimit, language, status, JSON.stringify(extras), dietary, sentAt, phone, phone !== row.phone || sentAt !== row.sent_at ? 1 : 0, now(), id)
+
+  // History: what an admin changed, in words.
+  const changes: string[] = []
+  if (guestName !== row.guest_name) changes.push(`name to "${guestName}"`)
+  if (phone !== row.phone) changes.push(phone ? 'phone number' : 'phone number removed')
+  if (language !== row.language) changes.push(`language to ${language}`)
+  if (status !== row.rsvp_status) changes.push(`answer to ${status}`)
+  if (JSON.stringify(extras) !== row.extra_guests) changes.push(`guests they bring (${extras.length})`)
+  if ((guestsAllowed ? 1 : 0) !== row.guests_allowed || ownLimit !== row.guest_limit) changes.push(guestsAllowed ? `guest limit to ${ownLimit ?? 'the campaign default'}` : 'guest limit to 0')
+  if (dietary !== row.dietary_notes) changes.push('dietary notes')
+  if (changes.length) logEvent(db, row, 'edited', `Changed ${changes.join(', ')}`)
+  if (sentAt && !row.sent_at) logEvent(db, row, 'sent', 'Marked as sent by hand')
+  if (!sentAt && row.sent_at) logEvent(db, row, 'unsent', 'Marked as not sent')
   return getById(db, campaignId, id)
 }
 
 export function deleteInvitation(db: DB, campaignId: number, id: number): void {
   const info = db.prepare('DELETE FROM invitations WHERE id = ? AND campaign_id = ?').run(id, campaignId)
   if (!info.changes) throw new NotFoundError('Invitation not found.')
+  db.prepare('DELETE FROM invitation_events WHERE invitation_id = ?').run(id)
 }
 
 /** Issue a new link. The old one stops working immediately. Also lifts a revocation. */
@@ -246,6 +282,7 @@ export function regenerateToken(db: DB, secret: string, campaignId: number, id: 
   const nonce = newNonce()
   db.prepare('UPDATE invitations SET token_nonce = ?, token_hash = ?, revoked_at = NULL, sent_at = NULL, first_opened_at = NULL, updated_at = ? WHERE id = ?')
     .run(nonce, hashToken(deriveToken(secret, nonce)), now(), id)
+  logEvent(db, { id, campaign_id: campaignId }, 'link_replaced', 'New link issued; the old one stopped working')
   return getById(db, campaignId, id)
 }
 
@@ -253,7 +290,23 @@ export function setRevoked(db: DB, campaignId: number, id: number, revoked: bool
   const row = getById(db, campaignId, id)
   db.prepare('UPDATE invitations SET revoked_at = ?, updated_at = ? WHERE id = ?')
     .run(revoked ? (row.revoked_at ?? now()) : null, now(), id)
+  if (revoked !== (row.revoked_at !== null)) logEvent(db, row, revoked ? 'link_revoked' : 'link_restored')
   return getById(db, campaignId, id)
+}
+
+/** Record the outcome of an automatic send. Success marks the invitation as sent. `via` names the account, for the history. */
+export function recordSend(db: DB, id: number, error: string | null, via = 'WhatsApp'): void {
+  const row = db.prepare('SELECT id, campaign_id FROM invitations WHERE id = ?').get(id) as Pick<InvitationRow, 'id' | 'campaign_id'> | undefined
+  if (!row) return
+  const ts = now()
+  if (error === null) {
+    db.prepare(`UPDATE invitations SET sent_at = COALESCE(sent_at, ?), send_error = '', updated_at = ? WHERE id = ?`).run(ts, ts, id)
+    logEvent(db, row, 'sent', `Sent automatically from ${via}`)
+  }
+  else {
+    db.prepare('UPDATE invitations SET send_error = ?, updated_at = ? WHERE id = ?').run(error.slice(0, 200), ts, id)
+    logEvent(db, row, 'send_failed', `${error} (from ${via})`)
+  }
 }
 
 export function computeStats(rows: InvitationRow[]): Stats {

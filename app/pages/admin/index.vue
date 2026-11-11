@@ -13,6 +13,7 @@ if (session.value?.role === 'couple') await navigateTo(`/admin/c/${session.value
 const { data: campaigns } = await useAsyncData('campaigns', () => useRequestFetch()<Row[]>('/api/admin/campaigns'), { default: () => [] })
 
 const creator = ref<HTMLDialogElement>()
+const platform = ref<HTMLDialogElement>()
 const form = reactive({ first: '', second: '', slug: '' })
 const slugTouched = ref(false)
 const error = ref('')
@@ -52,13 +53,14 @@ const statusText = { draft: 'Draft', live: 'Live', archived: 'Archived' }
     <header class="a-band">
       <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 py-4">
         <h1 class="mr-auto">Campaigns</h1>
+        <button class="a-btn a-btn-quiet" type="button" @click="platform?.showModal()">Service WhatsApp</button>
         <button class="a-btn" type="button" @click="openCreator">New campaign</button>
         <button class="a-btn a-btn-quiet" type="button" @click="signOut">Sign out</button>
       </div>
     </header>
 
     <main class="mx-auto max-w-5xl px-4 pb-16">
-      <ul class="mt-5 grid gap-3">
+      <ul class="mt-5 grid grid-cols-1 gap-3">
         <li v-for="c in campaigns" :key="c.id" class="a-panel flex flex-wrap items-center gap-x-6 gap-y-3 p-4">
           <div class="min-w-0 grow basis-64">
             <NuxtLink class="text-[1.0625rem] font-bold text-[var(--a-sec-text)] hover:underline" :to="`/admin/c/${c.id}`">{{ campaignName(c) }}</NuxtLink>
@@ -72,13 +74,22 @@ const statusText = { draft: 'Draft', live: 'Live', archived: 'Archived' }
           </dl>
           <div class="flex gap-2">
             <NuxtLink class="a-btn" :to="`/admin/c/${c.id}`">Open</NuxtLink>
-            <!-- A draft is only visible to a signed-in admin, and the session belongs to this address, so drafts preview by path. -->
-            <a class="a-btn" :href="c.status === 'draft' ? `/w/${c.slug}` : c.siteUrl" target="_blank" rel="noopener">{{ c.status === 'draft' ? 'Preview' : 'View' }}</a>
+            <a class="a-btn" :href="c.previewUrl" target="_blank" rel="noopener">{{ c.status === 'draft' ? 'Preview' : 'View' }}</a>
           </div>
         </li>
       </ul>
       <p v-if="!campaigns.length" class="a-panel muted mt-5 px-6 py-10 text-center">No campaigns yet. Create the first one for a couple.</p>
     </main>
+
+    <dialog ref="platform" class="a-dialog" @click.self="platform?.close()">
+      <div class="p-5">
+        <h2>The service's WhatsApp</h2>
+        <p class="muted mt-1">An account every campaign may send from, shown to couples as "The service's WhatsApp". Guests will see this number as the sender.</p>
+        <p class="mt-2 rounded-md bg-[var(--a-wait-bg)] px-3 py-2 text-[var(--a-wait-ink)]">Unofficial, like WhatsApp Web. One number messaging many people who do not have it saved is what WhatsApp restricts, and a restriction here would stop sending for every campaign that uses it.</p>
+        <WhatsappLink class="mt-4" />
+        <div class="mt-6 flex justify-end"><button class="a-btn" type="button" @click="platform?.close()">Close</button></div>
+      </div>
+    </dialog>
 
     <dialog ref="creator" class="a-dialog" @click.self="creator?.close()">
       <form class="p-5" @submit.prevent="create">

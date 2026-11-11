@@ -149,7 +149,7 @@ export function toPublic(row: CampaignRow, photos: PhotoInfo): PublicCampaign {
   const content = contentOf(row)
   return { id: row.id, slug: row.slug, status: row.status, content, design: designOf(row), photos, rsvpClosed: rsvpClosed(content) }
 }
-export function toAdminCampaign(row: CampaignRow, photos: PhotoInfo, siteUrl: string): AdminCampaign {
+export function toAdminCampaign(row: CampaignRow, photos: PhotoInfo, siteUrl: string): Omit<AdminCampaign, 'previewUrl'> {
   return { ...toPublic(row, photos), siteUrl, hasPassword: !!row.password_hash, whatsapp: whatsappOf(row), createdAt: row.created_at, updatedAt: row.updated_at }
 }
 
@@ -224,6 +224,7 @@ export function setPassword(db: DB, id: number, password: unknown): void {
 export function deleteCampaign(db: DB, id: number): void {
   getCampaign(db, id)
   db.transaction(() => {
+    db.prepare('DELETE FROM invitation_events WHERE campaign_id = ?').run(id)
     db.prepare('DELETE FROM invitations WHERE campaign_id = ?').run(id)
     db.prepare('DELETE FROM admin_sessions WHERE campaign_id = ?').run(id)
     db.prepare('DELETE FROM campaigns WHERE id = ?').run(id)

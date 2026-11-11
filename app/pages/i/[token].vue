@@ -14,11 +14,15 @@ else {
   const event = useRequestEvent()
   if (event) setResponseStatus(event, error.value?.statusCode === 429 ? 429 : 404)
 }
+/** `data` is a shallow ref: replace it whole, or the page keeps showing the old answer until a reload. */
+function saved(invitation: GuestInvitation) {
+  if (data.value) data.value = { ...data.value, invitation }
+}
 const reason = computed(() => (error.value?.data as { data?: { code?: string } } | undefined)?.data?.code)
 </script>
 
 <template>
-  <CampaignSite v-if="data" :campaign="data.campaign" :invitation="data.invitation" :token="token" @update="data.invitation = $event" />
+  <CampaignSite v-if="data" :campaign="data.campaign" :invitation="data.invitation" :token="token" @update="saved" />
   <SiteNotice v-else-if="error?.statusCode === 429" :title="m.errors.rateLimited" />
   <SiteNotice v-else-if="reason === 'not_open'" :title="m.notOpen.title" :body="m.notOpen.body" />
   <SiteNotice v-else :title="m.invalid.title" :body="m.invalid.body" />

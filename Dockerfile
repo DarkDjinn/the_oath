@@ -16,11 +16,12 @@ ENV NODE_ENV=production \
     PORT=3000 \
     DATABASE_PATH=/data/wedding.db \
     PHOTOS_DIR=/data/photos \
-    BACKUP_DIR=/data/backups
+    BACKUP_DIR=/data/backups \
+    WHATSAPP_DIR=/data/whatsapp
 WORKDIR /app
 COPY --from=build --chown=node:node /app/.output ./.output
 # The database, photos and backups live on a volume owned by the unprivileged user.
-RUN mkdir -p /data/photos /data/backups && chown -R node:node /data
+RUN mkdir -p /data/photos /data/backups /data/whatsapp && chown -R node:node /data
 USER node
 VOLUME /data
 EXPOSE 3000

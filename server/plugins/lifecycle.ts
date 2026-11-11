@@ -2,5 +2,10 @@
 export default defineNitroPlugin((nitro) => {
   useDb()
   if (!import.meta.dev) tokenSecret()
-  nitro.hooks.hook('close', () => closeDb())
+  // Reconnect WhatsApp accounts that were linked before this start.
+  useWhatsapp().restore()
+  nitro.hooks.hook('close', () => {
+    useWhatsapp().shutdown()
+    closeDb()
+  })
 })

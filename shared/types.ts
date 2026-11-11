@@ -44,6 +44,10 @@ export interface AdminInvitation extends GuestInvitation {
   revoked: boolean
   /** The invitee's own limit, or null to follow the campaign's default. */
   ownGuestLimit: number | null
+  /** International form, e.g. +972541234567, or empty. Never shown to guests. */
+  phone: string
+  /** Why the last automatic send failed, or empty. */
+  sendError: string
   /** When the personal link was first opened, if ever. */
   firstOpenedAt: string | null
   sentAt: string | null
@@ -72,6 +76,7 @@ export interface ImportRow {
   row: number
   name: string
   guestsAllowed: boolean
+  phone: string
   /** Set when the file gives a number instead of true/false. */
   guestLimit: number | null
   language: Language
@@ -86,3 +91,31 @@ export interface ImportPreview {
 }
 
 export interface PhotoInfo { hero: string | null; second: string | null }
+
+/** One line of an invitation's history, newest first in the admin. */
+export interface InvitationEvent {
+  at: string
+  kind: 'created' | 'opened' | 'answered' | 'edited' | 'sent' | 'send_failed' | 'unsent' | 'link_replaced' | 'link_revoked' | 'link_restored'
+  detail: string
+}
+
+/** Whether a WhatsApp account is linked for sending. */
+export interface LinkStatus {
+  state: 'unlinked' | 'pairing' | 'connecting' | 'linked'
+  /** While pairing: a QR code image (data URL) to scan with the phone. */
+  qr?: string
+  /** Once linked: the account's number, digits only. */
+  number?: string
+}
+
+export interface SendProgress {
+  state: 'idle' | 'running' | 'done' | 'stopped'
+  sender: 'own' | 'platform' | null
+  total: number
+  sent: number
+  failed: number
+  /** Why it stopped early, if it did. */
+  reason: string
+  /** When the next message goes out, while running. */
+  nextAt: string | null
+}

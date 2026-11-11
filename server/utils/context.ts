@@ -6,6 +6,8 @@ import { openDatabase, type DB } from '../core/db'
 import { NotFoundError, ValidationError } from '../core/errors'
 import { listInvitations, toAdmin, type InvitationRow } from '../core/invitations'
 import { findPhotos } from '../core/photos'
+import { SendQueue, type SenderKey } from '../core/sender'
+import { fakeTransport, whatsapp } from '../core/whatsapp'
 
 export const SESSION_COOKIE = 'oath_admin'
 
@@ -18,6 +20,27 @@ export function closeDb(): void {
   db?.close()
   db = undefined
 }
+
+// ---------------------------------------------------------------- WhatsApp
+
+/** The linked-account layer: the real library, or a stand-in when WHATSAPP_TRANSPORT=fake (tests). */
+let transport: typeof whatsapp | undefined
+export function useWhatsapp() {
+  transport ??= process.env.WHATSAPP_TRANSPORT === 'fake' ? fakeTransport() : whatsapp
+  return transport
+}
+
+let queue: SendQueue | undefined
+/** Paced sending. Defaults: 20 to 40 seconds between messages, 150 a day per account. */
+export function useSendQueue(): SendQueue {
+  queue ??= new SendQueue(useDb(), useWhatsapp(), {
+    minGapMs: Number(process.env.WHATSAPP_MIN_GAP_MS ?? 20_000),
+    maxGapMs: Number(process.env.WHATSAPP_MAX_GAP_MS ?? 40_000),
+    dailyCap: Number(process.env.WHATSAPP_DAILY_CAP ?? 150),
+  })
+  return queue
+}
+export const ownSender = (campaignId: number): SenderKey => `campaign-${campaignId}`
 
 export function tokenSecret(): string {
   const secret = process.env.TOKEN_SECRET
@@ -56,6 +79,21 @@ export function campaignFromHost(event: H3Event): CampaignRow | null {
   return label.includes('.') ? null : getCampaignBySlug(useDb(), label)
 }
 
+/**
+ * With subdomains, the admin session cookie is shared with every campaign subdomain,
+ * so a signed-in admin can preview a draft at its real address. Not on localhost,
+ * where browsers handle a cookie Domain unreliably.
+ */
+export function cookieDomain(): string | undefined {
+  const host = baseDomain().split(':')[0] ?? ''
+  return host && host !== 'localhost' && !host.endsWith('.localhost') && !/^[\d.]+$/.test(host) ? host : undefined
+}
+
+/** Where an admin should look at a campaign: its own address, or the path fallback for a draft the cookie cannot reach. */
+export function previewUrl(event: H3Event, row: Pick<CampaignRow, 'slug' | 'status'>): string {
+  return row.status !== 'draft' || cookieDomain() ? campaignUrl(event, row) : `/w/${row.slug}`
+}
+
 // ---------------------------------------------------------------- sessions
 
 export const sessionOf = (event: H3Event): Session | null => getSession(useDb(), getCookie(event, SESSION_COOKIE))
@@ -84,7 +122,7 @@ export function requireCampaign(event: H3Event): CampaignRow {
 // ------------------------------------------------------------------- views
 
 export const publicView = (row: CampaignRow) => toPublic(row, findPhotos(row.id))
-export const adminCampaignView = (event: H3Event, row: CampaignRow) => toAdminCampaign(row, findPhotos(row.id), campaignUrl(event, row))
+export const adminCampaignView = (event: H3Event, row: CampaignRow) => ({ ...toAdminCampaign(row, findPhotos(row.id), campaignUrl(event, row)), previewUrl: previewUrl(event, row) })
 
 export function adminView(event: H3Event, campaign: CampaignRow, row: InvitationRow) {
   return toAdmin(row, tokenSecret(), linkBase(event, campaign), contentOf(campaign).rsvp.guestLimit)
