@@ -1,0 +1,18 @@
+# Caddy running in Docker. Use with compose.docker-caddy.yml.
+# Both containers must share a Docker network (CADDY_NETWORK in .env, default "caddy").
+# Add this site block to your existing Caddyfile, then reload Caddy:
+#   docker exec <caddy-container> caddy reload --config /etc/caddy/Caddyfile
+
+wedding-example.duckdns.org {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	# No `log` directive on purpose: invitation URLs contain the guest's token.
+
+	# "wedding" is the container name set in compose.yml.
+	reverse_proxy wedding:3000
+}

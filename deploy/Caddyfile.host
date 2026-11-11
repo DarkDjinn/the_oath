@@ -1,0 +1,17 @@
+# Caddy installed on the host. Use with compose.host-caddy.yml.
+# Add this site block to your existing Caddyfile (usually /etc/caddy/Caddyfile),
+# then:  sudo systemctl reload caddy
+
+wedding-example.duckdns.org {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	# No `log` directive on purpose: invitation URLs contain the guest's token,
+	# so access logs would store working links. If you do want logs, see the README.
+
+	reverse_proxy 127.0.0.1:3000
+}

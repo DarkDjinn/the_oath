@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T14:15:00Z",
+  "title": "Design System: The Oath",
+  "extensions": {
+    "colorMeta": {
+      "gold": { "role": "primary", "displayName": "Antique Gold", "canonical": "#c9a961", "tonalRamp": ["#2a2212", "#4a3d20", "#6e5c33", "#8f7a48", "#b09352", "#c9a961", "#dcc48f", "#f1e7cd"] },
+      "gold-dim": { "role": "primary", "displayName": "Dim Gold", "canonical": "#8f7a48", "tonalRamp": ["#221d10", "#3b321c", "#574a2a", "#73623a", "#8f7a48", "#aa9668", "#c8b995", "#e8dfcb"] },
+      "wine": { "role": "secondary", "displayName": "Rose Burgundy", "canonical": "#6b1626", "tonalRamp": ["#26080e", "#45101a", "#6b1626", "#8f2238", "#ad4257", "#c8717f", "#deaab1", "#f3dfe1"] },
+      "wine-bright": { "role": "secondary", "displayName": "Bright Burgundy", "canonical": "#8f2238", "tonalRamp": ["#2b0a11", "#4d121e", "#6b1626", "#8f2238", "#b0455a", "#cb7482", "#e0acb3", "#f4e0e3"] },
+      "moon": { "role": "tertiary", "displayName": "Moon White", "canonical": "#e8dcc0", "tonalRamp": ["#2a261c", "#4c4534", "#70664e", "#958a6c", "#b8ad8e", "#d3c8a8", "#e8dcc0", "#f5efe0"] },
+      "ground": { "role": "neutral", "displayName": "Night Ground", "canonical": "#0a080b", "tonalRamp": ["#0a080b", "#141015", "#1d171d", "#2b232b", "#463c46", "#6d626d", "#a39aa3", "#e4dfe4"] },
+      "plate": { "role": "neutral", "displayName": "Plate", "canonical": "#141015", "tonalRamp": ["#0a080b", "#141015", "#1d171d", "#2b232b", "#463c46", "#6d626d", "#a39aa3", "#e4dfe4"] },
+      "plate-2": { "role": "neutral", "displayName": "Plate Raised", "canonical": "#1d171d", "tonalRamp": ["#0a080b", "#141015", "#1d171d", "#2b232b", "#463c46", "#6d626d", "#a39aa3", "#e4dfe4"] },
+      "ivory": { "role": "neutral", "displayName": "Ivory", "canonical": "#efe6d6", "tonalRamp": ["#2b2720", "#4d473b", "#726a59", "#978e7b", "#b7ad9c", "#d5cbb9", "#efe6d6", "#f8f3ea"] },
+      "mute": { "role": "neutral", "displayName": "Parchment Mute", "canonical": "#b7ad9c", "tonalRamp": ["#2b2720", "#4d473b", "#726a59", "#978e7b", "#b7ad9c", "#d5cbb9", "#efe6d6", "#f8f3ea"] },
+      "danger": { "role": "neutral", "displayName": "Danger", "canonical": "#f0a091", "tonalRamp": ["#2b1a19", "#4d2924", "#6a3a35", "#8a4a43", "#c0705f", "#f0a091", "#f6c4ba", "#fbe6e1"] },
+      "ok": { "role": "neutral", "displayName": "OK", "canonical": "#a9c79a", "tonalRamp": ["#1d2a1a", "#2f432a", "#48623f", "#658358", "#87a678", "#a9c79a", "#c9debf", "#e8f1e3"] },
+      "admin-ground": { "role": "neutral", "displayName": "Admin Ground", "canonical": "#100e11", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
+      "admin-panel": { "role": "neutral", "displayName": "Admin Panel", "canonical": "#161317", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
+      "admin-control": { "role": "neutral", "displayName": "Admin Control", "canonical": "#1c181e", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
+      "admin-border": { "role": "neutral", "displayName": "Admin Border", "canonical": "#3d3740", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
+      "admin-ink": { "role": "neutral", "displayName": "Admin Ink", "canonical": "#e9e3d8", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] },
+      "admin-mute": { "role": "neutral", "displayName": "Admin Mute", "canonical": "#a79f92", "tonalRamp": ["#100e11", "#161317", "#1c181e", "#262027", "#3d3740", "#564d59", "#a79f92", "#e9e3d8"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The couple's names in the hero, stacked, ivory. Frank Ruhl Libre." },
+      "display-latin": { "displayName": "Display (Latin blackletter)", "purpose": "The couple's names when the invitation is in English, and the small Latin names line (1.45rem, gold) in Hebrew. UnifrakturCook." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings in gold. Weight 800 in Hebrew, 600 in English." },
+      "title": { "displayName": "Title", "purpose": "Long date, venue name, footer names, confirmation title; times step up to 2.3rem." },
+      "body": { "displayName": "Body", "purpose": "Reading text and form controls. David Libre." },
+      "label": { "displayName": "Label", "purpose": "Time labels and hints in mute. No uppercase, no tracking." },
+      "numeral": { "displayName": "Numeral", "purpose": "The hero date only. Pirata One, LTR isolated." },
+      "admin-body": { "displayName": "Admin Body", "purpose": "All dashboard text. System UI sans." },
+      "admin-title": { "displayName": "Admin Title", "purpose": "Dashboard page title; section titles at 1.0625rem / 650." }
+    },
+    "shadows": [
+      { "name": "choice-selected", "value": "inset 0 0 0 1px #c9a961", "purpose": "Doubles the gold border of a selected RSVP choice. The invitation's only box-shadow." },
+      { "name": "ground-glow", "value": "radial-gradient(ellipse 34rem 26rem at 50% 15rem, #261915 0%, transparent 70%)", "purpose": "The single warm glow behind the heart. A background, not a shadow; the only gradient." },
+      { "name": "admin-dialog", "value": "0 24px 60px -12px rgb(0 0 0 / 0.7)", "purpose": "Admin modal dialog." },
+      { "name": "admin-toast", "value": "0 10px 30px -8px rgb(0 0 0 / 0.6)", "purpose": "Admin toast." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Stem drawing, rose bloom in the choice socket, plate press." },
+      { "name": "orn-draw", "value": "2.2s ease-out-expo, per-stem delay via --d", "purpose": "Stems draw themselves once on arrival (stroke-dashoffset 1 to 0)." },
+      { "name": "orn-bloom", "value": "1.4s ease-out, 0.7s delay", "purpose": "Leaves, thorns, roses, and details fade in after the stems. Plays once." },
+      { "name": "gate-rose", "value": "fill 0.8s ease", "purpose": "The gate rose fills with wine when the guest attends." },
+      { "name": "state", "value": "0.2s to 0.3s ease", "purpose": "Border and background changes on fields, choices, plates." },
+      { "name": "reduced-motion", "value": "all animation and transition durations 0.01ms", "purpose": "Under prefers-reduced-motion nothing animates; the engraving appears complete." }
+    ],
+    "breakpoints": [
+      { "name": "short-screen", "value": "max-height: 43.75rem" },
+      { "name": "wide", "value": "min-width: 48rem" },
+      { "name": "admin-table-collapse", "value": "max-width: 60rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Plate",
+      "kind": "button",
+      "refersTo": "plate",
+      "description": "The invitation's one primary action: the gate RSVP plate or the form submit.",
+      "html": "<button class=\"ds-plate\">אישור הגעה</button>",
+      "css": ".ds-plate { display: inline-grid; place-items: center; min-height: 3.5rem; padding: 0.5rem 1.75rem; border: 1px solid var(--color-gold); border-radius: 0; background: var(--color-wine); color: var(--color-ivory); font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; cursor: pointer; transition: background-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); } .ds-plate:hover { background: var(--color-wine-bright); } .ds-plate:active { transform: translateY(1px); } .ds-plate:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }"
+    },
+    {
+      "name": "Answered Plate",
+      "kind": "button",
+      "refersTo": "plate-answered",
+      "description": "The gate plate after the guest has replied: quiet, ground-filled, offers to change the answer.",
+      "html": "<button class=\"ds-plate-quiet\">שינוי התשובה</button>",
+      "css": ".ds-plate-quiet { display: inline-grid; place-items: center; min-height: 3.25rem; padding: 0.5rem 1.75rem; border: 1px solid var(--color-gold); border-radius: 0; background: var(--color-ground); color: var(--color-ivory); font-family: var(--font-display); font-size: 1.0625rem; font-weight: 500; cursor: pointer; transition: background-color 0.25s ease; } .ds-plate-quiet:hover { background: var(--color-plate-2); } .ds-plate-quiet:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "text-button",
+      "description": "Secondary actions and links: language switch, map links, change answer.",
+      "html": "<button class=\"ds-text-button\">English</button>",
+      "css": ".ds-text-button { background: none; border: 0; padding: 0.5rem 0.25rem; color: var(--color-gold); font-family: var(--font-body); font-size: 1.1875rem; text-decoration: underline; text-underline-offset: 0.22em; text-decoration-thickness: 1px; cursor: pointer; } .ds-text-button:hover { color: var(--color-ivory); } .ds-text-button:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Text inputs and textareas in the RSVP form.",
+      "html": "<input class=\"ds-field\" type=\"text\" placeholder=\"שם מלא\" dir=\"auto\">",
+      "css": ".ds-field { width: 100%; min-height: 3.25rem; padding: 0.7rem 0.9rem; border: 1px solid var(--color-gold-dim); border-radius: 0; background: var(--color-plate); color: var(--color-ivory); caret-color: var(--color-gold); font-family: var(--font-body); font-size: 1.1875rem; transition: border-color 0.2s ease, background-color 0.2s ease; } .ds-field::placeholder { color: #a99f8f; } .ds-field:hover { border-color: var(--color-gold); } .ds-field:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 0; border-color: var(--color-gold); background: var(--color-plate-2); }"
+    },
+    {
+      "name": "RSVP Choice",
+      "kind": "custom",
+      "refersTo": "choice",
+      "description": "Radio rows for attending / declined. Selected is a doubled gold line, never wine. Attending blooms a generated rose in the socket; declined shows an ivory dot (shown here).",
+      "html": "<div class=\"ds-choices\"><label class=\"ds-choice\"><span class=\"ds-choice-mark\"></span><span>מגיעים</span></label><label class=\"ds-choice ds-is-on\"><span class=\"ds-choice-mark\"></span><span>לא נוכל להגיע</span></label></div>",
+      "css": ".ds-choices { display: grid; gap: 0.75rem; } .ds-choice { display: flex; align-items: center; gap: 0.9rem; min-height: 4rem; padding: 0.6rem 1.1rem; border: 1px solid var(--color-gold-dim); background: var(--color-plate); color: var(--color-ivory); font-family: var(--font-display); font-size: 1.35rem; font-weight: 500; cursor: pointer; transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; } .ds-choice:hover { border-color: var(--color-gold); } .ds-choice.ds-is-on { background: var(--color-plate-2); border-color: var(--color-gold); box-shadow: inset 0 0 0 1px var(--color-gold); } .ds-choice-mark { flex: none; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border: 1px solid var(--color-gold-dim); border-radius: 50%; } .ds-choice.ds-is-on .ds-choice-mark { border-color: var(--color-ivory); } .ds-choice.ds-is-on .ds-choice-mark::after { content: ''; width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--color-ivory); }"
+    },
+    {
+      "name": "Add Guest",
+      "kind": "button",
+      "refersTo": "text-button",
+      "description": "Dashed control that adds a named guest row.",
+      "html": "<button class=\"ds-add-guest\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"/></svg>הוספת אורח</button>",
+      "css": ".ds-add-guest { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0.4rem 1rem; border: 1px dashed var(--color-gold-dim); border-radius: 0; background: none; color: var(--color-gold); font-family: var(--font-body); font-size: 1.1875rem; cursor: pointer; } .ds-add-guest:hover { border-color: var(--color-gold); color: var(--color-ivory); } .ds-add-guest:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }"
+    },
+    {
+      "name": "Admin Primary Button",
+      "kind": "button",
+      "refersTo": "admin-button-primary",
+      "description": "The dashboard's primary action; the only gold surface in admin.",
+      "html": "<button class=\"ds-a-btn ds-a-btn-primary\">New invitation</button>",
+      "css": ".ds-a-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: 2.25rem; padding: 0.35rem 0.8rem; border: 1px solid #3d3740; border-radius: 6px; background: #1c181e; color: #e9e3d8; font-family: var(--font-ui); font-size: 0.9375rem; font-weight: 550; white-space: nowrap; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease; } .ds-a-btn:hover { background: #262027; border-color: #564d59; } .ds-a-btn:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; } .ds-a-btn-primary { background: var(--color-gold); border-color: var(--color-gold); color: #17130c; } .ds-a-btn-primary:hover { background: #d8ba76; border-color: #d8ba76; }"
+    },
+    {
+      "name": "Admin Button",
+      "kind": "button",
+      "refersTo": "admin-button",
+      "description": "Default and danger dashboard buttons.",
+      "html": "<span class=\"ds-a-row\"><button class=\"ds-a-btn2\">Copy link</button><button class=\"ds-a-btn2 ds-a-btn2-danger\">Delete</button></span>",
+      "css": ".ds-a-row { display: inline-flex; gap: 0.4rem; } .ds-a-btn2 { display: inline-flex; align-items: center; justify-content: center; min-height: 2.25rem; padding: 0.35rem 0.8rem; border: 1px solid #3d3740; border-radius: 6px; background: #1c181e; color: #e9e3d8; font-family: var(--font-ui); font-size: 0.9375rem; font-weight: 550; white-space: nowrap; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease; } .ds-a-btn2:hover { background: #262027; border-color: #564d59; } .ds-a-btn2:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; } .ds-a-btn2-danger { color: var(--color-danger); border-color: #6a3a35; } .ds-a-btn2-danger:hover { background: #2b1a19; border-color: #8a4a43; }"
+    },
+    {
+      "name": "Admin Status Tag",
+      "kind": "chip",
+      "refersTo": "admin-panel",
+      "description": "RSVP state in the invitation list: attending, declined, pending.",
+      "html": "<span class=\"ds-a-row2\"><span class=\"ds-a-tag ds-a-tag-attending\">Attending</span><span class=\"ds-a-tag ds-a-tag-declined\">Declined</span><span class=\"ds-a-tag ds-a-tag-pending\">Pending</span></span>",
+      "css": ".ds-a-row2 { display: inline-flex; gap: 0.5rem; } .ds-a-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.1rem 0.5rem; border-radius: 999px; font-family: var(--font-ui); font-size: 0.8125rem; font-weight: 600; white-space: nowrap; } .ds-a-tag::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; } .ds-a-tag-attending { background: #1d2a1a; color: var(--color-ok); } .ds-a-tag-declined { background: #2e1a19; color: var(--color-danger); } .ds-a-tag-pending { background: #262128; color: #c9c0b2; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Garden Engraving",
+    "overview": "The invitation is a gilded line engraving on black: a heart of thorns above, a pointed iron gate below that holds the guest's answer. Everything decorative is drawn in antique-gold line, generated as SVG from seeded code, and it draws itself once on arrival (stems first, then leaves and roses fade in) and then holds still. Lettering is ivory; roses and the one primary plate are burgundy; the crescent is moon-white.\n\nIt is stationery, not an interface: a single centred column on a flat near-black ground, square corners, hairline rules, no cards, no glow. It refuses the dark wedding template (names in a thin gold rectangle, countdown, pill button).\n\nA second, deliberately plain system serves the admin dashboard: system UI font, dark neutral panels, small radii, gold only as the primary-action accent. The two systems never mix.",
+    "keyCharacteristics": [
+      "Gold is line; burgundy is fill; ivory is lettering.",
+      "One column (max 30rem), phone-first, Hebrew RTL first with English LTR.",
+      "Ornament is generated vector, drawn once, then still.",
+      "Square corners and hairlines on the invitation; rounded quiet panels only in admin."
+    ],
+    "rules": [
+      { "name": "The Line-Work Rule", "body": "Gold is stroke, never a filled surface on the invitation. (Solid gold appears only as tiny ornament ink: thorns, finials, sparkles.)", "section": "colors" },
+      { "name": "The One Wine Rule", "body": "Burgundy fills roses and the primary plate. A selected state is never wine.", "section": "colors" },
+      { "name": "The Single Glow Rule", "body": "One warm radial glow sits behind the heart. Every other surface is flat; no other gradients.", "section": "colors" },
+      { "name": "The Joined Vav Rule", "body": "In Hebrew, \"and\" is the vav joined to the second name on its own line; a lone vav never stands as a separate element. English shows a small gold \"and\" between the names.", "section": "typography" },
+      { "name": "The Blackletter Ration Rule", "body": "Blackletter is Latin only: the couple's Latin names and the hero date numerals. Never Hebrew, never body copy, never admin.", "section": "typography" },
+      { "name": "The Braid Rule", "body": "The braided two-strand ring and braided rule are the only Norse element. No runes, knot panels, or other Viking motifs.", "section": "shapes" },
+      { "name": "The Generated Ornament Rule", "body": "Ornament is SVG generated in code from a fixed seed, styled only through the `o-*` class vocabulary (line, hair, ink, gap, leaf, rose, moon, star; `o-draw` and `o-bloom` for arrival). Never raster, never emoji, never an icon font.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do draw every decorative element as gold line on ground, using the existing generators and `o-*` classes.",
+      "Do keep burgundy to roses and the single primary plate.",
+      "Do mark selection with the doubled gold line and `plate-2`.",
+      "Do keep invitation corners square and borders at 1px.",
+      "Do join the Hebrew vav to the second name.",
+      "Do keep body text at 1.1875rem or larger and touch targets at 2.75rem or larger.",
+      "Do let the engraving draw once, then hold still; honour `prefers-reduced-motion`.",
+      "Do keep admin in the system font with neutral panels, gold only on the primary action."
+    ],
+    "donts": [
+      "Don't fill a surface with gold on the invitation, or use wine for a selected state.",
+      "Don't add cards, shadows, glows, or gradients; the one ground glow behind the heart is the only one.",
+      "Don't add Norse motifs beyond the braided ring and rule.",
+      "Don't use raster ornament, emoji, or icon fonts.",
+      "Don't set Hebrew, body copy, or admin text in blackletter.",
+      "Don't round invitation controls or bring invitation ornament and display faces into admin.",
+      "Don't loop or replay ornament motion."
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+# Caddy runs directly on the host: publish the app on the loopback interface only,
+# so nothing but the host's own Caddy can reach it.
+services:
+  wedding:
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"

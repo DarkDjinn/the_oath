@@ -1,0 +1,236 @@
+@import 'tailwindcss';
+
+/* Self-hosted faces (no third-party requests). Hebrew and Latin subsets only. */
+@import '@fontsource-variable/frank-ruhl-libre/wght.css';
+@import '@fontsource/david-libre/hebrew-400.css';
+@import '@fontsource/david-libre/hebrew-500.css';
+@import '@fontsource/david-libre/hebrew-700.css';
+@import '@fontsource/david-libre/latin-400.css';
+@import '@fontsource/david-libre/latin-500.css';
+@import '@fontsource/david-libre/latin-700.css';
+@import '@fontsource/unifrakturcook/latin-700.css';
+@import '@fontsource/pirata-one/latin-400.css';
+
+/* ------------------------------------------------------------------ tokens */
+@theme {
+  /* Ground and plates */
+  --color-ground: #0a080b;
+  --color-plate: #141015;
+  --color-plate-2: #1d171d;
+  /* Ink */
+  --color-ivory: #efe6d6;
+  --color-mute: #b7ad9c;
+  --color-gold: #c9a961;
+  --color-gold-dim: #8f7a48;
+  --color-wine: #6b1626;
+  --color-wine-bright: #8f2238;
+  --color-moon: #e8dcc0;
+  --color-danger: #f0a091;
+  --color-ok: #a9c79a;
+
+  /* Display: Hebrew and Latin serif with dramatic weight range. */
+  --font-display: 'Frank Ruhl Libre Variable', 'Frank Ruhl Libre', 'Times New Roman', serif;
+  /* Reading and forms: the classic Israeli book face. */
+  --font-body: 'David Libre', 'Frank Ruhl Libre Variable', Georgia, serif;
+  /* Blackletter, Latin only: the couple's Latin names. */
+  --font-fraktur: 'UnifrakturCook', 'Frank Ruhl Libre Variable', serif;
+  /* Blackletter numerals for dates and times. */
+  --font-numeral: 'Pirata One', 'Frank Ruhl Libre Variable', serif;
+  /* Admin: stay out of the way. */
+  --font-ui: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Arial Hebrew', Arial, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* -------------------------------------------------------------------- base */
+html {
+  background: var(--color-ground);
+  color: var(--color-ivory);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--color-gold-dim) var(--color-ground);
+}
+body {
+  min-height: 100svh;
+  font-family: var(--font-body);
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-wine-bright); color: var(--color-ivory); }
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+input, textarea, select, button { font: inherit; color: inherit; }
+input, textarea { caret-color: var(--color-gold); }
+a { text-underline-offset: 0.22em; text-decoration-thickness: 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------------------------------------------------------------- ornament */
+.orn { display: block; overflow: visible; }
+.orn .o-line { fill: none; stroke: var(--color-gold); }
+.orn .o-hair { stroke-width: 0.6; }
+.orn .o-faint { opacity: 0.72; }
+.orn .o-ink { fill: var(--color-gold); }
+.orn .o-gap { fill: none; stroke: var(--color-ground); }
+.orn .o-ground { fill: var(--color-ground); }
+.orn .o-leaf { fill: var(--color-ground); stroke: var(--color-gold); stroke-width: 0.9; }
+.orn .o-rose { fill: var(--color-wine); stroke: var(--color-gold); stroke-width: 1; stroke-linejoin: round; }
+.orn .o-moon { fill: var(--color-moon); }
+.orn .o-star { fill: #e3cf9a; }
+
+/* The engraving draws itself once on arrival: stems first, then thorns, leaves and roses. */
+@media (prefers-reduced-motion: no-preference) {
+  .orn-arrive .o-draw {
+    stroke-dasharray: 1;
+    animation: orn-draw 2.2s var(--ease-out-expo) both;
+    animation-delay: var(--d, 0s);
+  }
+  .orn-arrive .o-bloom { animation: orn-bloom 1.4s ease-out 0.7s both; }
+}
+@keyframes orn-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes orn-bloom { from { opacity: 0; } to { opacity: 1; } }
+
+/* -------------------------------------------------------------- invitation */
+.inv {
+  --col: min(100% - 2.5rem, 30rem);
+  position: relative;
+  overflow-x: clip;
+  /* One warm glow behind the heart; everything else is flat ground. */
+  background: radial-gradient(ellipse 34rem 26rem at 50% 15rem, #261915 0%, transparent 70%) no-repeat;
+}
+.inv-col { width: var(--col); margin-inline: auto; }
+
+.inv h1, .inv h2 { font-family: var(--font-display); text-wrap: balance; }
+.inv h2 { font-size: clamp(2rem, 8.5vw, 2.6rem); font-weight: 800; line-height: 1.15; color: var(--color-gold); }
+.inv :lang(en) h2, .inv h2:lang(en) { font-weight: 600; }
+
+.numeral { font-family: var(--font-numeral); font-variant-numeric: lining-nums; letter-spacing: 0.06em; direction: ltr; unicode-bidi: isolate; }
+
+/* Plates: the invitation's buttons. Square, hairline gold, no glow. */
+.plate {
+  display: inline-grid;
+  place-items: center;
+  min-height: 3.5rem;
+  padding: 0.5rem 1.75rem;
+  border: 1px solid var(--color-gold);
+  background: var(--color-wine);
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s var(--ease-out-expo);
+}
+.plate:hover { background: var(--color-wine-bright); }
+.plate:active { transform: translateY(1px); }
+.plate[disabled] { opacity: 0.6; cursor: progress; }
+
+.text-button {
+  background: none;
+  border: 0;
+  padding: 0.5rem 0.25rem;
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+.text-button:hover { color: var(--color-ivory); }
+
+.field {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--color-gold-dim);
+  border-radius: 0;
+  background: var(--color-plate);
+  color: var(--color-ivory);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.field::placeholder { color: #a99f8f; }
+.field:hover { border-color: var(--color-gold); }
+.field:focus-visible { outline-offset: 0; border-color: var(--color-gold); background: var(--color-plate-2); }
+textarea.field { min-height: 6.5rem; resize: vertical; line-height: 1.5; }
+
+/* ------------------------------------------------------------------- admin */
+.admin {
+  min-height: 100svh;
+  background: #100e11;
+  color: #e9e3d8;
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.admin :focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+.admin h1 { font-size: 1.375rem; font-weight: 650; letter-spacing: -0.01em; }
+.admin h2 { font-size: 1.0625rem; font-weight: 650; }
+.admin .muted { color: #a79f92; }
+.admin .num { font-variant-numeric: tabular-nums; }
+
+.a-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid #3d3740;
+  border-radius: 6px;
+  background: #1c181e;
+  color: #e9e3d8;
+  font-weight: 550;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.a-btn:hover { background: #262027; border-color: #564d59; }
+.a-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.a-btn-primary { background: var(--color-gold); border-color: var(--color-gold); color: #17130c; }
+.a-btn-primary:hover { background: #d8ba76; border-color: #d8ba76; }
+.a-btn-danger { color: var(--color-danger); border-color: #6a3a35; }
+.a-btn-danger:hover { background: #2b1a19; border-color: #8a4a43; }
+.a-btn-quiet { border-color: transparent; background: transparent; }
+.a-btn-sm { min-height: 1.875rem; padding: 0.2rem 0.55rem; font-size: 0.8125rem; }
+
+.a-field {
+  width: 100%;
+  min-height: 2.375rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #3d3740;
+  border-radius: 6px;
+  background: #151216;
+  color: #f1ece2;
+}
+.a-field::placeholder { color: #8f8779; }
+.a-field:hover { border-color: #564d59; }
+.a-field:focus-visible { outline-offset: 0; border-color: var(--color-gold); }
+.a-label { display: block; margin-bottom: 0.3rem; font-weight: 550; font-size: 0.875rem; }
+
+.a-panel { border: 1px solid #2b262d; border-radius: 10px; background: #161317; }
+
+.a-dialog {
+  width: min(100% - 2rem, 34rem);
+  max-height: calc(100svh - 2rem);
+  margin: auto;
+  padding: 0;
+  border: 1px solid #3d3740;
+  border-radius: 12px;
+  background: #18141a;
+  color: #e9e3d8;
+  box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.7);
+  overflow: auto;
+}
+.a-dialog::backdrop { background: rgb(6 4 7 / 0.72); }
+
+.a-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+.a-tag::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; }
+.a-tag-attending { background: #1d2a1a; color: var(--color-ok); }
+.a-tag-declined { background: #2e1a19; color: var(--color-danger); }
+.a-tag-pending { background: #262128; color: #c9c0b2; }

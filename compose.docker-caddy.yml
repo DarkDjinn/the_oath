@@ -1,0 +1,12 @@
+# Caddy runs in Docker: join its network and publish no ports at all.
+# Caddy reaches the app by container name: reverse_proxy wedding:3000
+services:
+  wedding:
+    networks:
+      - caddy
+
+networks:
+  caddy:
+    external: true
+    # The name of the Docker network your Caddy container is attached to.
+    name: ${CADDY_NETWORK:-caddy}

@@ -1,0 +1,30 @@
+# Base service. Pick how Caddy reaches it by adding ONE of the override files,
+# most simply through COMPOSE_FILE in .env (see .env.example):
+#   compose.host-caddy.yml    Caddy installed on the host
+#   compose.docker-caddy.yml  Caddy running in Docker on a shared network
+services:
+  wedding:
+    build: .
+    image: the-oath:latest
+    container_name: wedding
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    environment:
+      # Fixed inside the container; the volume below makes them persistent.
+      DATABASE_PATH: /data/wedding.db
+      PHOTOS_DIR: /data/photos
+      BACKUP_DIR: /data/backups
+    volumes:
+      - wedding-data:/data
+    stop_grace_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  wedding-data:

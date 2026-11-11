@@ -1,0 +1,14 @@
+node_modules
+.nuxt
+.output
+.data
+data
+.env
+.env.*
+!.env.example
+.git
+.impeccable
+.claude
+tests
+*.log
+.DS_Store
