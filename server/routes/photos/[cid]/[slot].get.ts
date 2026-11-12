@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import sharp from 'sharp'
 import { isSlot, PHOTO_WIDTHS, photoFile } from '../../../core/photos'
 
@@ -14,7 +15,8 @@ export default defineEventHandler(async (event) => {
   const prefix = `${cid}:${slot}:${width}:`, key = prefix + file.version
   let image = cache.get(key)
   if (!image) {
-    image = await sharp(file.path).rotate().resize({ width, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer()
+    // Read the bytes ourselves: given a path, sharp may answer from its own cache of that file, i.e. the photo it replaced.
+    image = await sharp(await readFile(file.path)).rotate().resize({ width, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer()
     for (const k of cache.keys()) if (k.startsWith(prefix)) cache.delete(k)
     if (cache.size > 200) cache.clear()
     cache.set(key, image)

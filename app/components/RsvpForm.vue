@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { LIMITS, type GuestInvitation, type RsvpInput } from '#shared/types'
 import { rose } from '~/utils/ornament'
+import { PREVIEW_TOKEN } from '~/utils/preview'
 
 const props = defineProps<{ invitation: GuestInvitation, token: string, rsvpBy: string, closed: boolean, askDietary: boolean, askMessage: boolean }>()
 const emit = defineEmits<{ update: [GuestInvitation] }>()
@@ -52,7 +53,10 @@ async function submit() {
 
   saving.value = true
   try {
-    const saved = await $fetch<GuestInvitation>('/api/rsvp', {
+    // In the design studio's preview the form is a sample: the answer is shown, never sent.
+    const saved = props.token === PREVIEW_TOKEN
+      ? { ...props.invitation, rsvpStatus: status.value, extraGuests: names, dietaryNotes: dietary.value, message: message.value, respondedAt: new Date().toISOString() }
+      : await $fetch<GuestInvitation>('/api/rsvp', {
       method: 'PUT',
       headers: { authorization: `Bearer ${props.token}` },
       body: { rsvpStatus: status.value, extraGuests: names, dietaryNotes: dietary.value, message: message.value } satisfies RsvpInput,
