@@ -1,14 +1,43 @@
 {
-  "assistant": ["@fontsource-variable/assistant/wght.css"],
-  "cormorant": ["@fontsource-variable/cormorant-garamond/wght.css"],
-  "noto-serif": ["@fontsource-variable/noto-serif-hebrew/wght.css"],
-  "playfair": ["@fontsource-variable/playfair-display/wght.css"],
-  "rubik": ["@fontsource-variable/rubik/wght.css"],
-  "amatic": ["@fontsource/amatic-sc/index.css", "@fontsource/amatic-sc/700.css"],
-  "bellefair": ["@fontsource/bellefair/index.css"],
-  "bona-nova": ["@fontsource/bona-nova/index.css", "@fontsource/bona-nova/700.css"],
-  "great-vibes": ["@fontsource/great-vibes/index.css"],
-  "poiret": ["@fontsource/poiret-one/index.css"],
-  "secular": ["@fontsource/secular-one/index.css"],
-  "suez": ["@fontsource/suez-one/index.css"]
+  "assistant": [
+    "@fontsource-variable/assistant/wght.css"
+  ],
+  "cormorant": [
+    "@fontsource-variable/cormorant-garamond/wght.css"
+  ],
+  "noto-serif": [
+    "@fontsource-variable/noto-serif-hebrew/wght.css"
+  ],
+  "playfair": [
+    "@fontsource-variable/playfair-display/wght.css"
+  ],
+  "rubik": [
+    "@fontsource-variable/rubik/wght.css"
+  ],
+  "amatic": [
+    "@fontsource/amatic-sc/index.css",
+    "@fontsource/amatic-sc/700.css"
+  ],
+  "bellefair": [
+    "@fontsource/bellefair/index.css"
+  ],
+  "bona-nova": [
+    "@fontsource/bona-nova/index.css",
+    "@fontsource/bona-nova/700.css"
+  ],
+  "great-vibes": [
+    "@fontsource/great-vibes/index.css"
+  ],
+  "poiret": [
+    "@fontsource/poiret-one/index.css"
+  ],
+  "secular": [
+    "@fontsource/secular-one/index.css"
+  ],
+  "suez": [
+    "@fontsource/suez-one/index.css"
+  ],
+  "playball": [
+    "@fontsource/playball/index.css"
+  ]
 }

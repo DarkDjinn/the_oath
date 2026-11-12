@@ -8,6 +8,8 @@ export const en: Messages = {
     and: '&',
     rsvp: 'RSVP',
     change: 'Change reply',
+    confirm: 'Please confirm attendance',
+    love: 'With love',
   },
   details: {
     title: 'When and where',
@@ -18,6 +20,9 @@ export const en: Messages = {
     maps: 'Open in Google Maps',
     dressCode: 'Dress code',
     calendar: 'Add to calendar',
+    welcome: 'Welcome',
+    schedule: 'Event schedule',
+    location: 'Event location',
   },
   rsvp: {
     title: 'RSVP',

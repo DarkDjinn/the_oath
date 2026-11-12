@@ -409,16 +409,29 @@ describe('campaigns and couples', () => {
     expect([sheet.status, sheet.headers.get('content-type')]).toEqual([200, expect.stringContaining('text/css')])
     const fontFile = (await sheet.text()).match(/url\(\.\/(files\/[^)]+\.woff2)\)/)![1]
     expect((await call(`/fonts/fontsource-suez-one/${fontFile}`)).status).toBe(200)
+    // Another style is a different page altogether, with its own typefaces, and the couple's headline above their names.
+    const rose = await (await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { theme: 'keepsake' }, cookie: danaCookie })).json()
+    expect(rose.design).toMatchObject({ theme: 'keepsake', preset: 'keepsake-plum', lettering: { latin: 'playball' }, options: { portrait: 'gold', frame: 'arch' } })
+    const current = (await (await call(`/api/admin/c/${danaId}`, { cookie: danaCookie })).json()).content
+    current.copy.he.headline = 'בית <i>לוי</i>'
+    expect((await call(`/api/admin/c/${danaId}/content`, { method: 'PUT', json: current, cookie: danaCookie })).status).toBe(200)
+    const rosePage = await (await call(`/w/dana-and-omer`, { cookie: danaCookie })).text()
+    expect(rosePage).toContain('class="keep ')
+    expect(rosePage).toContain('בית &lt;i&gt;לוי&lt;/i&gt;')
+    expect(rosePage).toContain('k-ribbon')
+    expect(rosePage).toContain('href="/fonts/fontsource-playball/index.css"')
+    expect(rosePage).toContain('--color-ground:#2e0c22')
+    await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { theme: 'nocturne', preset: 'nocturne-oxblood', colours: { accent: '#e0b0ff' } }, cookie: danaCookie })
     // A palette guests could not read is refused, with the reason.
     const unreadable = await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { colours: { text: '#1a0a0e' } }, cookie: danaCookie })
     expect(unreadable.status).toBe(400)
     expect((await unreadable.json()).message).toMatch(/hard to read/)
     // Earlier designs can be brought back, by this couple only.
     const versions = await (await call(`/api/admin/c/${danaId}/design/versions`, { cookie: danaCookie })).json()
-    expect(versions).toHaveLength(2)
+    expect(versions).toHaveLength(4)
     expect((await call('/api/admin/c/1/design/versions', { cookie: danaCookie })).status).toBe(404)
     expect((await call(`/api/admin/c/1/design/versions/${versions[0].id}/restore`, { method: 'POST', cookie: danaCookie })).status).toBe(404)
-    const restored = await (await call(`/api/admin/c/${danaId}/design/versions/${versions[0].id}/restore`, { method: 'POST', cookie: danaCookie })).json()
+    const restored = await (await call(`/api/admin/c/${danaId}/design/versions/${versions[2].id}/restore`, { method: 'POST', cookie: danaCookie })).json()
     expect(restored.design).toMatchObject({ preset: 'nocturne-oxblood', colours: { accent: '#e0b0ff' }, lettering: { display: 'frank-ruhl' } })
   })
 

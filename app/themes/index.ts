@@ -1,4 +1,5 @@
 import type { Component } from 'vue'
+import KeepsakeInvitation from './keepsake/KeepsakeInvitation.vue'
 import NocturneInvitation from './nocturne/NocturneInvitation.vue'
 
 /**
@@ -8,4 +9,5 @@ import NocturneInvitation from './nocturne/NocturneInvitation.vue'
  */
 export const themeComponents: Record<string, Component> = {
   nocturne: NocturneInvitation,
+  keepsake: KeepsakeInvitation,
 }

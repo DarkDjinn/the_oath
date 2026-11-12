@@ -5,7 +5,8 @@ export type CampaignStatus = 'draft' | 'live' | 'archived'
 type PerLanguage<T> = Record<Language, T>
 
 /** Lines a couple may reword. An empty string means "use the standard text". */
-export interface CopyOverrides { invite: string, intro: string, footer: string }
+/** `headline` is a name of the couple's own (a nickname, a shared surname) that some styles show large above their names. */
+export interface CopyOverrides { invite: string, intro: string, footer: string, headline: string }
 
 /** Everything about one couple's event. Stored as JSON on the campaign. */
 export interface CampaignContent {
@@ -61,7 +62,7 @@ export function defaultContent(names?: Partial<CampaignContent['couple']>): Camp
     notes: perLanguage(() => ''),
     rsvpBy: '',
     languages: ['he', 'en'],
-    copy: perLanguage(() => ({ invite: '', intro: '', footer: '' })),
+    copy: perLanguage(() => ({ invite: '', intro: '', footer: '', headline: '' })),
     rsvp: { closed: false, closeAfterDeadline: false, askDietary: true, askMessage: true, guestLimit: 20 },
   }
 }

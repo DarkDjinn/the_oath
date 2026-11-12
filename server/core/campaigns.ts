@@ -86,6 +86,7 @@ export function validateContent(input: unknown): CampaignContent {
       invite: text(c.copy?.[l]?.invite, CONTENT_LIMITS.line, 'The invitation line'),
       intro: text(c.copy?.[l]?.intro, CONTENT_LIMITS.paragraph, 'The opening paragraph'),
       footer: text(c.copy?.[l]?.footer, CONTENT_LIMITS.line, 'The closing line'),
+      headline: text(c.copy?.[l]?.headline, CONTENT_LIMITS.name, 'The headline'),
     })),
     rsvp: {
       closed: c.rsvp?.closed === true,
@@ -124,7 +125,7 @@ export const contentOf = (row: CampaignRow): CampaignContent => {
     venue: { ...base.venue, ...c.venue },
     dressCode: { ...base.dressCode, ...c.dressCode },
     notes: { ...base.notes, ...c.notes },
-    copy: { ...base.copy, ...c.copy },
+    copy: Object.fromEntries(LANGUAGES.map(l => [l, { ...base.copy[l], ...c.copy?.[l] }])) as CampaignContent['copy'],
     languages: (c.languages ?? []).filter(isLanguage),
     rsvp: { ...base.rsvp, ...c.rsvp },
   }
@@ -184,7 +185,7 @@ export function setDesign(db: DB, id: number, input: unknown, allowCss: boolean)
     // The stylesheet is inlined in a <style> element: it must not be able to close it.
     design.customCss = css.replace(/<\/?style/gi, '')
   }
-  const unreadable = colourProblems(design.colours)[0]
+  const unreadable = colourProblems(design.colours, design.theme)[0]
   if (unreadable) throw new ValidationError('colours_unreadable', `${unreadable.what} would be hard to read (contrast ${unreadable.ratio.toFixed(1)}, needs ${unreadable.needed}). Pick colours that are further apart.`)
   saveDesign(db, row, design)
   return getCampaign(db, id)

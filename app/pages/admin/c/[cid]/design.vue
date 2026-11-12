@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AdminCampaign } from '#shared/campaign'
-import { FONT_ROLES, FONTS, fontsForRole, type FontRole } from '#shared/design/fonts'
+import { DEFAULT_LETTERING, FONT_ROLES, FONTS, fontsForRole, type FontRole } from '#shared/design/fonts'
 import { COLOUR_ROLES, colourProblems, fixColours, PRESETS, presetsFor, themesFor, type ColourRole, type Design } from '#shared/themes'
 import { LANGUAGES, type Language } from '#shared/types'
 import { fontLinks } from '~/utils/fontFiles'
@@ -49,10 +49,12 @@ function useTheme(id: string) {
   if (draft.theme === id) return
   draft.theme = id
   draft.options = { ...themes[id]!.defaults }
+  // A style brings its own typefaces as well as its colours.
+  draft.lettering = { ...(themes[id]!.lettering ?? DEFAULT_LETTERING) }
   usePreset(themes[id]!.preset)
 }
 const changed = computed(() => roles.some(role => draft.colours[role] !== PRESETS[draft.preset]?.colours[role]))
-const problems = computed(() => colourProblems(draft.colours))
+const problems = computed(() => colourProblems(draft.colours, draft.theme))
 
 // ------------------------------------------------------------------ lettering
 const fontRoles = Object.keys(FONT_ROLES) as FontRole[]
@@ -166,10 +168,10 @@ function tryVersion(version: Version) {
 }
 
 // ------------------------------------------------------------------ photos
-const slots = [
-  { id: 'hero', label: 'Main photo', hint: 'Shown in an arched frame under the opening screen. Portrait works best.' },
-  { id: 'second', label: 'Second photo', hint: 'Shown between the details and the RSVP. Landscape works best.' },
-] as const
+const slots = computed(() => [
+  { id: 'hero', label: 'Main photo', hint: definition.value.photos.hero },
+  { id: 'second', label: 'Second photo', hint: definition.value.photos.second },
+] as const)
 const photoBusy = ref('')
 const photoError = ref('')
 
@@ -272,7 +274,7 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved design
         <div v-if="problems.length" class="warn mt-3" role="status">
           <p class="font-semibold">Guests would struggle to read this, so it cannot be saved yet:</p>
           <ul class="mt-1 list-disc pl-5"><li v-for="p in problems" :key="p.role + p.on">{{ p.what }} (contrast {{ p.ratio.toFixed(1) }}, needs {{ p.needed }})</li></ul>
-          <button class="a-btn a-btn-sm mt-2" type="button" @click="draft.colours = fixColours(draft.colours)">Adjust the colours for me</button>
+          <button class="a-btn a-btn-sm mt-2" type="button" @click="draft.colours = fixColours(draft.colours, draft.theme)">Adjust the colours for me</button>
         </div>
         <p v-else class="ok mt-3">Easy to read.</p>
         <p v-if="changed" class="muted mt-2 text-[0.8125rem]">Your own colours, starting from {{ PRESETS[draft.preset]?.name }}. <button type="button" class="link" @click="usePreset(draft.preset)">Back to the original</button></p>
@@ -313,6 +315,14 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved design
         <h2>Photos</h2>
         <p class="muted">Optional. The invitation is complete without them. JPEG, PNG, WebP or AVIF, up to 12 MB. Photos are saved as soon as they upload.</p>
         <p v-if="photoError" class="mt-3 text-danger" role="alert">{{ photoError }}</p>
+        <fieldset v-for="[key, option] in optionsFor('photos')" :key="key" class="mt-4">
+          <legend class="a-label">{{ option.label }}</legend>
+          <div class="flex flex-wrap gap-2">
+            <label v-for="(label, value) in option.choices" :key="value" class="chip" :class="{ 'is-on': draft.options[key] === value }">
+              <input v-model="draft.options[key]" type="radio" :name="`opt-${key}`" :value="value" class="sr-only">{{ label }}
+            </label>
+          </div>
+        </fieldset>
         <div v-for="slot in slots" :key="slot.id" class="mt-4">
           <h3>{{ slot.label }}</h3>
           <p class="muted text-[0.8125rem]">{{ slot.hint }}</p>
@@ -407,7 +417,7 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved design
 }
 
 .pick { display: block; width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--a-line-strong); border-radius: 8px; text-align: start; }
-.chip { display: inline-flex; align-items: center; min-height: 2.25rem; padding: 0.3rem 0.8rem; border: 1px solid var(--a-line-strong); border-radius: 999px; background: var(--a-surface); cursor: pointer; font-weight: 600; }
+.chip { display: inline-flex; align-items: center; min-height: 2.25rem; padding: 0.3rem 0.8rem; border: 1px solid var(--a-line-strong); border-radius: 1.125rem; background: var(--a-surface); cursor: pointer; font-weight: 600; }
 .pick:hover, .chip:hover, .swatch:hover, .card:hover, .face:hover, .film-item:hover { border-color: var(--a-line-hover); }
 .pick.is-on, .chip.is-on, .swatch.is-on, .card.is-on, .face.is-on, .film-item.is-on { border-color: var(--a-sec-text); background: var(--a-sec-tint); color: var(--a-ink); box-shadow: inset 0 0 0 1px var(--a-sec-text); }
 .chip:has(:focus-visible), .face:has(:focus-visible) { outline: 2px solid var(--a-sec-text); outline-offset: 2px; }

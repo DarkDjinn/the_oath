@@ -99,6 +99,8 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved change
         <h3 class="font-semibold">{{ l.label }}</h3>
         <label class="a-label mt-3" :for="`invite-${l.id}`">Invitation line, above the names</label>
         <input :id="`invite-${l.id}`" v-model="form.copy[l.id].invite" class="a-field" :dir="l.dir" maxlength="160" :placeholder="l.dict.hero.invite">
+        <label class="a-label mt-3" :for="`headline-${l.id}`">Headline <span class="muted font-normal">(optional: a name of your own, such as a shared surname or nickname. Styles that have a headline show it large, with your names on a ribbon beneath)</span></label>
+        <input :id="`headline-${l.id}`" v-model="form.copy[l.id].headline" class="a-field" :dir="l.dir" maxlength="40">
         <label class="a-label mt-3" :for="`intro-${l.id}`">Opening paragraph</label>
         <textarea :id="`intro-${l.id}`" v-model="form.copy[l.id].intro" class="a-field" rows="2" :dir="l.dir" maxlength="600" :placeholder="l.dict.details.intro" />
         <label class="a-label mt-3" :for="`dress-${l.id}`">Dress code <span class="muted font-normal">(optional)</span></label>

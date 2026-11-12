@@ -4,7 +4,7 @@ import { defaultContent, rsvpClosed } from '../../shared/campaign'
 import { contrast } from '../../shared/design/colour'
 import { DEFAULT_LETTERING, FONT_ROLES, FONTS, fontsForRole, fontsInUse, letteringVars, normaliseLettering, type FontRole } from '../../shared/design/fonts'
 import { designTokens, tokenVars } from '../../shared/design/tokens'
-import { colourProblems, fixColours, normaliseDesign, PRESETS, readDesign } from '../../shared/themes'
+import { colourProblems, fixColours, normaliseDesign, PRESETS, readDesign, THEMES } from '../../shared/themes'
 import { getSession, createSession, verifyPassword } from '../../server/core/auth'
 import {
   contentOf, createCampaign, deleteCampaign, DESIGN_VERSIONS_KEPT, designOf, getCampaign, getCampaignBySlug, listCampaigns, listDesignVersions,
@@ -259,7 +259,7 @@ describe('Russian', () => {
     db.prepare('UPDATE campaigns SET content = ? WHERE id = 1').run(JSON.stringify({ couple: { he: { first: 'א', second: 'ב' }, en: { first: 'A', second: 'B' } }, languages: ['he', 'en'] }))
     const old = contentOf(getCampaign(db, 1))
     expect(old.couple.ru).toEqual({ first: '', second: '' })
-    expect(old.copy.ru).toEqual({ invite: '', intro: '', footer: '' })
+    expect(old.copy.ru).toEqual({ invite: '', intro: '', footer: '', headline: '' })
 
     const saved = contentOf(setContent(db, 1, { ...old, languages: ['ru', 'he'], couple: { ...old.couple, ru: { first: 'Виктор', second: 'Дани' } } }))
     expect(saved.languages).toEqual(['ru', 'he'])
@@ -300,7 +300,8 @@ describe('design', () => {
   })
 
   it('every preset is readable, and an untouched preset keeps its hand-tuned shades', () => {
-    for (const [id, preset] of Object.entries(PRESETS)) expect(colourProblems(preset.colours), id).toEqual([])
+    for (const [id, preset] of Object.entries(PRESETS)) expect(colourProblems(preset.colours, preset.theme), id).toEqual([])
+    for (const [id, theme] of Object.entries(THEMES)) expect(PRESETS[theme.preset]?.theme, id).toBe(id)
     const tokens = designTokens({ preset: 'nocturne-bone', colours: PRESETS['nocturne-bone']!.colours })
     expect(tokens).toMatchObject({ accentDim: '#8a857c', star: '#f1ece2', glow: '#1b1a1c', scheme: 'dark' })
     // Change one colour and the rest is worked out afresh.
@@ -340,6 +341,21 @@ describe('design', () => {
     const db = freshDb()
     setDesign(db, 1, { lettering: { display: 'suez', latin: 'cormorant' } }, false)
     expect(designOf(setDesign(db, 1, { options: { emblem: 'moon' } }, false)).lettering).toEqual({ ...DEFAULT_LETTERING, display: 'suez', latin: 'cormorant' })
+  })
+
+  it('changing style starts from that style\'s colours, typefaces and choices', () => {
+    const nocturne = normaliseDesign({ lettering: { display: 'suez' }, colours: { accent: '#ff99cc' } }, 'any')
+    const rose = normaliseDesign({ theme: 'keepsake' }, 'any', nocturne)
+    expect(rose).toMatchObject({ theme: 'keepsake', preset: 'keepsake-plum', colours: PRESETS['keepsake-plum']!.colours, lettering: THEMES.keepsake!.lettering, options: THEMES.keepsake!.defaults })
+    // Staying in the style keeps what the couple chose.
+    expect(normaliseDesign({ options: { frame: 'circle' } }, 'any', { ...rose, lettering: { ...rose.lettering, latin: 'great-vibes' } })).toMatchObject({ lettering: { latin: 'great-vibes' }, options: { frame: 'circle', portrait: 'gold' } })
+    // This style puts text on the second accent, so that pairing must be readable too, and the repair moves the accent, not the background.
+    const clash = { ...rose.colours, accent2: '#3a1230' }
+    expect(colourProblems(clash, 'keepsake').map(p => p.on)).toEqual(['accent2'])
+    expect(colourProblems(clash, 'nocturne')).toEqual([])
+    const repaired = fixColours(clash, 'keepsake')
+    expect(colourProblems(repaired, 'keepsake')).toEqual([])
+    expect(repaired.ground).toBe(rose.colours.ground)
   })
 
   it('refuses a design guests could not read', () => {

@@ -42,6 +42,7 @@ export const FONTS: Record<string, FontDefinition> = {
   'playfair': { label: 'Playfair Display', family: 'Playfair Display Variable', scripts: ['latin', 'cyrillic'], roles: ['latin', 'numeral'], mood: 'High-contrast editorial' },
   'cormorant': { label: 'Cormorant Garamond', family: 'Cormorant Garamond Variable', scripts: ['latin', 'cyrillic'], roles: ['latin', 'numeral'], mood: 'Delicate and romantic' },
   'poiret': { label: 'Poiret One', family: 'Poiret One', scripts: ['latin', 'cyrillic'], roles: ['latin', 'numeral'], mood: 'Art deco geometry' },
+  'playball': { label: 'Playball', family: 'Playball', scripts: ['latin'], roles: ['latin'], mood: 'Rounded brush script' },
   'great-vibes': { label: 'Great Vibes', family: 'Great Vibes', scripts: ['latin', 'cyrillic'], roles: ['latin'], mood: 'Flowing script' },
   'unifraktur': { label: 'Unifraktur Cook', family: 'UnifrakturCook', scripts: ['latin'], roles: ['latin'], mood: 'Gothic blackletter' },
   'pirata': { label: 'Pirata One', family: 'Pirata One', scripts: ['latin'], roles: ['latin', 'numeral'], mood: 'Blackletter numerals' },
@@ -54,6 +55,7 @@ export const fontsForRole = (role: FontRole) =>
   Object.fromEntries(Object.entries(FONTS).filter(([, f]) => f.roles.includes(role) && f.scripts.includes(FONT_ROLES[role].needs)))
 
 export function normaliseLettering(input: unknown, base: Lettering = DEFAULT_LETTERING): Lettering {
+  // `base` is trusted (a theme's own lettering, or the design being replaced).
   const raw = (input ?? {}) as Record<string, unknown>
   const out = { ...base }
   for (const role of Object.keys(FONT_ROLES) as FontRole[]) {

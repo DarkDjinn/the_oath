@@ -41,7 +41,8 @@ Every admin API call is scoped to one campaign and checked on the server; a coup
 A **theme** is a self-contained module: a component, its tokens, its ornament and a list of options. Themes are registered in one file, so adding a look does not touch the platform.
 
 - `nocturne` (built): the gothic family. Options: emblem (thorn heart, rose wreath, moon ring), colours (gold on black, bone on black, gold on oxblood), backdrop (plain, stars, damask, spires), gate or plain plate.
-- Non-gothic themes: next stage, chosen from rendered mocks.
+- **Rose Keepsake** (`app/themes/keepsake`): the first non-gothic style. A portrait opens the page (shown as uploaded for a drawing, or toned in the palette for a photo, in an arch, medallion, double frame or unframed), gold script names with a ribbon, a schedule card and blush pill buttons. Six colour presets, dark and light. A couple may set a *headline* in Details (a shared surname or nickname); it is shown large with their names on the ribbon beneath.
+- More non-gothic styles: next stage, chosen from rendered mocks.
 - **One-off designs for a couple**: add a theme folder and mark it private to that campaign; it then appears only in their Design tab. For small adjustments the owner can attach custom CSS to a campaign.
 
 ## Data

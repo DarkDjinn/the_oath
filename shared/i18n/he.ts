@@ -7,6 +7,8 @@ export const he = {
     and: 'ו',
     rsvp: 'אישור הגעה',
     change: 'עדכון התשובה',
+    confirm: 'לאישור הגעה',
+    love: 'באהבה',
   },
   details: {
     title: 'מתי ואיפה',
@@ -17,6 +19,9 @@ export const he = {
     maps: 'פתיחה ב־Google Maps',
     dressCode: 'קוד לבוש',
     calendar: 'הוספה ליומן',
+    welcome: 'ברוכים הבאים',
+    schedule: 'סדר הערב',
+    location: 'מקום האירוע',
   },
   rsvp: {
     title: 'אישור הגעה',

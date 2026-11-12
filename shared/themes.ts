@@ -13,7 +13,7 @@ import { normaliseLettering, type Lettering } from './design/fonts'
  * on the theme to their campaign slug(s).
  */
 /** `topic` is where the studio shows the choice. */
-export interface ThemeOption { label: string, topic: 'ornaments' | 'button', choices: Record<string, string> }
+export interface ThemeOption { label: string, topic: 'ornaments' | 'button' | 'photos', choices: Record<string, string> }
 export interface ThemeDefinition {
   name: string
   description: string
@@ -21,6 +21,12 @@ export interface ThemeDefinition {
   defaults: Record<string, string>
   /** The preset a new campaign starts from. */
   preset: string
+  /** The typefaces the style is drawn with, when they differ from the platform's own. */
+  lettering?: Lettering
+  /** Colour pairings this style needs readable, beyond the ones every style needs. */
+  contrast?: ContrastRule[]
+  /** What each photo is for in this style, shown beside the upload. */
+  photos: { hero: string, second: string }
   /** Campaign slugs that may use this theme. Omit for a theme everyone can pick. */
   onlyFor?: string[]
 }
@@ -36,6 +42,22 @@ export const THEMES: Record<string, ThemeDefinition> = {
     },
     defaults: { emblem: 'heart', backdrop: 'stars', gate: 'gate' },
     preset: 'nocturne-gold',
+    photos: { hero: 'Shown in an arched frame under the opening screen. Portrait works best.', second: 'Shown between the details and the RSVP. Landscape works best.' },
+  },
+  keepsake: {
+    name: 'Rose Keepsake',
+    description: 'Warm and romantic: a portrait of the two of you, gold script names, a ribbon and soft blush buttons.',
+    options: {
+      portrait: { label: 'How the main photo is shown', topic: 'photos', choices: { artwork: 'As it is, melted into the background (for a drawing or illustration)', gold: 'Toned in the accent colour', rose: 'Toned in the second accent', natural: 'In its true colours' } },
+      frame: { label: 'Frame', topic: 'photos', choices: { none: 'None', arch: 'Arch', circle: 'Medallion', frame: 'Double frame' } },
+      sprigs: { label: 'Leaf sprigs', topic: 'ornaments', choices: { on: 'Shown', off: 'Hidden' } },
+      button: { label: 'RSVP button', topic: 'button', choices: { pill: 'Filled pill', outline: 'Outlined pill' } },
+    },
+    defaults: { portrait: 'gold', frame: 'arch', sprigs: 'on', button: 'pill' },
+    preset: 'keepsake-plum',
+    lettering: { display: 'bona-nova', latin: 'playball', body: 'bona-nova', numeral: 'bona-nova' },
+    contrast: [{ role: 'ground', on: 'accent2', ratio: 4.5, what: 'Button and ribbon text on the second accent', adjust: 'accent2' }],
+    photos: { hero: 'The portrait at the top of the invitation. A photo or a drawing; landscape or square works best.', second: 'Shown between the welcome and the schedule.' },
   },
 }
 
@@ -101,6 +123,36 @@ export const PRESETS: Record<string, Preset> = {
     theme: 'nocturne',
     colours: { ground: '#170d19', surface: '#221425', text: '#f3e7e4', muted: '#c2aeb9', accent: '#dba58f', accent2: '#8c2f5a' },
   },
+  'keepsake-plum': {
+    name: 'Gold and blush on plum',
+    theme: 'keepsake',
+    colours: { ground: '#2e0c22', surface: '#3d1430', text: '#f6e6d6', muted: '#d8c0bb', accent: '#e0a868', accent2: '#eaa39c' },
+  },
+  'keepsake-midnight': {
+    name: 'Champagne on midnight',
+    theme: 'keepsake',
+    colours: { ground: '#0e1730', surface: '#182342', text: '#f4ead8', muted: '#bfc3d2', accent: '#e3c078', accent2: '#a9c4e0' },
+  },
+  'keepsake-forest': {
+    name: 'Gold and sage on forest',
+    theme: 'keepsake',
+    colours: { ground: '#10231c', surface: '#1a3329', text: '#f1ead9', muted: '#bcc8b8', accent: '#d9b46a', accent2: '#b9d0a8' },
+  },
+  'keepsake-noir': {
+    name: 'Rose gold on black',
+    theme: 'keepsake',
+    colours: { ground: '#111012', surface: '#1e1c20', text: '#f5ebe6', muted: '#c4b8b6', accent: '#e2a98f', accent2: '#f0c3b8' },
+  },
+  'keepsake-daylight': {
+    name: 'Wine on blush paper',
+    theme: 'keepsake',
+    colours: { ground: '#f8ebe4', surface: '#f1dcd3', text: '#4a1532', muted: '#74495a', accent: '#9a5a24', accent2: '#7c1f4a' },
+  },
+  'keepsake-ivory': {
+    name: 'Olive on ivory',
+    theme: 'keepsake',
+    colours: { ground: '#f6f1e4', surface: '#ebe4d1', text: '#2f3527', muted: '#5f6653', accent: '#7a6a2a', accent2: '#4c5d3a' },
+  },
   'nocturne-ivory': {
     name: 'Ink on ivory',
     theme: 'nocturne',
@@ -111,7 +163,8 @@ export const PRESETS: Record<string, Preset> = {
 export const presetsFor = (theme: string) => Object.fromEntries(Object.entries(PRESETS).filter(([, p]) => p.theme === theme))
 
 /** How readable each pairing must be (WCAG 2 contrast). Body text needs more than large headings and line art. */
-export const CONTRAST_RULES: { role: ColourRole, on: ColourRole, ratio: number, what: string }[] = [
+export interface ContrastRule { role: ColourRole, on: ColourRole, ratio: number, what: string, /** The colour to move when repairing; the `role` itself unless said otherwise. */ adjust?: ColourRole }
+export const CONTRAST_RULES: ContrastRule[] = [
   { role: 'text', on: 'ground', ratio: 4.5, what: 'Text on the background' },
   { role: 'muted', on: 'ground', ratio: 4.5, what: 'Quiet text on the background' },
   { role: 'text', on: 'surface', ratio: 4.5, what: 'Text inside form fields' },
@@ -120,20 +173,25 @@ export const CONTRAST_RULES: { role: ColourRole, on: ColourRole, ratio: number, 
 
 export interface ColourProblem { role: ColourRole, on: ColourRole, what: string, ratio: number, needed: number }
 
-/** Pairings a guest would struggle to read. Empty when the palette is fine. */
-export function colourProblems(colours: Colours): ColourProblem[] {
-  return CONTRAST_RULES
+const rulesFor = (theme?: string): ContrastRule[] => [...CONTRAST_RULES, ...(THEMES[theme ?? '']?.contrast ?? [])]
+
+/** Pairings a guest would struggle to read in this style. Empty when the palette is fine. */
+export function colourProblems(colours: Colours, theme?: string): ColourProblem[] {
+  return rulesFor(theme)
     .map(rule => ({ role: rule.role, on: rule.on, what: rule.what, ratio: contrast(colours[rule.role], colours[rule.on]), needed: rule.ratio }))
     .filter(p => p.ratio < p.needed)
 }
 
 /** The same palette with each failing colour nudged just far enough to be readable. */
-export function fixColours(colours: Colours): Colours {
+export function fixColours(colours: Colours, theme?: string): Colours {
   const fixed = { ...colours }
   fixed.text = readable(fixed.text, fixed.ground, 4.5)
   // Text cannot be moved to suit two grounds at once: a clashing panel colour becomes a tint of the background instead.
   if (contrast(fixed.text, fixed.surface) < 4.5) fixed.surface = mix(fixed.ground, fixed.text, 0.07)
-  for (const rule of CONTRAST_RULES) fixed[rule.role] = readable(fixed[rule.role], fixed[rule.on], rule.ratio)
+  for (const rule of rulesFor(theme)) {
+    const moved = rule.adjust ?? rule.role, against = moved === rule.role ? rule.on : rule.role
+    fixed[moved] = readable(fixed[moved], fixed[against], rule.ratio)
+  }
   return fixed
 }
 
@@ -188,7 +246,8 @@ export function normaliseDesign(input: unknown, slug: string, previous?: Design)
     const kept = sameTheme ? previous!.options[key] : undefined
     options[key] = typeof value === 'string' && value in option.choices ? value : (kept !== undefined && kept in option.choices ? kept : definition.defaults[key]!)
   }
-  const lettering = normaliseLettering((raw as { lettering?: unknown }).lettering, previous?.lettering)
+  // A style brings its own typefaces; changing style starts from them.
+  const lettering = normaliseLettering((raw as { lettering?: unknown }).lettering, sameTheme ? previous!.lettering : definition.lettering)
   return { version: 2, theme, preset, colours, lettering, options, customCss: previous?.customCss ?? '' }
 }
 
