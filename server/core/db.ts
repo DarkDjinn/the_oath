@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import Database from 'better-sqlite3'
 import { DEFAULT_WHATSAPP, defaultContent, type CampaignContent } from '../../shared/campaign'
-import { THEMES } from '../../shared/themes'
+import { readDesign } from '../../shared/themes'
 
 export type DB = Database.Database
 
@@ -71,7 +71,7 @@ const MIGRATIONS: Migration[] = [
     const now = new Date().toISOString()
     db.prepare('INSERT INTO campaigns (id, slug, status, design, content, whatsapp, created_at, updated_at) VALUES (1, ?, ?, ?, ?, ?, ?, ?)').run(
       'victor-and-dani', 'live',
-      JSON.stringify({ theme: 'nocturne', options: THEMES.nocturne!.defaults, customCss: '' }),
+      JSON.stringify(readDesign(null, 'victor-and-dani')),
       JSON.stringify(FIRST_CAMPAIGN), JSON.stringify(whatsapp), now, now,
     )
     db.exec('DROP TABLE settings')
@@ -130,6 +130,26 @@ const MIGRATIONS: Migration[] = [
   );
   CREATE INDEX invitation_events_invitation ON invitation_events (invitation_id, id);
   `,
+  // 7: free colours. Each stored design is rewritten in the current form (a palette becomes a preset with its six colours),
+  // and a campaign starts keeping its earlier designs.
+  (db) => {
+    db.exec(`
+      CREATE TABLE design_versions (
+        id          INTEGER PRIMARY KEY,
+        campaign_id INTEGER NOT NULL,
+        design      TEXT NOT NULL,
+        created_at  TEXT NOT NULL
+      );
+      CREATE INDEX design_versions_campaign ON design_versions (campaign_id, id);
+    `)
+    const update = db.prepare('UPDATE campaigns SET design = ? WHERE id = ?')
+    for (const row of db.prepare('SELECT id, slug, design FROM campaigns').all() as { id: number, slug: string, design: string }[]) {
+      let stored: unknown = null
+      try { stored = JSON.parse(row.design) }
+      catch { /* an unreadable design falls back to the default */ }
+      update.run(JSON.stringify(readDesign(stored, row.slug)), row.id)
+    }
+  },
 ]
 
 /** The event details the site had before campaigns existed. Date and venue are still placeholders. */

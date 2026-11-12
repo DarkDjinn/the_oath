@@ -1,5 +1,5 @@
 import { CONTENT_LIMITS, DEFAULT_WHATSAPP, defaultContent, rsvpClosed, type AdminCampaign, type CampaignContent, type CampaignStatus, type PublicCampaign, type WhatsappTemplates } from '../../shared/campaign'
-import { normaliseDesign, THEMES, type Design } from '../../shared/themes'
+import { colourProblems, normaliseDesign, readDesign, type Design } from '../../shared/themes'
 import { isLanguage, LANGUAGES, MAX_EXTRA_GUESTS, type Language, type PhotoInfo } from '../../shared/types'
 import { hashPassword } from './auth'
 import type { DB } from './db'
@@ -129,7 +129,7 @@ export const contentOf = (row: CampaignRow): CampaignContent => {
     rsvp: { ...base.rsvp, ...c.rsvp },
   }
 }
-export const designOf = (row: CampaignRow): Design => parse(row.design, { theme: 'nocturne', options: THEMES.nocturne!.defaults, customCss: '' })
+export const designOf = (row: Pick<CampaignRow, 'design' | 'slug'>): Design => readDesign(parse<unknown>(row.design, null), row.slug)
 export const whatsappOf = (row: CampaignRow): WhatsappTemplates => parse(row.whatsapp, DEFAULT_WHATSAPP)
 
 export function getCampaign(db: DB, id: number): CampaignRow {
@@ -184,7 +184,41 @@ export function setDesign(db: DB, id: number, input: unknown, allowCss: boolean)
     // The stylesheet is inlined in a <style> element: it must not be able to close it.
     design.customCss = css.replace(/<\/?style/gi, '')
   }
-  touch(db, id, 'design', JSON.stringify(design))
+  const unreadable = colourProblems(design.colours)[0]
+  if (unreadable) throw new ValidationError('colours_unreadable', `${unreadable.what} would be hard to read (contrast ${unreadable.ratio.toFixed(1)}, needs ${unreadable.needed}). Pick colours that are further apart.`)
+  saveDesign(db, row, design)
+  return getCampaign(db, id)
+}
+
+/** How many earlier designs a campaign keeps, so a change can be taken back. */
+export const DESIGN_VERSIONS_KEPT = 10
+
+/** Store a design, keeping the one it replaces in the campaign's history. */
+function saveDesign(db: DB, row: CampaignRow, design: Design): void {
+  const next = JSON.stringify(design)
+  if (next === JSON.stringify(designOf(row))) return
+  db.transaction(() => {
+    db.prepare('INSERT INTO design_versions (campaign_id, design, created_at) VALUES (?, ?, ?)').run(row.id, JSON.stringify(designOf(row)), now())
+    db.prepare('DELETE FROM design_versions WHERE campaign_id = ? AND id NOT IN (SELECT id FROM design_versions WHERE campaign_id = ? ORDER BY id DESC LIMIT ?)').run(row.id, row.id, DESIGN_VERSIONS_KEPT)
+    touch(db, row.id, 'design', next)
+  })()
+}
+
+export interface DesignVersion { id: number, savedAt: string, design: Design }
+
+/** Earlier designs, newest first. */
+export function listDesignVersions(db: DB, id: number): DesignVersion[] {
+  const row = getCampaign(db, id)
+  const rows = db.prepare('SELECT id, design, created_at FROM design_versions WHERE campaign_id = ? ORDER BY id DESC').all(id) as { id: number, design: string, created_at: string }[]
+  return rows.map(v => ({ id: v.id, savedAt: v.created_at, design: readDesign(parse<unknown>(v.design, null), row.slug) }))
+}
+
+/** Bring an earlier design back. The current one joins the history, and the owner's custom CSS stays as it is now. */
+export function restoreDesignVersion(db: DB, id: number, versionId: unknown): CampaignRow {
+  const row = getCampaign(db, id)
+  const version = listDesignVersions(db, id).find(v => v.id === Number(versionId))
+  if (!version) throw new NotFoundError('That earlier design no longer exists.')
+  saveDesign(db, row, { ...version.design, customCss: designOf(row).customCss })
   return getCampaign(db, id)
 }
 
@@ -225,6 +259,7 @@ export function deleteCampaign(db: DB, id: number): void {
   getCampaign(db, id)
   db.transaction(() => {
     db.prepare('DELETE FROM invitation_events WHERE campaign_id = ?').run(id)
+    db.prepare('DELETE FROM design_versions WHERE campaign_id = ?').run(id)
     db.prepare('DELETE FROM invitations WHERE campaign_id = ?').run(id)
     db.prepare('DELETE FROM admin_sessions WHERE campaign_id = ?').run(id)
     db.prepare('DELETE FROM campaigns WHERE id = ?').run(id)

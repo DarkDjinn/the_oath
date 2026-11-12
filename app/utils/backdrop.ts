@@ -1,3 +1,4 @@
+import type { Tokens } from '#shared/design/tokens'
 import { rose, stars, vine } from './ornament'
 
 /**
@@ -54,26 +55,20 @@ function spires(flip: boolean, GOLD: string, wall: string, ground: string): stri
   return doc(w, h, style, inner)
 }
 
-export type Palette = 'gold' | 'bone' | 'oxblood'
-/** Literal colours per palette, mirroring the `.pal-*` rules in main.css (data-URI images cannot read CSS variables). */
-const INKS: Record<Palette, { line: string, star: string, ground: string, wall: string, glow: string, haze: string }> = {
-  gold: { line: '#c9a961', star: '#e3cf9a', ground: '#0a080b', wall: '#141016', glow: '#261915', haze: '#1b1622' },
-  bone: { line: '#f1ece2', star: '#f1ece2', ground: '#050505', wall: '#101010', glow: '#1b1a1c', haze: '#17171a' },
-  oxblood: { line: '#c9a961', star: '#e3cf9a', ground: '#16080c', wall: '#200d13', glow: '#3a141c', haze: '#2a1017' },
-}
+/** The colours the backdrop art is drawn in. SVG data-URI images cannot read CSS variables, so they are passed in. */
+export type BackdropInk = Pick<Tokens, 'accent' | 'star' | 'ground' | 'wall' | 'glow' | 'haze'>
 
 /** Inline style for the invitation's root element. */
-export function backdropStyle(kind: Backdrop, palette: Palette = 'gold'): Record<string, string> {
-  const ink = INKS[palette] ?? INKS.gold
+export function backdropStyle(kind: Backdrop, ink: BackdropInk): Record<string, string> {
   const glow = `radial-gradient(ellipse 34rem 26rem at 50% 15rem, ${ink.glow} 0%, transparent 70%)`
   switch (kind) {
     case 'stars':
       return { backgroundImage: `${glow}, ${css(starsTile(ink.star))}`, backgroundRepeat: 'no-repeat, repeat', backgroundSize: 'auto, 640px 960px', backgroundPosition: '0 0, 50% 0' }
     case 'damask':
-      return { backgroundImage: `${glow}, ${css(damaskTile(ink.line))}`, backgroundRepeat: 'no-repeat, repeat', backgroundSize: 'auto, 200px 280px', backgroundPosition: '0 0, 50% 0' }
+      return { backgroundImage: `${glow}, ${css(damaskTile(ink.accent))}`, backgroundRepeat: 'no-repeat, repeat', backgroundSize: 'auto, 200px 280px', backgroundPosition: '0 0, 50% 0' }
     case 'spires':
       return {
-        backgroundImage: `${glow}, linear-gradient(to bottom, transparent 0, transparent 34rem, ${ink.ground} 56rem), ${css(spires(false, ink.line, ink.wall, ink.ground))}, ${css(spires(true, ink.line, ink.wall, ink.ground))}, radial-gradient(ellipse 60rem 30rem at 50% 44rem, ${ink.haze} 0%, transparent 70%)`,
+        backgroundImage: `${glow}, linear-gradient(to bottom, transparent 0, transparent 34rem, ${ink.ground} 56rem), ${css(spires(false, ink.accent, ink.wall, ink.ground))}, ${css(spires(true, ink.accent, ink.wall, ink.ground))}, radial-gradient(ellipse 60rem 30rem at 50% 44rem, ${ink.haze} 0%, transparent 70%)`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'auto, auto, 420px 760px, 420px 760px, auto',
         backgroundPosition: '0 0, 0 0, right calc(50% + 21rem) top 6rem, left calc(50% + 21rem) top 6rem, 0 0',

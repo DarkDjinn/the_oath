@@ -49,7 +49,8 @@
 html {
   background-color: var(--color-ground);
   color: var(--color-ivory);
-  color-scheme: dark;
+  /* A couple may choose a light ground; their design says which scheme it is. */
+  color-scheme: var(--inv-scheme, dark);
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   scrollbar-color: var(--color-gold-dim) var(--color-ground);
@@ -84,7 +85,7 @@ a { text-underline-offset: 0.22em; text-decoration-thickness: 1px; }
 .orn .o-leaf { fill: var(--color-ground); stroke: var(--color-gold); stroke-width: 0.9; }
 .orn .o-rose { fill: var(--color-wine); stroke: var(--color-gold); stroke-width: 1; stroke-linejoin: round; }
 .orn .o-moon { fill: var(--color-moon); }
-.orn .o-star { fill: #e3cf9a; }
+.orn .o-star { fill: var(--color-star, #e3cf9a); }
 
 /* The engraving draws itself once on arrival: stems first, then thorns, leaves and roses. */
 @media (prefers-reduced-motion: no-preference) {
@@ -106,17 +107,6 @@ a { text-underline-offset: 0.22em; text-decoration-thickness: 1px; }
   min-height: 100svh;
   background-color: var(--color-ground);
   color: var(--color-ivory);
-}
-/* Nocturne palettes. The class sits on <html> too, so the ground reaches the edges of the window. */
-.pal-bone {
-  --color-ground: #050505; --color-plate: #111112; --color-plate-2: #1b1b1d;
-  --color-ivory: #f1ece2; --color-mute: #b9b3a8; --color-gold: #f1ece2; --color-gold-dim: #8a857c;
-  --color-wine: #7a1a2b; --color-wine-bright: #96233a; --color-moon: #f1ece2;
-}
-.pal-bone .orn .o-star { fill: #f1ece2; }
-.pal-oxblood {
-  --color-ground: #16080c; --color-plate: #200d13; --color-plate-2: #2b1219;
-  --color-mute: #c4b3a2; --color-wine: #8a1f33; --color-wine-bright: #a52a42;
 }
 .inv-col { width: var(--col); margin-inline: auto; }
 

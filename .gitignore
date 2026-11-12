@@ -13,3 +13,8 @@ data/
 
 # Temporary design mocks served by the dev server
 public/_*.html
+# Optional typefaces, copied from node_modules by scripts/fonts.mjs
+public/fonts/
+
+# Design mock renders
+mocks/

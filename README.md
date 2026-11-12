@@ -105,6 +105,8 @@ A theme is a self-contained module. The catalogue is `shared/themes.ts` (names a
 
 - **Nocturne** (built): gothic romance. Options: emblem (thorn heart, rose wreath, moon in a braided ring), colours (gold on black, bone white on black, gold on oxblood), backdrop (starlit, plain, rose damask, gothic spires), RSVP button inside a garden gate or on its own.
 - **Adding a theme**: create `app/themes/<id>/<Name>.vue` taking the props `campaign`, `invitation`, `token` and emitting `update`; add its entry to `shared/themes.ts` and `app/themes/index.ts`. `RsvpForm` is shared and styled through CSS variables.
+- **Colours**: a design stores six colours (background, panels, text, quiet text, two accents). `shared/design/tokens.ts` works out every other shade and hands them to the theme as CSS variables; a theme never hard-codes a colour. Add a ready-made palette by adding an entry to `PRESETS` in `shared/themes.ts` (a test checks every preset is readable).
+- **Typefaces**: the catalogue is `shared/design/fonts.ts`. Optional faces are listed in `shared/design/font-files.json`; `scripts/fonts.mjs` (run automatically before `dev` and `build`) copies them from `node_modules` to `public/fonts`, and an invitation links only the ones it uses. To add one: `npm install @fontsource/<name>`, add it to both files.
 - **A one-off design for one couple**: add a theme and set `onlyFor: ['their-slug']`; only that campaign sees it. For small adjustments, the owner can attach custom CSS to a campaign in the Design tab.
 
 ## Deployment (Docker behind your existing Caddy)
@@ -205,7 +207,8 @@ docker compose up -d
 
 ```
 shared/campaign.ts         A campaign's content model, defaults, reply-closing rule
-shared/themes.ts           Theme catalogue and option validation
+shared/themes.ts           Themes, colour presets, readability rules and design validation
+shared/design/             Colour maths (contrast, mixing) and the tokens every theme draws with
 shared/i18n/               Standard Hebrew, English and Russian copy
 shared/types.ts            Types and limits shared by client and server
 server/core/               Framework-free logic, unit-tested directly

@@ -1,10 +1,9 @@
 import { canAccess } from '../core/auth'
 import { getCampaignBySlug } from '../core/campaigns'
-import { normaliseDesign } from '#shared/themes'
 
 /**
  * The public face of one campaign, found by `?slug=` or by the subdomain the request came in on.
- * Drafts are visible only to an admin of that campaign, who may also preview an unsaved design (`?draft=`).
+ * Drafts are visible only to an admin of that campaign, whose design studio shows unsaved changes inside this page (`?draft=1`, see PublicPage.vue).
  */
 export default apiHandler((event) => {
   const query = getQuery(event)
@@ -13,10 +12,5 @@ export default apiHandler((event) => {
   const admin = canAccess(sessionOf(event), row.id)
   if (row.status === 'draft' && !admin) throw createError({ statusCode: 404, message: 'This invitation is not open yet.', data: { code: 'not_open' } })
 
-  const campaign = publicView(row)
-  if (admin && typeof query.draft === 'string') {
-    try { campaign.design = { ...normaliseDesign(JSON.parse(query.draft), row.slug, campaign.design), customCss: campaign.design.customCss } }
-    catch { /* ignore a malformed preview */ }
-  }
-  return campaign
+  return publicView(row)
 })

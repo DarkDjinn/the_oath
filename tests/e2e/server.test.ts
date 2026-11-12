@@ -89,6 +89,8 @@ describe('admin access control', () => {
     ['POST', '/api/admin/c/1/password'],
     ['PUT', '/api/admin/c/1/content'],
     ['PUT', '/api/admin/c/1/design'],
+    ['GET', '/api/admin/c/1/design/versions'],
+    ['POST', '/api/admin/c/1/design/versions/1/restore'],
     ['PUT', '/api/admin/c/1/whatsapp'],
     ['PUT', '/api/admin/c/1/photos/hero'],
     ['DELETE', '/api/admin/c/1/photos/hero'],
@@ -391,8 +393,33 @@ describe('campaigns and couples', () => {
       expect([path, (await call(path, { method, json: method === 'GET' ? undefined : {}, cookie: danaCookie })).status]).toEqual([path, 404])
     }
     for (const [method, path, json] of attempts) expect([path, (await call(path, { method, json, cookie: danaCookie })).status]).toEqual([path, 403])
-    const design = await (await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { theme: 'nocturne', options: { palette: 'oxblood' }, customCss: 'body{display:none}' }, cookie: danaCookie })).json()
-    expect(design.design).toMatchObject({ options: { palette: 'oxblood', emblem: 'heart' }, customCss: '' })
+    const design = await (await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { theme: 'nocturne', preset: 'nocturne-oxblood', colours: { accent: '#E0B0FF', text: 'expression(alert(1))' }, customCss: 'body{display:none}' }, cookie: danaCookie })).json()
+    expect(design.design).toMatchObject({ preset: 'nocturne-oxblood', colours: { accent: '#e0b0ff', text: '#efe6d6', ground: '#16080c' }, options: { emblem: 'heart' }, customCss: '' })
+    // The guest's page is drawn in those colours.
+    const page = await (await call(`/w/dana-and-omer`, { cookie: danaCookie })).text()
+    expect(page).toContain('--color-gold:#e0b0ff')
+    expect(page).not.toContain('expression(')
+    // A chosen typeface is linked from the page, as a real stylesheet on this server, with its font file beside it.
+    const lettered = await (await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { lettering: { display: 'suez', body: 'comic-sans' } }, cookie: danaCookie })).json()
+    expect(lettered.design.lettering).toEqual({ display: 'suez', latin: 'unifraktur', body: 'david', numeral: 'pirata' })
+    const withFont = await (await call(`/w/dana-and-omer`, { cookie: danaCookie })).text()
+    expect(withFont).toContain('href="/fonts/fontsource-suez-one/index.css"')
+    expect(withFont).not.toContain('/fonts/fontsource-variable-rubik')
+    const sheet = await call('/fonts/fontsource-suez-one/index.css')
+    expect([sheet.status, sheet.headers.get('content-type')]).toEqual([200, expect.stringContaining('text/css')])
+    const fontFile = (await sheet.text()).match(/url\(\.\/(files\/[^)]+\.woff2)\)/)![1]
+    expect((await call(`/fonts/fontsource-suez-one/${fontFile}`)).status).toBe(200)
+    // A palette guests could not read is refused, with the reason.
+    const unreadable = await call(`/api/admin/c/${danaId}/design`, { method: 'PUT', json: { colours: { text: '#1a0a0e' } }, cookie: danaCookie })
+    expect(unreadable.status).toBe(400)
+    expect((await unreadable.json()).message).toMatch(/hard to read/)
+    // Earlier designs can be brought back, by this couple only.
+    const versions = await (await call(`/api/admin/c/${danaId}/design/versions`, { cookie: danaCookie })).json()
+    expect(versions).toHaveLength(2)
+    expect((await call('/api/admin/c/1/design/versions', { cookie: danaCookie })).status).toBe(404)
+    expect((await call(`/api/admin/c/1/design/versions/${versions[0].id}/restore`, { method: 'POST', cookie: danaCookie })).status).toBe(404)
+    const restored = await (await call(`/api/admin/c/${danaId}/design/versions/${versions[0].id}/restore`, { method: 'POST', cookie: danaCookie })).json()
+    expect(restored.design).toMatchObject({ preset: 'nocturne-oxblood', colours: { accent: '#e0b0ff' }, lettering: { display: 'frank-ruhl' } })
   })
 
   it('the couple edits details; unsafe links and bad values are refused', async () => {
@@ -410,7 +437,7 @@ describe('campaigns and couples', () => {
     expect(html).toContain('דנה')
     expect(html).toContain('ועומר')
     expect(html).not.toContain('ויקטור')
-    expect(html).toContain('pal-oxblood')
+    expect(html).toContain('--color-ground:#16080c') // the couple's colours reach the page itself
     expect(html).toContain('גן &lt;b&gt;האירועים&lt;/b&gt;') // admin-entered text is never markup
     expect(html).not.toContain('>English<') // one language: no switcher
     // The platform's own address is not anybody's invitation.

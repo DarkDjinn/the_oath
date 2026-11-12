@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { PublicCampaign } from '#shared/campaign'
 import { directionOf, joinNames, LANGUAGES, LOCALES, type GuestInvitation, type Language } from '#shared/types'
-import { backdropStyle, type Backdrop, type Palette } from '~/utils/backdrop'
+import { fontsInUse, letteringVars } from '#shared/design/fonts'
+import { designTokens, tokenVars } from '#shared/design/tokens'
+import { fontLinks } from '~/utils/fontFiles'
+import { backdropStyle, type Backdrop } from '~/utils/backdrop'
 import { braidArt, gateArt, heartArt, moonRingArt, phasesArt, railArt, roseRuleArt, sealArt, sideVineArt, sprayArt, wreathArt } from '~/utils/ornament'
 
 /**
@@ -17,10 +20,12 @@ const content = computed(() => props.campaign.content)
 const options = computed(() => props.campaign.design.options)
 const photos = computed(() => props.campaign.photos)
 
-const palette = computed(() => (options.value.palette ?? 'gold') as Palette)
+/** Every colour comes from the couple's design; the stylesheet and the SVG art only ever read these. */
+const tokens = computed(() => designTokens(props.campaign.design))
+const vars = computed(() => ({ ...tokenVars(tokens.value), ...letteringVars(props.campaign.design.lettering) }))
 const emblem = computed(() => ({ heart: heartArt, wreath: wreathArt, moon: moonRingArt })[options.value.emblem ?? 'heart'] ?? heartArt)
 const hasGate = computed(() => options.value.gate !== 'plain')
-const backdrop = computed(() => backdropStyle((options.value.backdrop ?? 'stars') as Backdrop, palette.value))
+const backdrop = computed(() => backdropStyle((options.value.backdrop ?? 'stars') as Backdrop, tokens.value))
 
 const couple = computed(() => content.value.couple[lang.value])
 const names = computed(() => joinNames(couple.value, lang.value))
@@ -62,13 +67,16 @@ const closed = computed(() => props.campaign.rsvpClosed || props.campaign.status
 const srcset = (slot: 'hero' | 'second', version: string) => [480, 800, 1200, 1800].map(w => `/photos/${props.campaign.id}/${slot}?w=${w}&v=${version} ${w}w`).join(', ')
 
 useHead(() => ({
-  htmlAttrs: { lang: lang.value, dir: dir.value, class: `pal-${palette.value}` },
+  // The colours sit on <html> too, so the ground reaches the edges of the window.
+  htmlAttrs: { lang: lang.value, dir: dir.value, style: Object.entries(vars.value).map(([k, v]) => `${k}:${v}`).join(';') },
   title: names.value,
+  // Only the typefaces this couple chose are fetched.
+  link: fontLinks(fontsInUse(props.campaign.design.lettering)),
 }))
 </script>
 
 <template>
-  <div class="inv" :class="[`inv-${lang}`, `pal-${palette}`]" :style="backdrop">
+  <div class="inv" :class="`inv-${lang}`" :style="[vars, backdrop]">
     <header class="hero orn-arrive">
       <nav v-if="others.length" class="hero-lang" aria-label="Language">
         <button v-for="o in others" :key="o.id" type="button" class="text-button" :lang="o.id" :dir="o.dir" @click="setLang(o.id)">{{ o.name }}</button>

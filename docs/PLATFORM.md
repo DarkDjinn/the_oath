@@ -30,7 +30,7 @@ Every admin API call is scoped to one campaign and checked on the server; a coup
 - **Details**: names in Hebrew and English, date, reception and ceremony times (ceremony optional), venue, navigation links, dress code, notes, reply-by date.
 - **Languages**: Hebrew, English or both, and which is the default. Each invitee can still be given a language.
 - **Wording**: the invitation line, the opening paragraph and the closing line, per language. Empty means the standard text.
-- **Design**: a theme and its options, with a live phone and desktop preview before saving.
+- **Design** (the studio): the invitation sits in the middle; one topic at a time shows beside it (Styles, Colours, Lettering, Ornaments, Button, Photos, History). A couple starts from a ready-made style, then sets their own six colours and a typeface for each kind of text. Every change is drawn at once in the preview, in any of the campaign's languages, with undo and redo; nothing reaches guests until Save. A palette guests could not read is refused with the reason and a one-click repair. The last 10 saved designs are kept (`/api/admin/c/<id>/design/versions`) and can be restored.
 - **Photos**: upload, replace or remove the two photo slots. Files are re-encoded on upload.
 - **Guests**: everything from before, plus a limit on how many guests an invitee may bring (campaign default and per invitee), and whether each link has been opened.
 - **RSVP form**: ask for dietary notes or not, allow a message or not, close replies.

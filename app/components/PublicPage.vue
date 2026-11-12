@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { PublicCampaign } from '#shared/campaign'
+import { normaliseDesign } from '#shared/themes'
+import { isLanguage } from '#shared/types'
 
 /** The read-only invitation for one campaign. `slug` empty means "the campaign of this hostname". */
 const props = defineProps<{ slug?: string }>()
 const route = useRoute()
-const { m, configure } = useI18n()
+const { m, configure, setLang } = useI18n()
 
 const { data: campaign, error } = await useAsyncData(`site-${props.slug ?? 'host'}`, () =>
   useRequestFetch()<PublicCampaign>('/api/site', { query: { slug: props.slug, draft: route.query.draft } }))
@@ -14,6 +16,22 @@ else {
   const event = useRequestEvent()
   if (event) setResponseStatus(event, 404)
 }
+/**
+ * Inside the design studio's preview frame, the studio sends each unsaved change and this page redraws at once.
+ * Only the page that framed us, on our own origin, is listened to, and what it sends is validated like any saved design.
+ */
+function onStudioMessage(event: MessageEvent) {
+  if (event.origin !== location.origin || event.source !== window.parent || event.data?.type !== 'oath-preview' || !campaign.value) return
+  campaign.value = { ...campaign.value, design: normaliseDesign(event.data.design, campaign.value.slug, campaign.value.design) }
+  if (isLanguage(event.data.lang)) setLang(event.data.lang)
+}
+onMounted(() => {
+  if (!route.query.draft || window.parent === window) return
+  window.addEventListener('message', onStudioMessage)
+  window.parent.postMessage({ type: 'oath-preview-ready' }, location.origin)
+})
+onBeforeUnmount(() => window.removeEventListener('message', onStudioMessage))
+
 const notOpen = computed(() => (error.value?.data as { data?: { code?: string } } | undefined)?.data?.code === 'not_open')
 </script>
 
