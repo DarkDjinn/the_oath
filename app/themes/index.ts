@@ -1,4 +1,5 @@
 import type { Component } from 'vue'
+import GalleryInvitation from './gallery/GalleryInvitation.vue'
 import KeepsakeInvitation from './keepsake/KeepsakeInvitation.vue'
 import NocturneInvitation from './nocturne/NocturneInvitation.vue'
 
@@ -10,4 +11,15 @@ import NocturneInvitation from './nocturne/NocturneInvitation.vue'
 export const themeComponents: Record<string, Component> = {
   nocturne: NocturneInvitation,
   keepsake: KeepsakeInvitation,
+  // The gallery styles share one page; each brings its own art and look.
+  'still': GalleryInvitation,
+  'jaffa-sun': GalleryInvitation,
+  'velvet-deco': GalleryInvitation,
+  'herbarium': GalleryInvitation,
+  'saffron-dunes': GalleryInvitation,
+  'ma': GalleryInvitation,
+  'postmarked-love': GalleryInvitation,
+  'happy-accident': GalleryInvitation,
+  'jerusalem-stone': GalleryInvitation,
+  'golden-hour-groove': GalleryInvitation,
 }
