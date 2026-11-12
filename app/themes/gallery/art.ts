@@ -11,29 +11,29 @@
  *   ga-plate  panel fill             ga-ink    text fill               ga-thin      a finer stroke
  */
 
-const f = (n: number) => Number(n.toFixed(1))
-const svg = (viewBox: string, body: string, cls = '') => `<svg viewBox="${viewBox}"${cls ? ` class="${cls}"` : ''} aria-hidden="true" focusable="false">${body}</svg>`
+export const f = (n: number) => Number(n.toFixed(1))
+export const svg = (viewBox: string, body: string, cls = '') => `<svg viewBox="${viewBox}"${cls ? ` class="${cls}"` : ''} aria-hidden="true" focusable="false">${body}</svg>`
 
 /** `n` points evenly round a circle, as [x, y]. */
-const around = (n: number, r: number, cx: number, cy: number, start = -90) =>
+export const around = (n: number, r: number, cx: number, cy: number, start = -90) =>
   Array.from({ length: n }, (_, i) => {
     const a = ((start + (360 / n) * i) * Math.PI) / 180
     return [f(cx + r * Math.cos(a)), f(cy + r * Math.sin(a))] as const
   })
-const rays = (n: number, r1: number, r2: number, cx: number, cy: number, from = 0, to = 360) =>
+export const rays = (n: number, r1: number, r2: number, cx: number, cy: number, from = 0, to = 360) =>
   Array.from({ length: n }, (_, i) => {
     const a = ((from + ((to - from) / (to - from === 360 ? n : n - 1)) * i - 90) * Math.PI) / 180
     return `M${f(cx + r1 * Math.cos(a))} ${f(cy + r1 * Math.sin(a))}L${f(cx + r2 * Math.cos(a))} ${f(cy + r2 * Math.sin(a))}`
   }).join('')
 /** A leaf (pointed oval) centred on (x, y), `l` long, turned by `deg`. */
-const leaf = (x: number, y: number, l: number, w: number, deg: number, cls: string) =>
+export const leaf = (x: number, y: number, l: number, w: number, deg: number, cls: string) =>
   `<path class="${cls}" transform="translate(${f(x)} ${f(y)}) rotate(${f(deg)})" d="M0 ${f(-l / 2)}C${f(w)} ${f(-l / 4)} ${f(w)} ${f(l / 4)} 0 ${f(l / 2)}C${f(-w)} ${f(l / 4)} ${f(-w)} ${f(-l / 4)} 0 ${f(-l / 2)}Z"/>`
-const heart = (x: number, y: number, s: number, cls: string) =>
+export const heart = (x: number, y: number, s: number, cls: string) =>
   `<path class="${cls}" transform="translate(${x} ${y}) scale(${s})" d="M0 9C-7 4-10 1-10-3a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12Z"/>`
-const diamond = (x: number, y: number, r: number, cls: string) => `<path class="${cls}" d="M${x} ${y - r}L${x + r} ${y}L${x} ${y + r}L${x - r} ${y}Z"/>`
-const star4 = (x: number, y: number, r: number, cls: string) =>
+export const diamond = (x: number, y: number, r: number, cls: string) => `<path class="${cls}" d="M${x} ${y - r}L${x + r} ${y}L${x} ${y + r}L${x - r} ${y}Z"/>`
+export const star4 = (x: number, y: number, r: number, cls: string) =>
   `<path class="${cls}" d="M${x} ${f(y - r)}Q${x} ${y} ${f(x + r)} ${y}Q${x} ${y} ${x} ${f(y + r)}Q${x} ${y} ${f(x - r)} ${y}Q${x} ${y} ${x} ${f(y - r)}Z"/>`
-const star5 = (x: number, y: number, r: number, deg: number, cls: string) => {
+export const star5 = (x: number, y: number, r: number, deg: number, cls: string) => {
   const pts = Array.from({ length: 10 }, (_, i) => {
     const rr = i % 2 ? r * 0.45 : r
     const a = ((deg - 90 + i * 36) * Math.PI) / 180

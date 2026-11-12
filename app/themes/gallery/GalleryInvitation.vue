@@ -5,11 +5,15 @@ import { fontsInUse, letteringVars } from '#shared/design/fonts'
 import { designTokens, tokenVars } from '#shared/design/tokens'
 import { joinNames, LOCALES, type GuestInvitation } from '#shared/types'
 import { fontLinks } from '~/utils/fontFiles'
+import { celebrationArt, isCelebration } from '../celebration/art'
 import { backdrop, divider, emblem } from './art'
 import './gallery.css'
+import '../celebration/celebration.css'
 
 /**
- * The gallery styles: ten invitations that share one page and differ in their art.
+ * The gallery styles and the celebration collection: twenty invitations that share one page
+ * and differ in their art (gallery/art.ts, celebration/art.ts) and their look (gallery.css,
+ * celebration.css).
  *
  * The page is always hero → welcome → schedule → place → RSVP. Each style (the campaign's
  * theme id, e.g. `jaffa-sun`) brings its own drawings (art.ts) and its own look
@@ -39,11 +43,9 @@ const vars = computed(() => ({
 /** `g-cta-pill`, `g-frame-double`, … one class per option. */
 const optionClasses = computed(() => Object.entries(options.value).map(([k, v]) => `g-${k}-${v}`))
 
-const art = computed(() => ({
-  emblem: emblem(look.value, options.value),
-  divider: divider(look.value, options.value),
-  backdrop: backdrop(look.value, options.value),
-}))
+const art = computed(() => isCelebration(look.value)
+  ? celebrationArt(look.value, options.value, tokens.value.scheme)
+  : { emblem: emblem(look.value, options.value), divider: divider(look.value, options.value), backdrop: backdrop(look.value, options.value) })
 
 const names = computed(() => joinNames(content.value.couple[lang.value], lang.value))
 const copy = computed(() => content.value.copy[lang.value])
@@ -85,10 +87,15 @@ const inviteRest = computed(() => {
 const closed = computed(() => props.campaign.rsvpClosed || props.campaign.status !== 'live')
 
 /** Photos show unless the style has a photo option set to "No photos". */
-const photoMode = computed(() => options.value['photo-mode'])
+const photoMode = computed(() => options.value['photo-mode'] ?? options.value['photo-layout'])
 const showPhotos = computed(() => photoMode.value !== 'none')
 const hero = computed(() => showPhotos.value ? props.campaign.photos.hero : null)
+/** Layouts that set both photos side by side, where the main photo goes. */
+const paired = computed(() => ['diptych', 'side', 'polaroids', 'split', 'filmstrip'].includes(photoMode.value ?? '') && !!hero.value && !!props.campaign.photos.second)
 const second = computed(() => showPhotos.value ? props.campaign.photos.second : null)
+const secondLater = computed(() => paired.value ? null : second.value)
+/** Chuppah Jubilee's "below the welcome" moves the main photo out of the opening, so the canopy stands alone. */
+const heroLater = computed(() => look.value === 'chuppah-jubilee' && photoMode.value === 'below')
 const srcset = (slot: 'hero' | 'second', version: string) => [480, 800, 1200, 1800].map(w => `/photos/${props.campaign.id}/${slot}?w=${w}&v=${version} ${w}w`).join(', ')
 
 useHead(() => ({
@@ -100,7 +107,7 @@ useHead(() => ({
 </script>
 
 <template>
-  <div class="gal" :class="[`gal-${look}`, `gal-${lang}`, `gal-${tokens.scheme}`, optionClasses, { 'has-photo': hero }]" :style="vars">
+  <div class="gal" :class="[`gal-${look}`, `gal-${lang}`, `gal-${tokens.scheme}`, optionClasses, { 'has-photo': hero, 'gal-cel': isCelebration(look) }]" :style="vars">
     <div v-if="art.backdrop" class="g-backdrop" aria-hidden="true" v-html="art.backdrop" />
 
     <div class="g-sheet">
@@ -112,18 +119,19 @@ useHead(() => ({
         <div v-if="art.emblem" class="g-emblem" aria-hidden="true" v-html="art.emblem" />
         <p v-if="look === 'herbarium' && content.date" class="g-specimen" aria-hidden="true">No. {{ content.date.slice(5).split('-').reverse().join('·') }}</p>
 
-        <figure v-if="hero" class="g-photo g-photo-hero">
+        <figure v-if="hero && !heroLater" class="g-photo g-photo-hero" :class="{ 'is-pair': paired }">
           <img :srcset="srcset('hero', hero)" :src="`/photos/${campaign.id}/hero?w=800&v=${hero}`" sizes="(min-width: 34rem) 28rem, 90vw" alt="" decoding="async" fetchpriority="high">
+          <img v-if="paired && second" :srcset="srcset('second', second)" :src="`/photos/${campaign.id}/second?w=800&v=${second}`" sizes="(min-width: 34rem) 14rem, 45vw" alt="" decoding="async">
         </figure>
 
         <div class="g-col g-lockup">
           <p class="g-kicker"><bdi v-if="invitation">{{ invitation.guestName }}</bdi>{{ inviteRest }}</p>
           <h1 class="g-names" :class="{ 'is-names': !headline }">{{ headline || names }}</h1>
-          <p v-if="subline" class="g-subline"><bdi>{{ subline }}</bdi></p>
+          <p v-if="subline" class="g-subline"><bdi :dir="subline === latinNames || lang === 'en' ? 'ltr' : undefined">{{ subline }}</bdi></p>
           <p v-if="content.date" class="g-date">
             <span class="g-weekday">{{ weekday }}</span>
             <span class="g-dot" aria-hidden="true"> · </span>
-            <span class="g-numeric">{{ numericDate }}</span>
+            <bdi class="g-numeric" dir="ltr">{{ numericDate }}</bdi>
           </p>
           <a v-if="invitation" href="#rsvp" class="g-cta g-cta-hero">{{ invitation.rsvpStatus === 'pending' ? m.hero.confirm : m.hero.change }}</a>
         </div>
@@ -136,8 +144,12 @@ useHead(() => ({
           <p class="g-text">{{ copy.intro || m.details.intro }}</p>
         </section>
 
-        <figure v-if="second" class="g-col g-photo g-photo-second">
-          <img :srcset="srcset('second', second)" :src="`/photos/${campaign.id}/second?w=800&v=${second}`" sizes="(min-width: 34rem) 28rem, 86vw" alt="" loading="lazy" decoding="async">
+        <figure v-if="hero && heroLater" class="g-col g-photo g-photo-hero g-photo-later">
+          <img :srcset="srcset('hero', hero)" :src="`/photos/${campaign.id}/hero?w=800&v=${hero}`" sizes="(min-width: 34rem) 28rem, 86vw" alt="" loading="lazy" decoding="async">
+        </figure>
+
+        <figure v-if="secondLater" class="g-col g-photo g-photo-second">
+          <img :srcset="srcset('second', secondLater)" :src="`/photos/${campaign.id}/second?w=800&v=${secondLater}`" sizes="(min-width: 34rem) 28rem, 86vw" alt="" loading="lazy" decoding="async">
         </figure>
 
         <section class="g-col g-details" aria-labelledby="g-schedule">
@@ -146,19 +158,19 @@ useHead(() => ({
             <p v-if="longDate" class="g-card-date">{{ longDate }}</p>
             <dl v-if="times.length" class="g-times">
               <div v-for="t in times" :key="t.id">
-                <dd>{{ t.value }}</dd>
+                <dd><bdi dir="ltr">{{ t.value }}</bdi></dd>
                 <dt>{{ t.label }}</dt>
               </div>
             </dl>
           </div>
 
-          <template v-if="venue.name || venue.address || content.links.waze || content.links.googleMaps">
+          <div v-if="venue.name || venue.address || content.links.waze || content.links.googleMaps" class="g-place-block">
             <h2 class="g-label g-place">{{ m.details.location }}</h2>
             <address class="g-venue">
               <strong v-if="venue.name">{{ venue.name }}</strong>
               <span v-if="venue.address">{{ venue.address }}</span>
             </address>
-          </template>
+          </div>
           <p class="g-nav">
             <a v-if="content.links.googleMaps" :href="content.links.googleMaps" target="_blank" rel="noopener noreferrer">{{ m.details.maps }}</a>
             <a v-if="content.links.waze" :href="content.links.waze" target="_blank" rel="noopener noreferrer">{{ m.details.waze }}</a>

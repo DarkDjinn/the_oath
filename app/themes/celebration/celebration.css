@@ -1,0 +1,234 @@
+/*
+ * The celebration collection's looks, on top of gallery.css (same page, same variables).
+ * Each style is `.gal-<style>`; each option `.g-<option>-<choice>`. The RSVP button option
+ * is `rsvp-button`, the photo option `photo-layout`. Every rule uses logical properties.
+ */
+
+/* ------------------------------------------------------------- shared bits */
+.gal-cel { --col: min(100% - 2.5rem, 27rem); }
+.gal-cel .g-emblem { width: min(88vw, 21rem); margin-top: 0.25rem; }
+.gal-cel .g-divider { width: 10rem; }
+.gal-cel .c-faint { opacity: 0.45; }
+.gal-cel .c-glow { opacity: 0.2; }
+.gal-cel .c-bit { position: absolute; translate: -50% 0; opacity: 0.85; }
+[dir='rtl'] .gal-cel .c-bit { translate: 50% 0; }
+.gal-cel .c-bit svg { display: block; width: 100%; height: auto; }
+.gal-cel .g-place-block { margin-top: 1.6rem; }
+.gal-cel .g-place { margin-top: 0; }
+.gal-cel .g-photo.is-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: var(--col); }
+.gal-cel .g-photo.is-pair img { aspect-ratio: 3 / 4; height: 100%; }
+.gal-cel .g-photo-later { margin-top: 2rem; }
+/* The whole RSVP button, both the hero link and the form's submit, by one selector. */
+.gal-cel :is(.g-cta, .g-rsvp .form-submit) { min-height: 3.25rem; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .gal-cel .c-twinkle { animation: c-twinkle 2.8s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  .gal-cel .c-twinkle:nth-of-type(2n) { animation-delay: -1.3s; }
+  .gal-neon-afterglow .c-flicker { animation: c-glow 3.6s ease-in-out infinite alternate; }
+  .gal-klezmer-confetti .c-bit, .gal-confetti-couture .c-bit { animation: c-float 5s ease-in-out infinite alternate; }
+  .gal-klezmer-confetti .c-bit:nth-child(2n), .gal-confetti-couture .c-bit:nth-child(2n) { animation-delay: -2.5s; }
+}
+@keyframes c-twinkle { from { opacity: 1; scale: 1; } to { opacity: 0.55; scale: 0.92; } }
+@keyframes c-glow { from { opacity: 1; } to { opacity: 0.82; } }
+@keyframes c-float { from { transform: translateY(0) rotate(0); } to { transform: translateY(-0.5rem) rotate(8deg); } }
+
+/* ======================================================================
+ * Mazal Tov Papercut: a cut-paper banner, monumental names, a date ribbon.
+ * ====================================================================== */
+.gal-mazal-tov-papercut { padding: 0.6rem; }
+.gal-mazal-tov-papercut .g-sheet { min-height: calc(100svh - 1.2rem); padding-bottom: 2rem; }
+.gal-mazal-tov-papercut.g-paper-edge-lace .g-sheet { border: 2px solid var(--color-gold); outline: 3px dotted var(--color-wine); outline-offset: -0.6rem; }
+.gal-mazal-tov-papercut.g-paper-edge-diamond .g-sheet { border: 0.6rem solid transparent; border-image: repeating-linear-gradient(45deg, var(--color-gold) 0 0.35rem, transparent 0.35rem 0.7rem) 12; }
+.gal-mazal-tov-papercut .g-names { font-size: clamp(3rem, 15vw, 4.4rem); line-height: 1.02; }
+.gal-mazal-tov-papercut .g-date { display: inline-block; padding: 0.4rem 1.8rem; background: var(--color-wine); color: var(--g-on-accent2); clip-path: polygon(0 0, 100% 0, calc(100% - 0.7rem) 50%, 100% 100%, 0 100%, 0.7rem 50%); }
+.gal-mazal-tov-papercut .g-card { border: 2px solid var(--color-gold); box-shadow: 0.35rem 0.35rem 0 var(--color-wine); }
+.gal-mazal-tov-papercut .g-place-block { display: inline-block; margin-inline: auto; padding: 0.7rem 1.4rem; border: 2px dashed var(--color-gold); background: var(--color-plate); }
+.gal-mazal-tov-papercut .g-details { display: flex; flex-direction: column; }
+.gal-mazal-tov-papercut .g-place-block { align-self: center; }
+.gal-mazal-tov-papercut.g-rsvp-button-seal :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-mazal-tov-papercut.g-rsvp-button-seal :is(.g-cta, .g-rsvp .form-submit) { border-width: 3px; outline: 2px dashed var(--color-gold); outline-offset: 4px; }
+.gal-mazal-tov-papercut.g-rsvp-button-ticket :is(.g-cta, .g-rsvp .form-submit) {
+  border-radius: 0.4rem; padding-inline: 2.6rem;
+  -webkit-mask: radial-gradient(circle 0.6rem at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 0.6rem at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 0.6rem at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 0.6rem at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat; }
+.gal-mazal-tov-papercut.g-rsvp-button-solid :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-mazal-tov-papercut.g-photo-layout-roundel .g-photo-hero { width: 9.5rem; }
+.gal-mazal-tov-papercut.g-photo-layout-roundel .g-photo-hero img { aspect-ratio: 1; border-radius: 50%; border: 3px solid var(--color-gold); outline: 2px dotted var(--color-wine); outline-offset: 4px; }
+.gal-mazal-tov-papercut .g-photo img { border: 3px solid var(--color-gold); }
+
+/* ======================================================================
+ * Chuppah Jubilee: a four-post canopy, an embroidered date, a venue card.
+ * ====================================================================== */
+.gal-chuppah-jubilee { --g-radius: 1rem;
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--color-gold) 22%, transparent) 2px, transparent 2.5px);
+  background-size: 2.4rem 2.4rem; }
+.gal-chuppah-jubilee .g-lockup { margin-top: 0.6rem; }
+.gal-chuppah-jubilee .g-names { font-weight: 400; }
+.gal-chuppah-jubilee .g-subline { font-style: italic; }
+.gal-chuppah-jubilee .g-date { display: inline-block; padding: 0.35rem 1.6rem 0.6rem; border-block-end: 2px dashed var(--color-wine); border-radius: 0 0 50% 50% / 0 0 0.9rem 0.9rem; background: var(--color-plate); }
+.gal-chuppah-jubilee .g-place-block { padding: 1rem; border: 1.5px solid var(--g-line); border-radius: 1rem; background: var(--color-plate); }
+.gal-chuppah-jubilee .g-card { border-color: var(--color-wine); }
+.gal-chuppah-jubilee.g-rsvp-button-banner :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0; border: 0; padding-inline: 2.8rem; clip-path: polygon(0 0, 100% 0, calc(100% - 1rem) 50%, 100% 100%, 0 100%, 1rem 50%); }
+.gal-chuppah-jubilee.g-rsvp-button-pill :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-chuppah-jubilee.g-rsvp-button-outlined :is(.g-cta, .g-rsvp .form-submit) { background: none; color: var(--color-gold); border-width: 2px; border-radius: 0.5rem; }
+.gal-chuppah-jubilee .g-photo-hero:not(.g-photo-later) { width: min(60vw, 13rem); margin-top: 0.4rem; }
+.gal-chuppah-jubilee .g-photo img { border-radius: 999px 999px 1rem 1rem; border: 3px solid var(--color-wine); }
+
+/* ======================================================================
+ * Seven Blessings: seven medallions, a stepped centre, a jewel plaque.
+ * ====================================================================== */
+.gal-seven-blessings { padding: 0.6rem; }
+.gal-seven-blessings .g-sheet { min-height: calc(100svh - 1.2rem); padding-bottom: 2rem; }
+.gal-seven-blessings.g-border-jewel .g-sheet { border: 1px solid var(--color-gold); outline: 1px solid var(--g-line); outline-offset: -0.5rem; }
+.gal-seven-blessings.g-border-beads .g-sheet { border: 4px dotted var(--color-wine); }
+.gal-seven-blessings .c-jewel { position: absolute; width: 1.6rem; z-index: 2; }
+.gal-seven-blessings .c-jewel svg { display: block; width: 100%; }
+.gal-seven-blessings .c-jewel-a { top: -0.2rem; inset-inline-start: -0.2rem; }
+.gal-seven-blessings .c-jewel-b { top: -0.2rem; inset-inline-end: -0.2rem; }
+.gal-seven-blessings .c-jewel-c { bottom: -0.2rem; inset-inline-start: -0.2rem; }
+.gal-seven-blessings .c-jewel-d { bottom: -0.2rem; inset-inline-end: -0.2rem; }
+.gal-seven-blessings .g-backdrop { inset: 0.6rem; overflow: visible; z-index: 2; }
+.gal-seven-blessings .g-names { font-weight: 700; }
+.gal-seven-blessings .g-subline { letter-spacing: 0.08em; }
+.gal-seven-blessings .g-date { padding-block: 0.6rem; border-block: 1px solid var(--color-gold); }
+.gal-seven-blessings .g-card { border: 2px solid var(--color-wine); }
+.gal-seven-blessings .g-place-block { padding: 1rem; border: 3px double var(--color-gold); background: var(--color-plate); clip-path: polygon(0.8rem 0, calc(100% - 0.8rem) 0, 100% 0.8rem, 100% calc(100% - 0.8rem), calc(100% - 0.8rem) 100%, 0.8rem 100%, 0 calc(100% - 0.8rem), 0 0.8rem); }
+.gal-seven-blessings.g-rsvp-button-gem :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0; padding-inline: 2.6rem; clip-path: polygon(1rem 0, calc(100% - 1rem) 0, 100% 50%, calc(100% - 1rem) 100%, 1rem 100%, 0 50%); box-shadow: inset 0 0 0 4px var(--color-gold), inset 0 0 0 5.5px var(--g-on-accent); }
+.gal-seven-blessings.g-rsvp-button-seal :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-seven-blessings.g-rsvp-button-seal :is(.g-cta, .g-rsvp .form-submit) { box-shadow: 0 0 0 3px var(--color-ground), 0 0 0 4.5px var(--color-gold); }
+.gal-seven-blessings.g-rsvp-button-solid :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0.3rem; }
+.gal-seven-blessings.g-photo-layout-portrait .g-photo img { border-radius: 999px 999px 0 0; border: 3px double var(--color-gold); padding: 0.3rem; }
+.gal-seven-blessings .g-photo.is-pair img { border: 3px double var(--color-gold); padding: 0.25rem; }
+
+/* ======================================================================
+ * Rimon Fiesta: a mosaic tile frame, corner tiles, a colour-blocked venue.
+ * ====================================================================== */
+.gal-rimon-fiesta .g-sheet { border-block-start: 0.7rem dashed var(--color-gold); border-inline-start: 0.7rem dashed var(--color-wine); min-height: 100svh; }
+.gal-rimon-fiesta .c-corner { position: absolute; width: 3.2rem; z-index: 2; top: 1.6rem; }
+.gal-rimon-fiesta .c-corner svg { display: block; width: 100%; }
+.gal-rimon-fiesta .c-corner-a { inset-inline-start: 0.4rem; top: auto; bottom: 0.6rem; }
+.gal-rimon-fiesta .c-corner-b { inset-inline-end: 0.4rem; bottom: 0.6rem; top: auto; }
+.gal-rimon-fiesta .g-lockup { padding: 1rem 0.8rem; background: var(--color-plate); }
+.gal-rimon-fiesta .g-names { font-size: clamp(2.8rem, 13vw, 3.8rem); }
+.gal-rimon-fiesta .g-date { display: inline-block; padding: 0.35rem 1.2rem; background: var(--color-gold); color: var(--g-on-accent); border-radius: 0.3rem; box-shadow: inset 0 0 0 3px var(--color-gold), inset 0 0 0 4.5px var(--g-on-accent); }
+.gal-rimon-fiesta .g-card { border: 3px solid var(--color-gold); }
+.gal-rimon-fiesta .g-place-block { padding: 1rem; background: var(--color-wine); color: var(--g-on-accent2); }
+.gal-rimon-fiesta .g-place-block .g-label { color: inherit; }
+.gal-rimon-fiesta.g-rsvp-button-tile :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0.2rem; box-shadow: inset 0 0 0 4px var(--color-gold), inset 0 0 0 6px var(--g-on-accent), 0.25rem 0.25rem 0 var(--color-wine); }
+.gal-rimon-fiesta.g-rsvp-button-enamel :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-rimon-fiesta.g-rsvp-button-enamel :is(.g-cta, .g-rsvp .form-submit) { box-shadow: inset 0 0 0 4px var(--color-gold), inset 0 0 0 5.5px var(--g-on-accent); }
+.gal-rimon-fiesta.g-rsvp-button-solid :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0.3rem; }
+.gal-rimon-fiesta.g-photo-layout-tile .g-photo img { aspect-ratio: 1; border: 0.5rem solid var(--color-gold); outline: 3px solid var(--color-wine); }
+.gal-rimon-fiesta.g-photo-layout-stripe .g-photo { width: var(--col); }
+.gal-rimon-fiesta.g-photo-layout-stripe .g-photo img { aspect-ratio: 3 / 1; border-block: 0.4rem solid var(--color-gold); }
+
+/* ======================================================================
+ * Klezmer Confetti: a concert poster, an angled ticket date, a programme.
+ * ====================================================================== */
+.gal-klezmer-confetti .g-names { font-size: clamp(3.1rem, 16vw, 4.6rem); font-weight: 900; line-height: 1; }
+.gal-klezmer-confetti .g-subline { font-size: 1.8rem; font-weight: 700; color: var(--color-wine); }
+.gal-klezmer-confetti .g-date { display: inline-block; padding: 0.4rem 1.4rem; background: var(--color-wine); color: var(--g-on-accent2); rotate: -3deg; outline: 2px dashed var(--g-on-accent2); outline-offset: -5px; }
+.gal-klezmer-confetti .g-card { border: 2px solid var(--color-wine); border-radius: 1rem; }
+.gal-klezmer-confetti .g-place-block { padding: 0.9rem; border-block: 4px double var(--color-gold); }
+.gal-klezmer-confetti.g-rsvp-button-ticket :is(.g-cta, .g-rsvp .form-submit) {
+  border-radius: 0.3rem; padding-inline: 2.6rem; outline: 2px dashed var(--g-on-accent); outline-offset: -7px;
+  -webkit-mask: radial-gradient(circle 0.55rem at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 0.55rem at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 0.55rem at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 0.55rem at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat; }
+.gal-klezmer-confetti.g-rsvp-button-round :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-klezmer-confetti.g-rsvp-button-solid :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0; box-shadow: 0.3rem 0.3rem 0 var(--color-wine); }
+.gal-klezmer-confetti.g-photo-layout-record .g-photo-hero { width: min(66vw, 15rem); }
+.gal-klezmer-confetti.g-photo-layout-record .g-photo img { aspect-ratio: 1; border-radius: 50%; border: 0.9rem solid var(--color-ivory); outline: 2px solid var(--color-gold); }
+.gal-klezmer-confetti.g-photo-layout-polaroid .g-photo { padding: 0.6rem 0.6rem 2.2rem; background: var(--color-plate); rotate: -3deg; box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 0.18); }
+
+/* ======================================================================
+ * Firework Finale: bursts over a skyline, a date badge, a glowing capsule.
+ * ====================================================================== */
+.gal-firework-finale { --g-radius: 1rem; }
+.gal-firework-finale .g-emblem { aspect-ratio: 340 / 190; }
+.gal-firework-finale .g-names { font-size: clamp(3rem, 15vw, 4.4rem); font-weight: 900; line-height: 1.02; }
+.gal-firework-finale .g-date { display: inline-block; padding: 0.3rem 1.1rem; border: 1.5px solid var(--color-gold); border-radius: 999px; background: var(--color-plate); }
+.gal-firework-finale .g-card { border: 2px solid var(--color-gold); }
+.gal-firework-finale .g-place-block { padding-top: 1.2rem; border-top: 2px dashed var(--color-wine); }
+.gal-firework-finale.g-rsvp-button-glow :is(.g-cta, .g-rsvp .form-submit) { background: var(--color-plate); color: var(--color-ivory); border: 2px solid var(--color-gold); border-radius: 999px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-gold) 25%, transparent), 0 0 1.2rem color-mix(in srgb, var(--color-gold) 35%, transparent); }
+.gal-firework-finale.g-rsvp-button-burst :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; box-shadow: 0 0 0 3px var(--color-ground), 0 0 0 5px var(--color-wine), 0 0 0 8px var(--color-ground), 0 0 0 9.5px var(--color-gold); }
+.gal-firework-finale.g-rsvp-button-solid :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0.4rem; }
+.gal-firework-finale.g-photo-layout-oval .g-photo img { border-radius: 50%; border: 2px solid var(--color-gold); }
+.gal-firework-finale .g-photo.is-pair { padding: 0.9rem 0.6rem; background: var(--color-plate); border-block: 0.4rem dashed var(--color-gold); }
+
+/* ======================================================================
+ * Poolside Vows: sun and parasol over water, a pool-tile date, cabana cards.
+ * ====================================================================== */
+.gal-poolside-vows { --col: min(100% - 3rem, 27rem); --g-radius: 1rem; }
+.gal-poolside-vows .g-emblem { width: 100%; max-width: 30rem; }
+.gal-poolside-vows .g-names { font-size: clamp(3rem, 15vw, 4.4rem); font-weight: 800; line-height: 1.02; }
+.gal-poolside-vows .g-subline { font-size: 1.8rem; color: var(--color-wine); }
+.gal-poolside-vows .g-date { display: inline-block; padding: 0.4rem 1.2rem; border: 3px solid var(--color-gold); border-radius: 0.5rem; background: var(--color-plate); }
+.gal-poolside-vows :is(.g-card, .g-place-block) { overflow: hidden; border: 2px solid var(--color-gold); border-radius: 1rem; background: var(--color-plate); }
+.gal-poolside-vows :is(.g-card, .g-place-block)::before { content: ''; display: block; height: 0.6rem; margin: -1.2rem -0.75rem 0.9rem; background: repeating-linear-gradient(90deg, var(--color-wine) 0 1.2rem, var(--color-plate) 1.2rem 2.4rem); }
+.gal-poolside-vows .g-place-block { padding: 1.2rem 0.75rem 1rem; }
+.gal-poolside-vows.g-rsvp-button-sunny :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-poolside-vows.g-rsvp-button-float :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; background: var(--color-ground); color: var(--color-ivory); border: 0.4rem solid transparent; background-image: linear-gradient(var(--color-ground), var(--color-ground)), repeating-conic-gradient(var(--color-wine) 0 25%, var(--color-gold) 0 50%); background-origin: border-box; background-clip: padding-box, border-box; }
+.gal-poolside-vows.g-rsvp-button-tile :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0.4rem; box-shadow: inset 0 0 0 3px var(--color-gold), inset 0 0 0 4.5px var(--g-on-accent); }
+.gal-poolside-vows.g-photo-layout-postcard .g-photo { padding: 0.6rem 0.6rem 1.8rem; background: var(--color-plate); rotate: 2deg; box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 0.15); }
+.gal-poolside-vows .g-photo.is-pair img { padding: 0.4rem 0.4rem 1.4rem; background: var(--color-plate); box-shadow: 0 0.3rem 0.8rem rgb(0 0 0 / 0.15); }
+.gal-poolside-vows .g-photo.is-pair img:first-child { rotate: -3deg; }
+.gal-poolside-vows .g-photo.is-pair img:last-child { rotate: 3deg; }
+
+/* ======================================================================
+ * Confetti Couture: a sculptural bow, editorial type, a designer label.
+ * ====================================================================== */
+.gal-confetti-couture { --g-radius: 0; }
+.gal-confetti-couture .g-names { font-size: clamp(3.2rem, 17vw, 4.8rem); font-weight: 900; line-height: 0.95; letter-spacing: -0.02em; }
+.gal-en.gal-confetti-couture .g-names, .gal-ru.gal-confetti-couture .g-names { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; }
+.gal-confetti-couture .g-subline { font-style: italic; }
+.gal-confetti-couture .g-date { display: inline-block; padding: 0.2rem 0.9rem; border: 1px solid var(--color-ivory); font-size: 0.875rem; letter-spacing: 0.3em; }
+.gal-confetti-couture .g-card { border: 1px solid var(--color-gold); background: none; }
+.gal-confetti-couture .g-place-block { padding: 1rem; background: var(--color-ivory); color: var(--color-ground); }
+.gal-confetti-couture .g-place-block .g-label { color: inherit; }
+.gal-confetti-couture.g-rsvp-button-label :is(.g-cta, .g-rsvp .form-submit) { text-transform: uppercase; letter-spacing: 0.14em; font-size: 1rem; box-shadow: inset 0 0 0 3px var(--color-gold), inset 0 0 0 4px var(--g-on-accent); }
+.gal-confetti-couture.g-rsvp-button-ribbon :is(.g-cta, .g-rsvp .form-submit) { padding-inline: 2rem 2.8rem; clip-path: polygon(0 0, 100% 0, calc(100% - 1rem) 50%, 100% 100%, 0 100%); }
+[dir='rtl'] .gal-confetti-couture.g-rsvp-button-ribbon :is(.g-cta, .g-rsvp .form-submit) { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 1rem 50%); }
+.gal-confetti-couture.g-rsvp-button-pill :is(.g-cta, .g-rsvp .form-submit) { border-radius: 999px; }
+.gal-confetti-couture.g-photo-layout-editorial .g-photo { width: min(70vw, 17rem); }
+.gal-confetti-couture.g-photo-layout-editorial .g-photo img { border: 1px solid var(--color-ivory); padding: 0.5rem; }
+.gal-confetti-couture.g-photo-layout-strip .g-photo { width: var(--col); }
+.gal-confetti-couture.g-photo-layout-strip .g-photo img { aspect-ratio: 3 / 1; }
+
+/* ======================================================================
+ * Gala Glow: a chandelier and drapes, gilded rules, a ballroom plaque.
+ * ====================================================================== */
+.gal-gala-glow .g-emblem { width: min(86vw, 19rem); }
+.gal-gala-glow .g-names { font-weight: 400; }
+.gal-gala-glow .g-subline { font-size: 2rem; }
+.gal-gala-glow .g-date { padding-block: 0.5rem; border-block: 1px solid var(--color-gold); font-weight: 400; letter-spacing: 0.12em; }
+.gal-gala-glow .g-card { border: 3px double var(--color-gold); }
+.gal-gala-glow .g-place-block { padding: 1rem; border-block: 1px solid var(--color-gold); }
+.gal-gala-glow.g-rsvp-button-plaque :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0.3rem; box-shadow: inset 0 0 0 3px var(--color-gold), inset 0 0 0 4.5px var(--g-on-accent), inset 0 0 0 7px var(--color-gold), inset 0 0 0 8px var(--g-on-accent); }
+.gal-gala-glow.g-rsvp-button-bevel :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0; clip-path: polygon(0.7rem 0, calc(100% - 0.7rem) 0, 100% 0.7rem, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0.7rem 100%, 0 calc(100% - 0.7rem), 0 0.7rem); }
+.gal-gala-glow.g-rsvp-button-outline :is(.g-cta, .g-rsvp .form-submit) { background: none; color: var(--color-gold); border-radius: 999px; }
+.gal-gala-glow .g-photo img { border: 3px double var(--color-gold); padding: 0.3rem; }
+.gal-gala-glow.g-photo-layout-gala .g-photo img { border-radius: 999px 999px 0.4rem 0.4rem; }
+
+/* ======================================================================
+ * Neon Afterglow: a neon centrepiece, a digital date tag, a ticket venue.
+ * ====================================================================== */
+.gal-neon-afterglow { --g-radius: 0.3rem; }
+.gal-neon-afterglow .g-names { font-size: clamp(3.1rem, 16vw, 4.6rem); font-weight: 900; line-height: 1; }
+.gal-en.gal-neon-afterglow .g-names, .gal-ru.gal-neon-afterglow .g-names { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; }
+.gal-neon-afterglow .g-subline { color: var(--color-wine); letter-spacing: 0.1em; }
+.gal-neon-afterglow .g-date { display: inline-block; padding: 0.35rem 1.1rem; border: 2px solid var(--color-gold); box-shadow: 0 0 0.9rem color-mix(in srgb, var(--color-gold) 40%, transparent); }
+.gal-neon-afterglow .g-numeric { letter-spacing: 0.2em; }
+.gal-neon-afterglow .g-card { border: 2px solid var(--color-gold); box-shadow: 0 0 1rem color-mix(in srgb, var(--color-gold) 30%, transparent); }
+.gal-neon-afterglow .g-place-block { padding: 1rem; border: 2px dashed var(--color-wine); }
+.gal-neon-afterglow.g-rsvp-button-neon :is(.g-cta, .g-rsvp .form-submit) { background: var(--color-plate); color: var(--color-ivory); border: 2px solid var(--color-gold); box-shadow: 0 0 0 1px var(--color-gold), 0 0 1rem color-mix(in srgb, var(--color-gold) 50%, transparent); }
+.gal-neon-afterglow.g-rsvp-button-block :is(.g-cta, .g-rsvp .form-submit) { border-radius: 0; box-shadow: 0.3rem 0.3rem 0 var(--color-wine); }
+.gal-neon-afterglow.g-rsvp-button-glow :is(.g-cta, .g-rsvp .form-submit) { background: var(--color-plate); color: var(--color-ivory); border: 2px solid var(--color-wine); border-radius: 999px; box-shadow: 0 0 1.2rem color-mix(in srgb, var(--color-wine) 55%, transparent); }
+.gal-neon-afterglow .g-photo img { border: 3px solid var(--color-wine); box-shadow: 0 0 1rem color-mix(in srgb, var(--color-wine) 40%, transparent); }
+
+/* Styles whose main photo comes after the names, so the opening art and the names lead. */
+:is(.gal-mazal-tov-papercut.g-photo-layout-below, .gal-klezmer-confetti, .gal-firework-finale, .gal-gala-glow, .gal-neon-afterglow) .g-hero { display: flex; flex-direction: column; }
+:is(.gal-mazal-tov-papercut.g-photo-layout-below, .gal-klezmer-confetti, .gal-firework-finale, .gal-gala-glow, .gal-neon-afterglow) .g-photo-hero { order: 3; margin-top: 1.8rem; }
+/* Amatic is a thin hand: set its numbers bold and larger so the date and times read at a glance. */
+.gal-klezmer-confetti :is(.g-numeric, .g-times dd) { font-weight: 700; }
+.gal-klezmer-confetti .g-date { font-size: 1.15rem; }
+.gal-klezmer-confetti .g-times dd { font-size: 2rem; }

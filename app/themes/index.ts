@@ -22,4 +22,15 @@ export const themeComponents: Record<string, Component> = {
   'happy-accident': GalleryInvitation,
   'jerusalem-stone': GalleryInvitation,
   'golden-hour-groove': GalleryInvitation,
+  // The celebration collection uses the same page, with art from ./celebration.
+  'mazal-tov-papercut': GalleryInvitation,
+  'chuppah-jubilee': GalleryInvitation,
+  'seven-blessings': GalleryInvitation,
+  'rimon-fiesta': GalleryInvitation,
+  'klezmer-confetti': GalleryInvitation,
+  'firework-finale': GalleryInvitation,
+  'poolside-vows': GalleryInvitation,
+  'confetti-couture': GalleryInvitation,
+  'gala-glow': GalleryInvitation,
+  'neon-afterglow': GalleryInvitation,
 }
