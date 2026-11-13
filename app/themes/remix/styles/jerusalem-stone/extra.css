@@ -1,0 +1,8 @@
+/* Jerusalem Stone / City of Joy: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-jerusalem-stone.rx-o-masonry-keystone .rx-part-masonry,
+.rx-jerusalem-stone.rx-o-masonry-none .rx-part-masonry { display: none; }
+
+/* The Latin names sit just under the tag line, clear of it. */
+.rx-jerusalem-stone .rx-h-latin { top: calc(40 * var(--u)); }

@@ -1,0 +1,20 @@
+/* Generated from the pack's confetti-couture preview: positions in the hero are in 375-wide design units (--u). */
+.rx-confetti-couture { background:var(--color-ground);color:var(--p0); }
+.rx-confetti-couture .rx-topbar { background:var(--x1);color:var(--p1); }
+.rx-confetti-couture .rx-hero { height:calc(660 * var(--u));background:var(--color-ground); }
+.rx-confetti-couture .rx-hero-art { top:calc(30 * var(--u));height:calc(505 * var(--u)); }
+.rx-confetti-couture .rx-hero-tag { top:calc(22 * var(--u));left:calc(17 * var(--u));right:calc(15 * var(--u));text-align:left;color:var(--color-ivory); }
+.rx-confetti-couture .rx-hero-text { top:calc(102 * var(--u));left:calc(18 * var(--u));right:calc(25 * var(--u));text-align:right;color:var(--x12);font-size:calc(26 * var(--u));transform:rotate(5deg); }
+.rx-confetti-couture .rx-hero-name { top:calc(400 * var(--u));left:calc(16 * var(--u));right:calc(40 * var(--u));text-align:left;color:var(--color-ivory);font-size:calc(59 * var(--u));line-height:1.1;letter-spacing:calc(-3 * var(--u));transform:rotate(-5deg);text-shadow:calc(4 * var(--u)) calc(3 * var(--u)) var(--x13); }
+.rx-confetti-couture .rx-hero-date { top:calc(560 * var(--u));left:calc(16 * var(--u));right:calc(16 * var(--u));background:var(--x1);color:var(--p2);padding:calc(13 * var(--u));transform:rotate(2deg);font-size:calc(25 * var(--u)); }
+.rx-confetti-couture .rx-bodywrap { padding:12px 22px 40px;background:var(--color-ground); }
+.rx-confetti-couture .rx-intro { text-align:right;font-weight:900;font-size:22px;color:var(--x14); }
+.rx-confetti-couture .rx-info { background:var(--x11);border:3px solid var(--x15);padding:18px 12px;transform:rotate(1deg);box-shadow:8px 7px 0 var(--x16); }
+.rx-confetti-couture .rx-detail-head { color:var(--x17);text-align:left; }
+.rx-confetti-couture .rx-row-time { text-align:left; }
+.rx-confetti-couture .rx-venue { text-align:right;color:var(--x18); }
+.rx-confetti-couture .rx-rsvp { background:var(--x19);color:var(--p3);padding:32px 18px;transform:rotate(-2deg);margin-top:15px;border-radius:5px; }
+.rx-confetti-couture .rx-rsvp .form-submit { background:var(--x20);color:var(--p4);border-radius:2px; }
+.rx-confetti-couture .rx-foot { color:var(--x21); }
+.rx-confetti-couture .rx-hero-badge { display:none; }
+.rx-confetti-couture .rx-hero-caption { display:none; }

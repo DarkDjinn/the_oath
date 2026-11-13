@@ -1,0 +1,5 @@
+/* Jaffa Sun / Postcard Paradise: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-jaffa-sun.rx-o-tile-olive .rx-part-tile,
+.rx-jaffa-sun.rx-o-tile-citrus .rx-part-tile { display: none; }

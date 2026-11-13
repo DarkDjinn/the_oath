@@ -1,0 +1,15 @@
+/* Generated from the pack's velvet-deco preview: positions in the hero are in 375-wide design units (--u). */
+.rx-velvet-deco .rx-topbar { background:var(--x15);color:var(--p0); }
+.rx-velvet-deco .rx-hero { height:calc(660 * var(--u));background:var(--x17); }
+.rx-velvet-deco .rx-h-kicker { top:calc(20 * var(--u));left:0;right:0;text-align:center;color:var(--x18); }
+.rx-velvet-deco .rx-h-invite { display:none; }
+.rx-velvet-deco .rx-h-title { top:calc(300 * var(--u));left:calc(103 * var(--u));right:calc(103 * var(--u));color:var(--x19);font-size:calc(39 * var(--u));line-height:1.25;letter-spacing:calc(-1 * var(--u)); }
+.rx-velvet-deco .rx-h-date { top:calc(445 * var(--u));left:calc(56 * var(--u));right:calc(56 * var(--u));color:var(--p1);background:var(--x21);border:calc(3 * var(--u)) solid var(--x22);clip-path:polygon(0 0,100% 0,100% 75%,92% 100%,8% 100%,0 75%);padding:calc(15 * var(--u)) calc(6 * var(--u)) calc(26 * var(--u));font-size:calc(24 * var(--u)); }
+.rx-velvet-deco .rx-h-note { top:calc(550 * var(--u));left:0;right:0;color:var(--x23); }
+.rx-velvet-deco .rx-h-latin { top:calc(583 * var(--u));left:0;right:0;color:var(--x24);font-size:calc(18 * var(--u)); }
+.rx-velvet-deco .rx-content { background:var(--x25);padding-top:35px; }
+.rx-velvet-deco .rx-welcome { font-family:var(--font-fraktur);color:var(--x26); }
+.rx-velvet-deco .rx-schedule { background:var(--x27);color:var(--p2);border:3px double var(--x29);clip-path:polygon(5% 0,95% 0,100% 11%,100% 89%,95% 100%,5% 100%,0 89%,0 11%);padding:27px 20px; }
+.rx-velvet-deco .rx-location { border:2px solid var(--x30);background:var(--x31); }
+.rx-velvet-deco .rx-rsvp { border:5px double var(--x32);background:var(--x33);color:var(--p3); }
+.rx-velvet-deco .rx-rsvp .form-submit { background:var(--x35);color:var(--p4);clip-path:polygon(0 0,96% 0,100% 24%,100% 100%,4% 100%,0 76%); }

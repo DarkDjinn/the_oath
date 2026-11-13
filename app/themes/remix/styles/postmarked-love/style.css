@@ -1,0 +1,15 @@
+/* Generated from the pack's postmarked-love preview: positions in the hero are in 375-wide design units (--u). */
+.rx-postmarked-love .rx-topbar { background:var(--x20);color:var(--p0); }
+.rx-postmarked-love .rx-hero { height:calc(650 * var(--u));background:var(--x0); }
+.rx-postmarked-love .rx-h-kicker { top:calc(29 * var(--u));left:calc(22 * var(--u));right:calc(22 * var(--u));color:var(--x22); }
+.rx-postmarked-love .rx-h-invite { top:calc(92 * var(--u));left:calc(60 * var(--u));right:calc(65 * var(--u));font-size:calc(16 * var(--u));color:var(--x23);transform:rotate(7deg); }
+.rx-postmarked-love .rx-h-title { top:calc(196 * var(--u));left:calc(67 * var(--u));right:calc(68 * var(--u));color:var(--x24);transform:rotate(7deg);font-size:calc(40 * var(--u)); }
+.rx-postmarked-love .rx-h-date { top:calc(348 * var(--u));left:calc(80 * var(--u));right:calc(94 * var(--u));color:var(--x25);font-size:calc(25 * var(--u));transform:rotate(-7deg); }
+.rx-postmarked-love .rx-h-note { top:calc(526 * var(--u));left:calc(44 * var(--u));right:calc(28 * var(--u));color:var(--x26);transform:rotate(-4deg); }
+.rx-postmarked-love .rx-h-latin { top:calc(562 * var(--u));left:calc(40 * var(--u));right:calc(30 * var(--u));color:var(--x27);transform:rotate(-4deg); }
+.rx-postmarked-love .rx-content { background:var(--x28); }
+.rx-postmarked-love .rx-welcome { color:var(--x29);font-size:19px; }
+.rx-postmarked-love .rx-schedule { background:var(--x30);border:4px solid var(--x31);border-image:repeating-linear-gradient(45deg,var(--x32),var(--x32) 12px,var(--x33) 12px,var(--x33) 21px,var(--x34) 21px,var(--x34) 33px,var(--x33) 33px,var(--x33) 42px) 12; }
+.rx-postmarked-love .rx-location { border-block:2px dashed var(--x35); }
+.rx-postmarked-love .rx-rsvp { background:var(--x36);border:3px dashed var(--x37);box-shadow:8px 8px 0 var(--x38); }
+.rx-postmarked-love .rx-rsvp .form-submit { border-radius:3px;background:var(--x39); }

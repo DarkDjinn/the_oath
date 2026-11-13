@@ -1,0 +1,7 @@
+/* Golden Hour Groove / Disco Bouquet: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-golden-hour-groove.rx-o-groove-flower .rx-part-groove,
+.rx-golden-hour-groove.rx-o-groove-record .rx-part-groove,
+.rx-golden-hour-groove.rx-o-bands-stripes .rx-part-bands,
+.rx-golden-hour-groove.rx-o-bands-solid .rx-part-bands { display: none; }

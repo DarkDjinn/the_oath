@@ -1,0 +1,20 @@
+/* Generated from the pack's klezmer-confetti preview: positions in the hero are in 375-wide design units (--u). */
+.rx-klezmer-confetti { background:var(--x12); }
+.rx-klezmer-confetti .rx-topbar { background:var(--x13);color:var(--p0); }
+.rx-klezmer-confetti .rx-hero { height:calc(645 * var(--u));background:var(--x12); }
+.rx-klezmer-confetti .rx-hero-art { top:calc(10 * var(--u));height:calc(520 * var(--u)); }
+.rx-klezmer-confetti .rx-hero-tag { top:calc(15 * var(--u));left:0;right:0;color:var(--x13);font-size:calc(13 * var(--u)); }
+.rx-klezmer-confetti .rx-hero-text { top:calc(96 * var(--u));right:calc(10 * var(--u));left:calc(18 * var(--u));text-align:right;transform:rotate(-8deg);font-size:calc(25 * var(--u));color:var(--x15);text-shadow:calc(3 * var(--u)) calc(3 * var(--u)) var(--x16); }
+.rx-klezmer-confetti .rx-hero-name { top:calc(350 * var(--u));right:calc(12 * var(--u));left:calc(12 * var(--u));color:var(--p1);background:var(--x18);font-size:calc(45 * var(--u));transform:rotate(-5deg);padding:calc(15 * var(--u)) calc(4 * var(--u));box-shadow:calc(8 * var(--u)) calc(10 * var(--u)) 0 var(--x19); }
+.rx-klezmer-confetti .rx-hero-date { top:calc(472 * var(--u));left:calc(15 * var(--u));right:calc(15 * var(--u));color:var(--p2);background:var(--x20);padding:calc(11 * var(--u));transform:rotate(3deg);font-size:calc(27 * var(--u)); }
+.rx-klezmer-confetti .rx-hero-badge { top:calc(557 * var(--u));left:calc(40 * var(--u));right:calc(40 * var(--u));color:var(--x21);font-size:calc(22 * var(--u));transform:rotate(-3deg); }
+.rx-klezmer-confetti .rx-bodywrap { padding-top:5px;background:var(--x12); }
+.rx-klezmer-confetti .rx-intro { font-weight:900;font-size:20px;color:var(--x22); }
+.rx-klezmer-confetti .rx-info { background:var(--x23);color:var(--p3);clip-path:polygon(0 6%,100% 0,99% 94%,0 100%);padding:36px 15px; }
+.rx-klezmer-confetti .rx-detail-head { text-align:center;color:var(--x25);font-size:25px; }
+.rx-klezmer-confetti .rx-time-slot { color:var(--x26); }
+.rx-klezmer-confetti .rx-venue { padding:28px 0 20px;color:var(--x23); }
+.rx-klezmer-confetti .rx-rsvp { margin-top:8px;background:var(--x27);color:var(--p4);padding:29px 17px;transform:rotate(2deg);box-shadow:9px 9px 0 var(--x28); }
+.rx-klezmer-confetti .rx-rsvp .form-submit { background:var(--x23);color:var(--p5);border-radius:0; }
+.rx-klezmer-confetti .rx-foot { color:var(--x30); }
+.rx-klezmer-confetti .rx-hero-caption { display:none; }

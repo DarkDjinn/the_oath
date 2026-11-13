@@ -1,0 +1,7 @@
+/* Rimon Riot: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-rimon-fiesta.rx-o-tiles-flowers .rx-part-tiles,
+.rx-rimon-fiesta.rx-o-tiles-arches .rx-part-tiles,
+.rx-rimon-fiesta.rx-o-fruit-branches .rx-part-fruit,
+.rx-rimon-fiesta.rx-o-fruit-none .rx-part-fruit { display: none; }

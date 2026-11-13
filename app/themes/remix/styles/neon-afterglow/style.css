@@ -1,0 +1,20 @@
+/* Generated from the pack's neon-afterglow preview: positions in the hero are in 375-wide design units (--u). */
+.rx-neon-afterglow { background:var(--color-ground);color:var(--p0); }
+.rx-neon-afterglow .rx-topbar { background:var(--x12);color:var(--p1); }
+.rx-neon-afterglow .rx-hero { height:calc(665 * var(--u));background:var(--color-ground); }
+.rx-neon-afterglow .rx-hero-art { top:0;height:calc(450 * var(--u)); }
+.rx-neon-afterglow .rx-hero-tag { top:calc(18 * var(--u));left:0;right:0;color:var(--x14); }
+.rx-neon-afterglow .rx-hero-text { top:calc(56 * var(--u));left:calc(20 * var(--u));right:calc(20 * var(--u));color:var(--x15);font-size:calc(23 * var(--u));transform:rotate(-4deg); }
+.rx-neon-afterglow .rx-hero-name { top:calc(350 * var(--u));left:calc(8 * var(--u));right:calc(8 * var(--u));text-align:center;color:var(--x16);font-size:calc(56 * var(--u));line-height:1.1;letter-spacing:calc(-2 * var(--u));text-shadow:calc(4 * var(--u)) calc(5 * var(--u)) var(--x17); }
+.rx-neon-afterglow .rx-hero-date { top:calc(483 * var(--u));left:calc(12 * var(--u));right:calc(12 * var(--u));color:var(--x18);font-size:calc(35 * var(--u));letter-spacing:calc(1 * var(--u));font-weight:900; }
+.rx-neon-afterglow .rx-hero-badge { top:calc(561 * var(--u));left:calc(25 * var(--u));right:calc(25 * var(--u));background:var(--x19);color:var(--p2);padding:calc(13 * var(--u));font-size:calc(18 * var(--u));transform:rotate(-3deg); }
+.rx-neon-afterglow .rx-bodywrap { background:var(--color-ground);padding:25px 20px; }
+.rx-neon-afterglow .rx-intro { color:var(--x21);font-size:21px;font-weight:900; }
+.rx-neon-afterglow .rx-info { background:var(--x22);border:3px solid var(--x23);padding:22px 14px;box-shadow:7px 8px 0 var(--x24); }
+.rx-neon-afterglow .rx-detail-head { text-align:center;color:var(--x25); }
+.rx-neon-afterglow .rx-row-time { color:var(--x26); }
+.rx-neon-afterglow .rx-venue { color:var(--x27); }
+.rx-neon-afterglow .rx-rsvp { margin-top:18px;padding:26px 16px;background:var(--x28);color:var(--p3);transform:skewY(-2deg); }
+.rx-neon-afterglow .rx-rsvp .form-submit { background:var(--x30);color:var(--p4);border-radius:2px;transform:skewY(2deg); }
+.rx-neon-afterglow .rx-foot { color:var(--x32); }
+.rx-neon-afterglow .rx-hero-caption { display:none; }

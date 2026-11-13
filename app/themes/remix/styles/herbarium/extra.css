@@ -1,0 +1,7 @@
+/* Herbarium / Wildflower Edition: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-herbarium.rx-o-specimen-lavender .rx-part-specimen,
+.rx-herbarium.rx-o-specimen-chamomile .rx-part-specimen,
+.rx-herbarium.rx-o-margin-open .rx-part-margin,
+.rx-herbarium.rx-o-margin-catalogue .rx-part-margin { display: none; }

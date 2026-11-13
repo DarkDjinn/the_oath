@@ -1,0 +1,12 @@
+/* Ma / Paper Lanterns: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-ma.rx-o-mark-branch .rx-part-mark,
+.rx-ma.rx-o-mark-fan .rx-part-mark { display: none; }
+
+/* layout: offset as designed; centred moves the paper cut-outs and the text to the middle; column sets everything in one narrow start-aligned column */
+.rx-ma.rx-o-layout-centred :is(.rx-h-invite, .rx-h-title, .rx-h-date, .rx-h-note, .rx-h-latin) { left: calc(40 * var(--u)); right: calc(40 * var(--u)); text-align: center; }
+.rx-ma.rx-o-layout-centred :is(.rx-welcome, .rx-label, .rx-location, .rx-location h2, .rx-rsvp) { text-align: center; }
+.rx-ma.rx-o-layout-column :is(.rx-h-invite, .rx-h-title, .rx-h-date, .rx-h-note, .rx-h-latin) { left: calc(99 * var(--u)); right: calc(70 * var(--u)); }
+.rx-ma.rx-o-layout-column .rx-content { padding-inline: 64px 28px; }
+.rx-ma.rx-o-layout-column :is(.rx-welcome, .rx-label, .rx-location, .rx-location h2, .rx-rsvp) { text-align: start; }

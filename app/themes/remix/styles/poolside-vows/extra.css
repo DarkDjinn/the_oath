@@ -1,0 +1,8 @@
+/* Splash!: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-poolside-vows.rx-o-water-waves .rx-part-water,
+.rx-poolside-vows.rx-o-water-tiles .rx-part-water,
+.rx-poolside-vows.rx-o-summer-icon-umbrella .rx-part-icon,
+.rx-poolside-vows.rx-o-summer-icon-sun .rx-part-icon,
+.rx-poolside-vows.rx-o-summer-icon-flamingo .rx-part-icon { display: none; }

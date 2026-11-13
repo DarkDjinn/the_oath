@@ -59,10 +59,10 @@ export const THEMES: Record<string, ThemeDefinition> = {
     contrast: [{ role: 'ground', on: 'accent2', ratio: 4.5, what: 'Button and ribbon text on the second accent', adjust: 'accent2' }],
     photos: { hero: 'The portrait at the top of the invitation. A photo or a drawing; landscape or square works best.', second: 'Shown between the welcome and the schedule.' },
   },
-  // ---- the gallery styles: one shared page (app/themes/gallery), each with its own art
+  // ---- the twenty expansion styles: each its own composition (app/themes/remix), one shared page shell
   still: {
-    name: 'Still',
-    description: 'Quiet contemporary typography, generous space, and a single graceful line let your words lead.',
+    name: 'Still / Electric Editorial',
+    description: 'Big, bold, and breathtakingly simple: high-fashion typography meets joyful colour and graphic punctuation.',
     options: {
       divider: { label: 'Divider', topic: 'ornaments', choices: { rule: 'Single rule', dots: 'Twin dots', none: 'None' } },
       cta: { label: 'RSVP button', topic: 'button', choices: { square: 'Sharp rectangle', pill: 'Soft capsule', underline: 'Underlined text' } },
@@ -74,8 +74,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional restrained portrait, cropped as an editorial inset below the headline.', second: 'Optional second portrait paired at the end of the details section.' },
   },
   'jaffa-sun': {
-    name: 'Jaffa Sun',
-    description: 'A breezy Mediterranean celebration of sunlit plaster, colourful tiles, and summer evenings.',
+    name: 'Jaffa Sun / Postcard Paradise',
+    description: 'A sun-soaked Mediterranean travel poster: cobalt tiles, floating sails, citrus, and pure summer celebration.',
     options: {
       tile: { label: 'Tile motif', topic: 'ornaments', choices: { sun: 'Sunburst', olive: 'Olive branch', citrus: 'Citrus slice' } },
       cta: { label: 'RSVP button', topic: 'button', choices: { tile: 'Enamel tile', solid: 'Solid colour', link: 'Underlined link' } },
@@ -87,8 +87,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional bright outdoor portrait in a small postcard-shaped frame.', second: 'Optional candid in a paired tile-like frame beneath venue details.' },
   },
   'velvet-deco': {
-    name: 'Velvet Deco',
-    description: 'A glamorous 1920s-inspired invitation of stepped geometry, bold symmetry, and polished metallic lines.',
+    name: 'Velvet Deco / Champagne Tower',
+    description: 'A dazzling jazz-age soirée of stepped skyscrapers, champagne fountains, and architectural gold.',
     options: {
       crest: { label: 'Crest', topic: 'ornaments', choices: { fan: 'Stepped fan', sunburst: 'Sunburst rays', diamond: 'Triple diamond' } },
       frame: { label: 'Frame detail', topic: 'ornaments', choices: { double: 'Double lines', corners: 'Corner steps', none: 'No frame' } },
@@ -100,8 +100,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional formally posed couple portrait inside a narrow stepped frame.', second: 'Optional black-and-white detail shot below the schedule in a geometric inset.' },
   },
   herbarium: {
-    name: 'Herbarium',
-    description: 'A tender botanical field journal with delicate pressed plants and handwritten-science charm.',
+    name: 'Herbarium / Wildflower Edition',
+    description: 'A botanical love story bursting out of a field-guide foldout, with giant specimen blooms and punchy labels.',
     options: {
       specimen: { label: 'Botanical specimen', topic: 'ornaments', choices: { eucalyptus: 'Eucalyptus', lavender: 'Lavender', chamomile: 'Chamomile' } },
       margin: { label: 'Page margin', topic: 'ornaments', choices: { journal: 'Journal rules', open: 'Open paper', catalogue: 'Catalogue labels' } },
@@ -113,8 +113,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional soft portrait displayed as a small archival mounted print.', second: 'Optional close-up memory beneath the invitation, captioned like a collected specimen.' },
   },
   'saffron-dunes': {
-    name: 'Saffron Dunes',
-    description: 'Earthy, tactile desert romance built from horizons, woven marks, and sun-warmed geometry.',
+    name: 'Saffron Dunes / Desert Festival',
+    description: 'An immersive desert festival tapestry of giant setting suns, woven stripes, tassels, and joyous warm colour.',
     options: {
       horizon: { label: 'Desert motif', topic: 'ornaments', choices: { sun: 'Sun and dunes', weave: 'Woven diamonds', stars: 'Desert stars' } },
       border: { label: 'Border', topic: 'ornaments', choices: { fringe: 'Fringed edge', woven: 'Woven stripe', none: 'No border' } },
@@ -126,8 +126,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional sunset portrait framed by two abstract horizon shapes.', second: 'Optional candid in a horizontal, woven-edged strip after the welcome text.' },
   },
   ma: {
-    name: 'Ma',
-    description: 'A serene Japanese-inspired composition where ink marks, asymmetry, and purposeful emptiness create intimacy.',
+    name: 'Ma / Paper Lanterns',
+    description: 'A contemporary Japanese-inspired celebration of flying paper cranes, bright lanterns, and sculptural negative space.',
     options: {
       mark: { label: 'Ink motif', topic: 'ornaments', choices: { enso: 'Open ink circle', branch: 'Single branch', fan: 'Folded fan' } },
       layout: { label: 'Composition', topic: 'ornaments', choices: { offset: 'Asymmetric', centred: 'Quiet centre', column: 'Side column' } },
@@ -139,8 +139,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional single documentary-style portrait in a small understated crop.', second: 'Optional narrow landscape detail photo placed below the event information.' },
   },
   'postmarked-love': {
-    name: 'Postmarked Love',
-    description: 'An old-world invitation card with letterpress rules, postal stamps, and the warmth of a handwritten keepsake.',
+    name: 'Postmarked Love / Air Mail',
+    description: 'A giant love letter has arrived: airmail borders, oversized stamps, and playful handwritten postal ephemera.',
     options: {
       stamp: { label: 'Postage stamp', topic: 'ornaments', choices: { heart: 'Heart seal', flower: 'Flower stamp', asterisk: 'Printer mark' } },
       edge: { label: 'Paper edge', topic: 'ornaments', choices: { perforated: 'Perforated', double: 'Double rule', clean: 'Clean cut' } },
@@ -152,8 +152,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional portrait as a small sepia-style print within the paper card.', second: 'Optional archival candid treated as a second tiny postage-window inset.' },
   },
   'happy-accident': {
-    name: 'Happy Accident',
-    description: 'A bright, delightfully offbeat party invite drawn with confident doodles and a little deliberate mischief.',
+    name: 'Happy Accident / Love Parade',
+    description: 'A funny, fearless doodle parade of googly-eyed flowers, bouncing balloons, and sticker-book chaos.',
     options: {
       doodles: { label: 'Party doodles', topic: 'ornaments', choices: { balloons: 'Balloons', stars: 'Wonky stars', squiggles: 'Squiggles' } },
       density: { label: 'Doodle density', topic: 'ornaments', choices: { subtle: 'A little', medium: 'Just enough', lively: 'More playful' } },
@@ -165,8 +165,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional funny candid in a tilted faux-sticker frame.', second: 'Optional small square photo with a short doodled caption beside it.' },
   },
   'jerusalem-stone': {
-    name: 'Jerusalem Stone',
-    description: 'A dignified, locally rooted celebration inspired by pale Jerusalem stone and timeless Hebrew lettering.',
+    name: 'Jerusalem Stone / City of Joy',
+    description: 'Warm golden Jerusalem roofs at sunset meet monumental Hebrew lettering and celebratory stained-glass colour.',
     options: {
       emblem: { label: 'Stone emblem', topic: 'ornaments', choices: { pomegranate: 'Pomegranate', olive: 'Olive branch', star: 'Six-point geometry' } },
       masonry: { label: 'Stone detail', topic: 'ornaments', choices: { courses: 'Stone courses', keystone: 'Corner keystones', none: 'Bare stone' } },
@@ -178,8 +178,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional formal portrait in a modest rectangular stone-line frame.', second: 'Optional architectural or family detail photo below the event details.' },
   },
   'golden-hour-groove': {
-    name: 'Golden Hour Groove',
-    description: 'A happy retro-70s celebration of chunky curves, warm stripes, flower power, and optimistic colour.',
+    name: 'Golden Hour Groove / Disco Bouquet',
+    description: 'A joyful psychedelic wedding poster of giant daisies, molten colour bands, disco rings, and groovy typography.',
     options: {
       groove: { label: 'Retro motif', topic: 'ornaments', choices: { rainbow: 'Rainbow arches', flower: 'Groovy flower', record: 'Vinyl record' } },
       bands: { label: 'Background bands', topic: 'ornaments', choices: { arches: 'Big arches', stripes: 'Horizontal stripes', solid: 'Solid field' } },
@@ -190,10 +190,9 @@ export const THEMES: Record<string, ThemeDefinition> = {
     lettering: { display: 'amatic', latin: 'playball', body: 'rubik', numeral: 'amatic' },
     photos: { hero: 'Optional playful portrait clipped into a round record-sleeve crop.', second: 'Optional candid pair assembled as a compact 1970s-style photo strip.' },
   },
-  // ---- the celebration collection: the same shared page (app/themes/gallery), art in app/themes/celebration
   'mazal-tov-papercut': {
-    name: 'Mazal Tov Papercut',
-    description: 'A joyful Jewish papercut celebration of doves, pomegranates, and colourful symmetry.',
+    name: 'Mazal Tov!',
+    description: 'An explosion of Jewish folk-art joy: dancing birds, oversized papercut flowers, and a brilliantly colourful celebration.',
     options: {
       papercut: { label: 'Papercut design', topic: 'ornaments', choices: { doves: 'Doves & branches', pomegranates: 'Pomegranates', floral: 'Festival flowers' } },
       'paper-edge': { label: 'Paper border', topic: 'ornaments', choices: { lace: 'Scalloped cutout', diamond: 'Diamond cutout', clean: 'Open edges' } },
@@ -206,8 +205,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional circular couple portrait nested beneath the papercut crest.', second: 'Optional small photo as a separate card near the event details.' },
   },
   'chuppah-jubilee': {
-    name: 'Chuppah Jubilee',
-    description: 'A flower-strewn chuppah, fluttering fabric, and ribbons make your invitation feel like the celebration has already begun.',
+    name: 'Under the Chuppah',
+    description: 'Step into a sunlit chuppah dressed in swaying fabric, giant blossoms, and joyful festival ribbons.',
     options: {
       canopy: { label: 'Chuppah canopy', topic: 'ornaments', choices: { scalloped: 'Scalloped fabric', striped: 'Festive stripes', floral: 'Flower garlands' } },
       hanging: { label: 'Hanging ornaments', topic: 'ornaments', choices: { ribbons: 'Ribbon tassels', lanterns: 'Paper lanterns', petals: 'Flower strings' } },
@@ -220,8 +219,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional modest inset beneath the illustrated canopy, never replacing the canopy.', second: 'Optional candid photo beneath the RSVP details or in the footer.' },
   },
   'seven-blessings': {
-    name: 'Seven Blessings',
-    description: 'Seven jewel-like medallions and luminous ceremonial details celebrate the richness of the Sheva Brachot.',
+    name: 'Seven Joys',
+    description: 'Seven glowing jewel rosettes surround your names in a radiant celebration of the Sheva Brachot.',
     options: {
       medallions: { label: 'Seven medallions', topic: 'ornaments', choices: { rosettes: 'Seven rosettes', facets: 'Jewel facets', stars: 'Seven tiny stars' } },
       border: { label: 'Ceremonial border', topic: 'ornaments', choices: { jewel: 'Jewel corners', beads: 'Beaded lines', none: 'No border' } },
@@ -234,8 +233,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional formal portrait set below the medallion constellation.', second: 'Optional second portrait displayed as a quiet gallery tile below the schedule.' },
   },
   'rimon-fiesta': {
-    name: 'Rimon Fiesta',
-    description: 'A spirited Sephardi and Moroccan-Jewish-inspired party of pomegranates, mosaic geometry, and dazzling colour.',
+    name: 'Rimon Riot',
+    description: 'A technicolour pomegranate party, inspired by Sephardi decorative arts and festive geometric mosaics.',
     options: {
       tiles: { label: 'Mosaic pattern', topic: 'ornaments', choices: { diamonds: 'Diamond tessellation', flowers: 'Mosaic flowers', arches: 'Geometric arches' } },
       fruit: { label: 'Festival fruit', topic: 'ornaments', choices: { rimon: 'Pomegranate pair', branches: 'Pomegranate branches', none: 'Geometry only' } },
@@ -248,8 +247,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional photo inside a geometric tile frame; full mosaic title remains without it.', second: 'Optional candid as a single tile in the venue section.' },
   },
   'klezmer-confetti': {
-    name: 'Klezmer Confetti',
-    description: 'A dancing, music-filled Jewish folk celebration with playful notes, swirling ribbons, and lively colour.',
+    name: 'Simcha Soundtrack',
+    description: 'A Jewish wedding that looks like the most joyful concert poster in town—music, dancing, and all.',
     options: {
       instrument: { label: 'Musical motif', topic: 'ornaments', choices: { violin: 'Violin & notes', clarinet: 'Clarinet & notes', accordion: 'Accordion keys' } },
       confetti: { label: 'Celebration accents', topic: 'ornaments', choices: { ribbons: 'Dancing ribbons', notes: 'Music notes', dots: 'Colourful dots' } },
@@ -262,8 +261,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional lively portrait as a concert-poster insert below the opening.', second: 'Optional candid in a lightly tilted mini print beneath the event information.' },
   },
   'firework-finale': {
-    name: 'Firework Finale',
-    description: 'Make your date sparkle with a skyline of hand-drawn fireworks, big type, and celebratory bursts.',
+    name: 'Big Bang Love',
+    description: 'A midnight-sky wedding announcement with monumental numerals, electric bursts, and a glorious grand finale.',
     options: {
       burst: { label: 'Fireworks style', topic: 'ornaments', choices: { starbursts: 'Fine starbursts', comets: 'Long comets', sparkles: 'Glitter dots' } },
       skyline: { label: 'Horizon line', topic: 'ornaments', choices: { city: 'City skyline', hills: 'Rolling hills', none: 'Open sky' } },
@@ -276,8 +275,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional low-contrast portrait below the fireworks headline, never as the sky itself.', second: 'Optional dusk photo along the schedule, in its own panel.' },
   },
   'poolside-vows': {
-    name: 'Poolside Vows',
-    description: 'Bright pool-blue waves, sun stripes, and relaxed resort lettering set the mood for a splashy wedding.',
+    name: 'Splash!',
+    description: 'The wedding is a pool party: graphic water, retro resort signage, and sunshine in every corner.',
     options: {
       water: { label: 'Water pattern', topic: 'ornaments', choices: { ripples: 'Sunlit ripples', waves: 'Rolling waves', tiles: 'Pool tiles' } },
       'summer-icon': { label: 'Summer decoration', topic: 'ornaments', choices: { umbrella: 'Striped parasol', sun: 'Happy sun', flamingo: 'Flamingo silhouette' } },
@@ -290,8 +289,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional summer portrait as a postcard below the large sun ornament.', second: 'Optional second candid in a pool-tile framed footer card.' },
   },
   'confetti-couture': {
-    name: 'Confetti Couture',
-    description: 'A runway-worthy wedding party with sculptural bows, exuberant streamers, and editorial typography.',
+    name: 'Ribbon Rebel',
+    description: 'Runway-worthy wedding joy: giant sculptural bows, impossible colours, and a confetti-soaked editorial layout.',
     options: {
       ribbons: { label: 'Ribbon sculpture', topic: 'ornaments', choices: { bow: 'Giant couture bow', loops: 'Ribbon loops', streamers: 'Long streamers' } },
       confetti: { label: 'Confetti shapes', topic: 'ornaments', choices: { discs: 'Metallic discs', diamonds: 'Tiny diamonds', stars: 'Mini stars' } },
@@ -304,8 +303,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional fashion-editorial portrait with generous margins and no decorative placeholder.', second: 'Optional second editorial image as a slim strip between venue and RSVP.' },
   },
   'gala-glow': {
-    name: 'Gala Glow',
-    description: 'An elegant ballroom entrance of chandeliers, velvet drapes, and radiant light for a grand black-tie party.',
+    name: 'Opening Night',
+    description: 'Velvet curtains rise on your once-in-a-lifetime night, with luminous stage lettering and marquee glamour.',
     options: {
       chandelier: { label: 'Chandelier design', topic: 'ornaments', choices: { crystal: 'Crystal drops', orb: 'Glass orbs', tiered: 'Three tiers' } },
       drapery: { label: 'Stage drapery', topic: 'ornaments', choices: { curtain: 'Open curtains', swags: 'Fabric swags', clean: 'No drapes' } },
@@ -318,8 +317,8 @@ export const THEMES: Record<string, ThemeDefinition> = {
     photos: { hero: 'Optional formal portrait in a lower ballroom-card panel; chandelier still leads the hero.', second: 'Optional second formal portrait beneath the event programme.' },
   },
   'neon-afterglow': {
-    name: 'Neon Afterglow',
-    description: 'A high-energy wedding afterparty of glowing graphic shapes, electric type, and midnight colour.',
+    name: 'LOVE.exe',
+    description: 'An irresistible late-night wedding rave with holographic geometry, fluorescent type, and cosmic energy.',
     options: {
       'neon-shape': { label: 'Neon centerpiece', topic: 'ornaments', choices: { heart: 'Electric heart', infinity: 'Neon loops', star: 'Double star' } },
       background: { label: 'Background pattern', topic: 'ornaments', choices: { grid: 'Perspective grid', dots: 'Electric dots', rays: 'Laser rays' } },
@@ -430,306 +429,306 @@ export const PRESETS: Record<string, Preset> = {
     theme: 'nocturne',
     colours: { ground: '#f5efe2', surface: '#ebe3d2', text: '#2a2320', muted: '#655c52', accent: '#7d5f1f', accent2: '#8a1f33' },
   },
+  // ---- the twenty expansion styles
   'still-porcelain': {
     name: 'Porcelain',
     theme: 'still',
-    colours: { ground: '#F6F4EF', surface: '#FFFFFF', text: '#1B2524', muted: '#505C5B', accent: '#31574F', accent2: '#AE816E' },
+    colours: { ground: '#f8f2e9', surface: '#fffdf7', text: '#20243b', muted: '#5d5b69', accent: '#a5224c', accent2: '#116e86' },
   },
   'still-charcoal': {
     name: 'Charcoal',
     theme: 'still',
-    colours: { ground: '#151C1C', surface: '#24302F', text: '#F7F4EE', muted: '#CDD4CD', accent: '#A8D3C1', accent2: '#D6B7A4' },
+    colours: { ground: '#151c1c', surface: '#24302f', text: '#f7f4ee', muted: '#cdd4cd', accent: '#a8d3c1', accent2: '#d6b7a4' },
   },
   'still-slate': {
     name: 'Slate',
     theme: 'still',
-    colours: { ground: '#E8EDF0', surface: '#F9FAFB', text: '#182A34', muted: '#485960', accent: '#31586D', accent2: '#A16F4B' },
+    colours: { ground: '#e8edf0', surface: '#f9fafb', text: '#182a34', muted: '#485960', accent: '#31586d', accent2: '#a16f4b' },
   },
   'jaffa-sun-chalk-citrus': {
     name: 'Chalk Citrus',
     theme: 'jaffa-sun',
-    colours: { ground: '#FCF5E6', surface: '#FFFDF6', text: '#253E40', muted: '#526467', accent: '#126D78', accent2: '#C8772B' },
+    colours: { ground: '#fff1d8', surface: '#fffcf1', text: '#26334f', muted: '#64585a', accent: '#1d657e', accent2: '#b04731' },
   },
   'jaffa-sun-indigo-courtyard': {
     name: 'Indigo Courtyard',
     theme: 'jaffa-sun',
-    colours: { ground: '#102A3F', surface: '#1C3E52', text: '#FFF4D9', muted: '#D2D5C7', accent: '#FFD27A', accent2: '#81D5CF' },
+    colours: { ground: '#102a3f', surface: '#1c3e52', text: '#fff4d9', muted: '#d2d5c7', accent: '#ffd27a', accent2: '#81d5cf' },
   },
   'jaffa-sun-terra-rose': {
     name: 'Terra Rose',
     theme: 'jaffa-sun',
-    colours: { ground: '#F3E3D8', surface: '#FFF7EC', text: '#442E30', muted: '#6B4F4A', accent: '#A24342', accent2: '#297D7B' },
+    colours: { ground: '#f3e3d8', surface: '#fff7ec', text: '#442e30', muted: '#6b4f4a', accent: '#a24342', accent2: '#297d7b' },
   },
   'velvet-deco-ivory-brass': {
     name: 'Ivory Brass',
     theme: 'velvet-deco',
-    colours: { ground: '#F6EEE2', surface: '#FFFCF4', text: '#242936', muted: '#5A5861', accent: '#746022', accent2: '#9D4D4D' },
+    colours: { ground: '#fff3dc', surface: '#fffcf4', text: '#2a2033', muted: '#615666', accent: '#79275e', accent2: '#176c66' },
   },
   'velvet-deco-black-onyx': {
     name: 'Black Onyx',
     theme: 'velvet-deco',
-    colours: { ground: '#121518', surface: '#25282B', text: '#FAF1DF', muted: '#D5CAB9', accent: '#DDC07C', accent2: '#95B0A1' },
+    colours: { ground: '#121518', surface: '#25282b', text: '#faf1df', muted: '#d5cab9', accent: '#ddc07c', accent2: '#95b0a1' },
   },
   'velvet-deco-deep-peacock': {
     name: 'Deep Peacock',
     theme: 'velvet-deco',
-    colours: { ground: '#092A33', surface: '#19414B', text: '#F4F0E5', muted: '#C4D1CA', accent: '#E8AC68', accent2: '#7DD1C3' },
+    colours: { ground: '#092a33', surface: '#19414b', text: '#f4f0e5', muted: '#c4d1ca', accent: '#e8ac68', accent2: '#7dd1c3' },
   },
   'herbarium-pressed-sage': {
     name: 'Pressed Sage',
     theme: 'herbarium',
-    colours: { ground: '#F6F5EA', surface: '#FFFFFF', text: '#304137', muted: '#576357', accent: '#567344', accent2: '#AF6D87' },
+    colours: { ground: '#f7f4de', surface: '#fffdf6', text: '#263b31', muted: '#566056', accent: '#9b2c56', accent2: '#386c5b' },
   },
   'herbarium-forest-study': {
     name: 'Forest Study',
     theme: 'herbarium',
-    colours: { ground: '#172B25', surface: '#294036', text: '#F4F0DE', muted: '#C8D5C7', accent: '#B5D39C', accent2: '#F1B1A8' },
+    colours: { ground: '#172b25', surface: '#294036', text: '#f4f0de', muted: '#c8d5c7', accent: '#b5d39c', accent2: '#f1b1a8' },
   },
   'herbarium-lilac-parchment': {
     name: 'Lilac Parchment',
     theme: 'herbarium',
-    colours: { ground: '#F6EAF2', surface: '#FFFFFF', text: '#443349', muted: '#6C5268', accent: '#7B4979', accent2: '#48785A' },
+    colours: { ground: '#f6eaf2', surface: '#ffffff', text: '#443349', muted: '#6c5268', accent: '#7b4979', accent2: '#48785a' },
   },
   'saffron-dunes-salt-sand': {
     name: 'Salt Sand',
     theme: 'saffron-dunes',
-    colours: { ground: '#F6EBDC', surface: '#FFF9F0', text: '#483628', muted: '#6C574B', accent: '#9B513A', accent2: '#687D72' },
+    colours: { ground: '#fff0d4', surface: '#fff8e8', text: '#402b2a', muted: '#765448', accent: '#9c394c', accent2: '#376e78' },
   },
   'saffron-dunes-midnight-clay': {
     name: 'Midnight Clay',
     theme: 'saffron-dunes',
-    colours: { ground: '#281F24', surface: '#3B2C34', text: '#FAEDE0', muted: '#D7C5C6', accent: '#E7B27D', accent2: '#CBA8BD' },
+    colours: { ground: '#281f24', surface: '#3b2c34', text: '#faede0', muted: '#d7c5c6', accent: '#e7b27d', accent2: '#cba8bd' },
   },
   'saffron-dunes-ochre-canyon': {
     name: 'Ochre Canyon',
     theme: 'saffron-dunes',
-    colours: { ground: '#EEE0C0', surface: '#F9F2DF', text: '#443422', muted: '#6E5B44', accent: '#8A5829', accent2: '#B2624C' },
+    colours: { ground: '#eee0c0', surface: '#f9f2df', text: '#443422', muted: '#6e5b44', accent: '#8a5829', accent2: '#b2624c' },
   },
   'ma-rice-paper': {
     name: 'Rice Paper',
     theme: 'ma',
-    colours: { ground: '#F7F4ED', surface: '#FFFFFF', text: '#262C2A', muted: '#59625E', accent: '#4F6358', accent2: '#A24B3C' },
+    colours: { ground: '#f8f2e9', surface: '#ffffff', text: '#29232b', muted: '#615d63', accent: '#b22e2e', accent2: '#2f6082' },
   },
   'ma-sumi-ink': {
     name: 'Sumi Ink',
     theme: 'ma',
-    colours: { ground: '#141A1A', surface: '#26302F', text: '#F7F3EB', muted: '#C9CFCB', accent: '#C2D6CB', accent2: '#EE9882' },
+    colours: { ground: '#141a1a', surface: '#26302f', text: '#f7f3eb', muted: '#c9cfcb', accent: '#c2d6cb', accent2: '#ee9882' },
   },
   'ma-indigo-wash': {
     name: 'Indigo Wash',
     theme: 'ma',
-    colours: { ground: '#E8EDF1', surface: '#FFFFFF', text: '#253947', muted: '#55646F', accent: '#42657B', accent2: '#B45B4D' },
+    colours: { ground: '#e8edf1', surface: '#ffffff', text: '#253947', muted: '#55646f', accent: '#42657b', accent2: '#b45b4d' },
   },
   'postmarked-love-cream-ledger': {
     name: 'Cream Ledger',
     theme: 'postmarked-love',
-    colours: { ground: '#F4EDDF', surface: '#FFFAF0', text: '#342E29', muted: '#64594E', accent: '#7A493B', accent2: '#596C54' },
+    colours: { ground: '#f8e9d4', surface: '#fff9ee', text: '#372e34', muted: '#6b5961', accent: '#a53157', accent2: '#206d89' },
   },
   'postmarked-love-inkbound': {
     name: 'Inkbound',
     theme: 'postmarked-love',
-    colours: { ground: '#1F2528', surface: '#343B3E', text: '#F9F2E6', muted: '#CBD1C7', accent: '#E0B88C', accent2: '#B4C2B4' },
+    colours: { ground: '#1f2528', surface: '#343b3e', text: '#f9f2e6', muted: '#cbd1c7', accent: '#e0b88c', accent2: '#b4c2b4' },
   },
   'postmarked-love-faded-blue': {
     name: 'Faded Blue',
     theme: 'postmarked-love',
-    colours: { ground: '#E9F0ED', surface: '#FFFFFF', text: '#273B43', muted: '#536167', accent: '#496875', accent2: '#A16E5A' },
+    colours: { ground: '#e9f0ed', surface: '#ffffff', text: '#273b43', muted: '#536167', accent: '#496875', accent2: '#a16e5a' },
   },
   'happy-accident-bubblegum': {
     name: 'Bubblegum',
     theme: 'happy-accident',
-    colours: { ground: '#FFF4F0', surface: '#FFFFFF', text: '#343247', muted: '#655D69', accent: '#AA3E74', accent2: '#3D7E86' },
+    colours: { ground: '#fff1df', surface: '#ffffff', text: '#242a40', muted: '#595871', accent: '#992375', accent2: '#187e73' },
   },
   'happy-accident-afterparty': {
     name: 'Afterparty',
     theme: 'happy-accident',
-    colours: { ground: '#27213F', surface: '#3A3155', text: '#FFF3DF', muted: '#D7CBE2', accent: '#FFB9D1', accent2: '#F8D270' },
+    colours: { ground: '#27213f', surface: '#3a3155', text: '#fff3df', muted: '#d7cbe2', accent: '#ffb9d1', accent2: '#f8d270' },
   },
   'happy-accident-confetti-mint': {
     name: 'Confetti Mint',
     theme: 'happy-accident',
-    colours: { ground: '#E9F7F0', surface: '#FFFFFF', text: '#203C39', muted: '#536662', accent: '#256C67', accent2: '#C65B75' },
+    colours: { ground: '#e9f7f0', surface: '#ffffff', text: '#203c39', muted: '#536662', accent: '#256c67', accent2: '#c65b75' },
   },
   'jerusalem-stone-limestone': {
     name: 'Limestone',
     theme: 'jerusalem-stone',
-    colours: { ground: '#F4EFE4', surface: '#FFFBF3', text: '#3D392E', muted: '#675F51', accent: '#716039', accent2: '#717C57' },
+    colours: { ground: '#f4ebd8', surface: '#fff8eb', text: '#2d3547', muted: '#5e6670', accent: '#854a2f', accent2: '#2f6d82' },
   },
   'jerusalem-stone-evening-stone': {
     name: 'Evening Stone',
     theme: 'jerusalem-stone',
-    colours: { ground: '#202B31', surface: '#334148', text: '#F5EBDD', muted: '#D0D4CF', accent: '#E8BC81', accent2: '#A4C7AE' },
+    colours: { ground: '#202b31', surface: '#334148', text: '#f5ebdd', muted: '#d0d4cf', accent: '#e8bc81', accent2: '#a4c7ae' },
   },
   'jerusalem-stone-rose-sandstone': {
     name: 'Rose Sandstone',
     theme: 'jerusalem-stone',
-    colours: { ground: '#F5E7DF', surface: '#FFF9F3', text: '#4E3431', muted: '#73564E', accent: '#8D5242', accent2: '#667B6C' },
+    colours: { ground: '#f5e7df', surface: '#fff9f3', text: '#4e3431', muted: '#73564e', accent: '#8d5242', accent2: '#667b6c' },
   },
   'golden-hour-groove-tangerine': {
     name: 'Tangerine',
     theme: 'golden-hour-groove',
-    colours: { ground: '#FDF0D6', surface: '#FFF8E7', text: '#4A3028', muted: '#71584E', accent: '#A24924', accent2: '#557D61' },
+    colours: { ground: '#ffeaca', surface: '#fff6de', text: '#46284c', muted: '#6f5472', accent: '#952e58', accent2: '#1f6b73' },
   },
   'golden-hour-groove-disco-night': {
     name: 'Disco Night',
     theme: 'golden-hour-groove',
-    colours: { ground: '#24203E', surface: '#373151', text: '#FCF0DB', muted: '#D5C9D7', accent: '#FFB968', accent2: '#F397B4' },
+    colours: { ground: '#24203e', surface: '#373151', text: '#fcf0db', muted: '#d5c9d7', accent: '#ffb968', accent2: '#f397b4' },
   },
   'golden-hour-groove-avocado': {
     name: 'Avocado',
     theme: 'golden-hour-groove',
-    colours: { ground: '#E9E7CB', surface: '#F7F4E1', text: '#303F2C', muted: '#5B624E', accent: '#5C6D29', accent2: '#AE613B' },
+    colours: { ground: '#e9e7cb', surface: '#f7f4e1', text: '#303f2c', muted: '#5b624e', accent: '#5c6d29', accent2: '#ae613b' },
   },
-  // ---- the celebration collection
   'mazal-tov-papercut-jubilant-ivory': {
     name: 'Jubilant Ivory',
     theme: 'mazal-tov-papercut',
-    colours: { ground: '#FFF5E5', surface: '#FFFFFF', text: '#302534', muted: '#605161', accent: '#92235D', accent2: '#176B5E' },
+    colours: { ground: '#fff2d5', surface: '#ffffff', text: '#27162e', muted: '#62435f', accent: '#a02166', accent2: '#116b60' },
   },
   'mazal-tov-papercut-sapphire-celebration': {
     name: 'Sapphire Celebration',
     theme: 'mazal-tov-papercut',
-    colours: { ground: '#F0F4FB', surface: '#FFFFFF', text: '#142B4B', muted: '#4B5C72', accent: '#174B98', accent2: '#A24723' },
+    colours: { ground: '#f0f4fb', surface: '#ffffff', text: '#142b4b', muted: '#4b5c72', accent: '#174b98', accent2: '#a24723' },
   },
   'mazal-tov-papercut-midnight-chai': {
     name: 'Midnight Chai',
     theme: 'mazal-tov-papercut',
-    colours: { ground: '#17132C', surface: '#26203E', text: '#FFF4E0', muted: '#CCC3D8', accent: '#EFB95F', accent2: '#F191B7' },
+    colours: { ground: '#17132c', surface: '#26203e', text: '#fff4e0', muted: '#ccc3d8', accent: '#efb95f', accent2: '#f191b7' },
   },
   'chuppah-jubilee-festival-linen': {
     name: 'Festival Linen',
     theme: 'chuppah-jubilee',
-    colours: { ground: '#FFF6E9', surface: '#FFFDF8', text: '#372A32', muted: '#675460', accent: '#9C3564', accent2: '#2D6E67' },
+    colours: { ground: '#fff1d5', surface: '#fffbf3', text: '#34172d', muted: '#704856', accent: '#ad1f60', accent2: '#1c7274' },
   },
   'chuppah-jubilee-pistachio-garden': {
     name: 'Pistachio Garden',
     theme: 'chuppah-jubilee',
-    colours: { ground: '#EDF6EC', surface: '#FCFFFA', text: '#284237', muted: '#53675A', accent: '#356C50', accent2: '#9F4873' },
+    colours: { ground: '#edf6ec', surface: '#fcfffa', text: '#284237', muted: '#53675a', accent: '#356c50', accent2: '#9f4873' },
   },
   'chuppah-jubilee-velvet-canopy': {
     name: 'Velvet Canopy',
     theme: 'chuppah-jubilee',
-    colours: { ground: '#20142D', surface: '#332043', text: '#FFF2E7', muted: '#D6C7D3', accent: '#F3B66C', accent2: '#F49FC0' },
+    colours: { ground: '#20142d', surface: '#332043', text: '#fff2e7', muted: '#d6c7d3', accent: '#f3b66c', accent2: '#f49fc0' },
   },
   'seven-blessings-ivory-jewel': {
     name: 'Ivory Jewel',
     theme: 'seven-blessings',
-    colours: { ground: '#FBF2E8', surface: '#FFFFFF', text: '#30253B', muted: '#665465', accent: '#6D3878', accent2: '#A05C26' },
+    colours: { ground: '#fff3de', surface: '#ffffff', text: '#282045', muted: '#605574', accent: '#6b299c', accent2: '#17727c' },
   },
   'seven-blessings-sapphire-ceremony': {
     name: 'Sapphire Ceremony',
     theme: 'seven-blessings',
-    colours: { ground: '#101A36', surface: '#1E2D4B', text: '#F8ECDD', muted: '#C5CADD', accent: '#EFCB84', accent2: '#A5CAD5' },
+    colours: { ground: '#101a36', surface: '#1e2d4b', text: '#f8ecdd', muted: '#c5cadd', accent: '#efcb84', accent2: '#a5cad5' },
   },
   'seven-blessings-emerald-royal': {
     name: 'Emerald Royal',
     theme: 'seven-blessings',
-    colours: { ground: '#102C29', surface: '#20423C', text: '#FAF5DF', muted: '#CDDCD2', accent: '#EBC56E', accent2: '#F6B6B4' },
+    colours: { ground: '#102c29', surface: '#20423c', text: '#faf5df', muted: '#cddcd2', accent: '#ebc56e', accent2: '#f6b6b4' },
   },
   'rimon-fiesta-citrus-turquoise': {
     name: 'Citrus Turquoise',
     theme: 'rimon-fiesta',
-    colours: { ground: '#FDF4E4', surface: '#FFFFFF', text: '#26383A', muted: '#506363', accent: '#A6374D', accent2: '#117C80' },
+    colours: { ground: '#fff0ba', surface: '#ffffff', text: '#172b3d', muted: '#465b61', accent: '#9c1f50', accent2: '#067481' },
   },
   'rimon-fiesta-mosaic-mint': {
     name: 'Mosaic Mint',
     theme: 'rimon-fiesta',
-    colours: { ground: '#EAF7F3', surface: '#FFFFFF', text: '#243943', muted: '#50646B', accent: '#8C315E', accent2: '#176E83' },
+    colours: { ground: '#eaf7f3', surface: '#ffffff', text: '#243943', muted: '#50646b', accent: '#8c315e', accent2: '#176e83' },
   },
   'rimon-fiesta-midnight-medina': {
     name: 'Midnight Medina',
     theme: 'rimon-fiesta',
-    colours: { ground: '#132A39', surface: '#20394B', text: '#FFF4E2', muted: '#C9D7DD', accent: '#F6BD6A', accent2: '#F18F9F' },
+    colours: { ground: '#132a39', surface: '#20394b', text: '#fff4e2', muted: '#c9d7dd', accent: '#f6bd6a', accent2: '#f18f9f' },
   },
   'klezmer-confetti-festival-peach': {
     name: 'Festival Peach',
     theme: 'klezmer-confetti',
-    colours: { ground: '#FFF0E5', surface: '#FFFCF7', text: '#38283D', muted: '#67576A', accent: '#9F2A67', accent2: '#236C83' },
+    colours: { ground: '#ffe2be', surface: '#fffbf1', text: '#2c2434', muted: '#615168', accent: '#9d2168', accent2: '#146f82' },
   },
   'klezmer-confetti-klezmer-lime': {
     name: 'Klezmer Lime',
     theme: 'klezmer-confetti',
-    colours: { ground: '#F6F9DE', surface: '#FFFFFF', text: '#302F43', muted: '#5C5C70', accent: '#71529B', accent2: '#2E7660' },
+    colours: { ground: '#f6f9de', surface: '#ffffff', text: '#302f43', muted: '#5c5c70', accent: '#71529b', accent2: '#2e7660' },
   },
   'klezmer-confetti-indigo-dance': {
     name: 'Indigo Dance',
     theme: 'klezmer-confetti',
-    colours: { ground: '#1E174B', surface: '#30285F', text: '#FFF8E9', muted: '#D3CBE9', accent: '#FFD275', accent2: '#FFA6C7' },
+    colours: { ground: '#1e174b', surface: '#30285f', text: '#fff8e9', muted: '#d3cbe9', accent: '#ffd275', accent2: '#ffa6c7' },
   },
   'firework-finale-sunrise-spark': {
     name: 'Sunrise Spark',
     theme: 'firework-finale',
-    colours: { ground: '#FFF4EA', surface: '#FFFFFF', text: '#352E50', muted: '#625C77', accent: '#9C3971', accent2: '#1A7276' },
+    colours: { ground: '#fff4ea', surface: '#ffffff', text: '#352e50', muted: '#625c77', accent: '#9c3971', accent2: '#1a7276' },
   },
   'firework-finale-cobalt-night': {
     name: 'Cobalt Night',
     theme: 'firework-finale',
-    colours: { ground: '#111A45', surface: '#253061', text: '#FAF5E7', muted: '#CED3E7', accent: '#FFC96C', accent2: '#89E2DF' },
+    colours: { ground: '#121e55', surface: '#1f2f67', text: '#fff8ea', muted: '#dfe4f6', accent: '#f6ca68', accent2: '#71e3d8' },
   },
   'firework-finale-plum-sky': {
     name: 'Plum Sky',
     theme: 'firework-finale',
-    colours: { ground: '#2C123C', surface: '#462454', text: '#FFF7F0', muted: '#E1CEDF', accent: '#F8CB75', accent2: '#FDA0C9' },
+    colours: { ground: '#2c123c', surface: '#462454', text: '#fff7f0', muted: '#e1cedf', accent: '#f8cb75', accent2: '#fda0c9' },
   },
   'poolside-vows-aqua-daylight': {
     name: 'Aqua Daylight',
     theme: 'poolside-vows',
-    colours: { ground: '#EDF9FA', surface: '#FFFFFF', text: '#123B52', muted: '#4E6672', accent: '#0F7189', accent2: '#B15332' },
+    colours: { ground: '#e7f9f5', surface: '#ffffff', text: '#10374b', muted: '#3d5d65', accent: '#08708d', accent2: '#a94328' },
   },
   'poolside-vows-coral-cabana': {
     name: 'Coral Cabana',
     theme: 'poolside-vows',
-    colours: { ground: '#FFF2E8', surface: '#FFFFFF', text: '#3D3441', muted: '#6C5863', accent: '#B13F5B', accent2: '#167C85' },
+    colours: { ground: '#fff2e8', surface: '#ffffff', text: '#3d3441', muted: '#6c5863', accent: '#b13f5b', accent2: '#167c85' },
   },
   'poolside-vows-blue-hour-pool': {
     name: 'Blue Hour Pool',
     theme: 'poolside-vows',
-    colours: { ground: '#0D3248', surface: '#18465C', text: '#F5F8F1', muted: '#C3D9E3', accent: '#F8CE7B', accent2: '#7DDBCB' },
+    colours: { ground: '#0d3248', surface: '#18465c', text: '#f5f8f1', muted: '#c3d9e3', accent: '#f8ce7b', accent2: '#7ddbcb' },
   },
   'confetti-couture-blush-balloon': {
     name: 'Blush Balloon',
     theme: 'confetti-couture',
-    colours: { ground: '#FFF2F5', surface: '#FFFFFF', text: '#362B3B', muted: '#685765', accent: '#A73574', accent2: '#356C85' },
+    colours: { ground: '#ffe5de', surface: '#fff8ed', text: '#301930', muted: '#6a465c', accent: '#9d205f', accent2: '#146e78' },
   },
   'confetti-couture-citrus-couture': {
     name: 'Citrus Couture',
     theme: 'confetti-couture',
-    colours: { ground: '#FAF8E7', surface: '#FFFFFF', text: '#353246', muted: '#626073', accent: '#8945A4', accent2: '#537037' },
+    colours: { ground: '#faf8e7', surface: '#ffffff', text: '#353246', muted: '#626073', accent: '#8945a4', accent2: '#537037' },
   },
   'confetti-couture-cherry-velvet': {
     name: 'Cherry Velvet',
     theme: 'confetti-couture',
-    colours: { ground: '#2B1028', surface: '#422139', text: '#FFF4F5', muted: '#E5C9D9', accent: '#FFB9D0', accent2: '#FFDB88' },
+    colours: { ground: '#2b1028', surface: '#422139', text: '#fff4f5', muted: '#e5c9d9', accent: '#ffb9d0', accent2: '#ffdb88' },
   },
   'gala-glow-pearl-ballroom': {
     name: 'Pearl Ballroom',
     theme: 'gala-glow',
-    colours: { ground: '#F7F4EE', surface: '#FFFFFF', text: '#302C39', muted: '#625F6D', accent: '#775378', accent2: '#956C39' },
+    colours: { ground: '#f7f4ee', surface: '#ffffff', text: '#302c39', muted: '#625f6d', accent: '#775378', accent2: '#956c39' },
   },
   'gala-glow-chandelier-rose': {
     name: 'Chandelier Rose',
     theme: 'gala-glow',
-    colours: { ground: '#FFF2EE', surface: '#FFFFFF', text: '#382D34', muted: '#6D5A65', accent: '#9D3D59', accent2: '#88643E' },
+    colours: { ground: '#fff2ee', surface: '#ffffff', text: '#382d34', muted: '#6d5a65', accent: '#9d3d59', accent2: '#88643e' },
   },
   'gala-glow-midnight-ballroom': {
     name: 'Midnight Ballroom',
     theme: 'gala-glow',
-    colours: { ground: '#101727', surface: '#232D3B', text: '#FFF9E9', muted: '#C3C7D0', accent: '#EDC987', accent2: '#B6CDE6' },
+    colours: { ground: '#17213a', surface: '#25324a', text: '#fff6e7', muted: '#d7ccbb', accent: '#f0c679', accent2: '#eba4ae' },
   },
   'neon-afterglow-electric-paper': {
     name: 'Electric Paper',
     theme: 'neon-afterglow',
-    colours: { ground: '#F7F7FC', surface: '#FFFFFF', text: '#252741', muted: '#5E617D', accent: '#5342B0', accent2: '#006F71' },
+    colours: { ground: '#f7f7fc', surface: '#ffffff', text: '#252741', muted: '#5e617d', accent: '#5342b0', accent2: '#006f71' },
   },
   'neon-afterglow-sherbet-pulse': {
     name: 'Sherbet Pulse',
     theme: 'neon-afterglow',
-    colours: { ground: '#FFF6E9', surface: '#FFFFFF', text: '#392C43', muted: '#695A74', accent: '#A63E88', accent2: '#1F7184' },
+    colours: { ground: '#fff6e9', surface: '#ffffff', text: '#392c43', muted: '#695a74', accent: '#a63e88', accent2: '#1f7184' },
   },
   'neon-afterglow-ultraviolet-club': {
     name: 'Ultraviolet Club',
     theme: 'neon-afterglow',
-    colours: { ground: '#140F28', surface: '#241B43', text: '#FBF6FF', muted: '#CFC7E2', accent: '#8DFFDA', accent2: '#FFA6F2' },
+    colours: { ground: '#161029', surface: '#272039', text: '#fcf6ff', muted: '#d3c6e1', accent: '#b8fb72', accent2: '#fb89d9' },
   },
 }
 

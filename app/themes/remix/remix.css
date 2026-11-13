@@ -1,0 +1,222 @@
+/*
+ * The base of the remix styles (RemixPage.vue), from the two families' shared preview CSS.
+ * Each style's own style.css (generated from its preview) and extra.css (by hand) sit on top.
+ *
+ * The invitation is a sheet up to 475px wide; on larger screens it sits centred on a dark
+ * table. The hero is composed in a 375-wide coordinate space: --u is one design pixel, so the
+ * composition keeps its proportions from 320px to 475px.
+ */
+html.rx-html { background: var(--rx-outside, #1c1d29); }
+.rx-outside { min-height: 100svh; background: var(--rx-outside, #1c1d29); }
+.rx {
+  --u: calc(100cqw / 375);
+  container-type: inline-size;
+  position: relative;
+  overflow: hidden;
+  max-width: 475px;
+  min-height: 100svh;
+  margin: 0 auto;
+  background: var(--color-ground);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+  box-shadow: 0 22px 80px #0008;
+  text-align: center;
+}
+.rx *, .rx *::before, .rx *::after { box-sizing: border-box; }
+.rx :is(h1, h2, h3, p, figure, dl, dd) { margin: 0; }
+.rx :is(h1, h2) { font-weight: 900; }
+.rx a:focus-visible, .rx button:focus-visible, .rx input:focus-visible, .rx textarea:focus-visible { outline: 3px solid #f7be38; outline-offset: 2px; }
+.rx bdi { unicode-bidi: isolate; }
+@media (min-width: 700px) {
+  .rx { margin-block: 35px; min-height: calc(100svh - 70px); border-radius: 4px; }
+}
+
+/* ------------------------------------------------------------------ top bar */
+.rx .rx-topbar { position: relative; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 48px; padding: 0 20px; background: var(--color-ivory); color: var(--color-ground); font-family: var(--font-body); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
+.rx .rx-lang { display: flex; gap: 14px; }
+.rx .rx-lang button { min-height: 44px; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-size: 14px; letter-spacing: 0; text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
+.rx .rx-brand { margin-inline-start: auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; letter-spacing: 0.08em; }
+
+/* -------------------------------------------------------------------- hero */
+.rx .rx-hero { position: relative; isolation: isolate; overflow: hidden; height: calc(630 * var(--u)); }
+.rx :is(.rx-hero-svg, .rx-hero-art) { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.rx :is(.rx-hero-svg, .rx-hero-art) > svg { display: block; width: 100%; height: 100%; }
+/* Low specificity on purpose: each style's own rules place, or hide, every block. */
+:where(.rx .rx-hero) > :where(p, h1, div):not(.rx-hero-svg, .rx-hero-art, .rx-hero-extra) { position: absolute; z-index: 2; display: block; }
+.rx .rx-hero-extra { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.rx .rx-hero-extra > svg { display: block; width: 100%; height: 100%; }
+.rx .rx-line { display: block; white-space: nowrap; }
+.rx .rx-fit-wrap .rx-line, .rx .rx-fit-wrap { white-space: normal; }
+
+/* poster family */
+.rx-poster .rx-h-kicker { font-family: var(--font-body); font-size: calc(11 * var(--u)); font-weight: 900; letter-spacing: calc(2.2 * var(--u)); }
+.rx-poster .rx-h-title { font-family: var(--font-display); font-size: calc(50 * var(--u)); font-weight: 900; line-height: 1.08; letter-spacing: calc(-2 * var(--u)); text-align: center; }
+.rx-poster .rx-h-invite { font-size: calc(18 * var(--u)); font-weight: 800; line-height: 1.28; text-align: center; white-space: nowrap; }
+.rx-poster .rx-h-date { font-family: var(--font-numeral); font-size: calc(25 * var(--u)); font-weight: 900; letter-spacing: calc(1.6 * var(--u)); text-align: center; font-variant-numeric: lining-nums; }
+.rx-poster .rx-h-note { font-size: calc(15 * var(--u)); font-weight: 800; text-align: center; }
+.rx-poster .rx-h-latin { font-family: var(--font-fraktur); font-size: calc(21 * var(--u)); font-style: italic; text-align: center; white-space: nowrap; }
+
+/* festival family */
+.rx-festival .rx-hero { height: calc(580 * var(--u)); }
+.rx-festival .rx-hero-text { font-weight: 850; line-height: 1.15; text-align: center; white-space: nowrap; }
+.rx-festival .rx-hero-name { font-family: var(--font-display); font-size: calc(56 * var(--u)); font-weight: 900; line-height: 1.05; letter-spacing: calc(-2 * var(--u)); text-align: center; }
+.rx-festival .rx-hero-name i { display: inline-block; font-family: var(--font-fraktur); font-size: 0.62em; font-style: normal; vertical-align: 12%; }
+.rx-festival .rx-hero-date { font-family: var(--font-numeral); font-size: calc(23 * var(--u)); font-weight: 800; letter-spacing: calc(2 * var(--u)); text-align: center; font-variant-numeric: lining-nums; }
+.rx-festival .rx-hero-tag { font-family: var(--font-body); font-size: calc(11 * var(--u)); font-weight: 900; letter-spacing: calc(2 * var(--u)); text-align: center; }
+.rx-festival .rx-hero-badge { font-size: calc(13 * var(--u)); font-weight: 900; text-align: center; white-space: nowrap; }
+.rx-festival .rx-hero-caption { font-size: calc(14 * var(--u)); font-weight: 800; text-align: center; }
+.rx-lang-en .rx-hero-badge, .rx-lang-ru .rx-hero-badge, .rx-festival .rx-hero-badge[dir='ltr'] { font-family: var(--font-fraktur); }
+
+/* -------------------------------------------------------------------- body */
+.rx .rx-welcome-title { font: inherit; font-weight: inherit; color: inherit; }
+.rx .rx-welcome-text { font: inherit; font-weight: inherit; color: inherit; }
+.rx .rx-address { display: grid; gap: 2px; }
+.rx .rx-note { margin-top: 18px; font-size: 15px; line-height: 1.55; }
+.rx .rx-note-long { white-space: pre-line; }
+.rx dl dt, .rx dl dd { margin: 0; }
+
+/* poster family */
+.rx-poster .rx-content { position: relative; padding: 30px 23px 44px; }
+.rx-poster .rx-welcome { max-width: 330px; margin: 0 auto 24px; font-size: 17px; font-weight: 650; line-height: 1.6; text-align: center; }
+.rx-poster .rx-label { margin: 0 0 15px; font-family: var(--font-display); font-size: 21px; font-weight: 900; line-height: 1.2; text-align: center; }
+.rx-poster .rx-schedule { padding: 20px 17px; }
+.rx-poster .rx-times { display: grid; grid-template-columns: 1fr 1fr; }
+.rx-poster .rx-times.is-single { grid-template-columns: 1fr; }
+.rx-poster .rx-times > div { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 6px; text-align: center; }
+.rx-poster .rx-times > div:first-child:not(:last-child) { border-inline-end: 2px solid currentColor; }
+.rx-poster .rx-times small { font-size: 14px; font-weight: 800; }
+.rx-poster .rx-times b { font-family: var(--font-numeral); font-size: 27px; font-weight: 900; letter-spacing: -1px; font-variant-numeric: lining-nums; }
+.rx-poster .rx-location { margin-top: 26px; padding: 14px 4px; text-align: center; }
+.rx-poster .rx-location h2 { margin: 0 0 7px; font-family: var(--font-display); font-size: 21px; font-weight: 900; }
+.rx-poster .rx-location h2::after { content: ' ✦'; }
+.rx-festival .rx-place::after { content: ' ✧'; }
+.rx-poster .rx-location .rx-address { margin: 0 0 18px; font-size: 16px; font-weight: 700; }
+.rx-poster .rx-maps { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+.rx-poster .rx-maps a { flex: 1 1 40%; display: grid; place-items: center; min-height: 44px; padding: 10px 9px; border: 1.5px solid currentColor; border-radius: 9px; color: inherit; font-size: 13px; font-weight: 850; line-height: 1.2; text-decoration: none; }
+.rx-poster .rx-rsvp { margin-top: 24px; padding: 25px 18px 28px; text-align: center; }
+.rx-poster .rx-rsvp h2 { margin: 0 0 6px; font-family: var(--font-display); font-size: 30px; font-weight: 900; line-height: 1.1; }
+.rx-poster .rx-footer { padding: 25px 0 0; font-family: var(--font-fraktur); font-size: 12px; opacity: 0.75; text-align: center; }
+
+/* festival family */
+.rx-festival .rx-bodywrap { padding: 32px 27px 42px; }
+.rx-festival .rx-intro { margin: 0 0 26px; font-size: 17px; font-weight: 600; line-height: 1.65; text-align: center; }
+.rx-festival .rx-detail-head { margin: 0 0 11px; font-family: var(--font-display); font-size: 21px; font-weight: 900; }
+.rx-festival .rx-row-time { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+.rx-festival .rx-row-time.is-single { grid-template-columns: 1fr; }
+.rx-festival .rx-time-slot { display: flex; flex-direction: column; gap: 3px; padding: 16px 8px; text-align: center; }
+.rx-festival .rx-time-slot:first-child:not(:last-child) { border-inline-end: 1px solid currentColor; }
+.rx-festival .rx-time-slot dt { font-size: 13px; font-weight: 650; }
+.rx-festival .rx-time-slot strong { font-family: var(--font-numeral); font-size: 26px; font-weight: 900; letter-spacing: -0.8px; font-variant-numeric: lining-nums; }
+.rx-festival .rx-venue { padding: 23px 4px; text-align: center; }
+.rx-festival .rx-place { margin: 0 0 5px; font-family: var(--font-display); font-size: 19px; font-weight: 900; }
+.rx-festival .rx-venue .rx-address { margin: 0 0 16px; font-size: 15px; }
+.rx-festival .rx-navlinks { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.rx-festival .rx-navlinks a { display: grid; place-items: center; min-height: 44px; padding: 10px 15px; border: 1.5px solid currentColor; border-radius: 100px; color: inherit; font-size: 13px; font-weight: 800; line-height: 1.2; text-decoration: none; }
+.rx-festival .rx-rsvp { text-align: center; }
+.rx-festival .rx-rsvp h2 { margin: 0 0 6px; font-family: var(--font-display); font-size: 27px; font-weight: 900; }
+.rx-festival .rx-foot { padding: 28px 0 12px; font-family: var(--font-fraktur); font-size: 15px; font-style: italic; opacity: 0.75; text-align: center; }
+
+/* ------------------------------------------------------------------ RSVP form */
+.rx .rx-rsvp .rx-only-link { font-size: 15px; line-height: 1.55; }
+.rx .rx-rsvp .form-lead { margin: 0 0 18px; font-size: 15px; line-height: 1.5; color: inherit; opacity: 0.9; }
+.rx .rx-rsvp .form-lead bdi { font-weight: 800; color: inherit; }
+.rx .rx-rsvp .form-submit {
+  display: block; width: 100%; min-height: 57px; padding: 14px 10px; border: 0; border-radius: 9px;
+  background: var(--color-gold); color: var(--rx-on-accent);
+  font-family: var(--font-display); font-size: 19px; font-weight: 900; cursor: pointer;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+/* Hover brightens the design's own colours rather than swapping in another. */
+.rx .rx-rsvp .form-submit:hover:not([disabled]) { filter: brightness(1.08) saturate(1.05); }
+.rx-festival .rx-rsvp .form-submit { min-height: 55px; border-radius: 15px; font-size: 20px; }
+.rx .rx-rsvp .form-submit::after { content: ' ←'; }
+.rx-lang-en .rx-rsvp .form-submit::after, .rx-lang-ru .rx-rsvp .form-submit::after { content: ' →'; }
+.rx .rx-rsvp .choice { border-color: currentColor; color: inherit; background: color-mix(in srgb, currentColor 6%, transparent); }
+.rx .rx-rsvp .choice.is-on { box-shadow: inset 0 0 0 2px currentColor; }
+.rx .rx-rsvp .field { border-color: color-mix(in srgb, currentColor 45%, transparent); background: var(--color-plate); color: var(--color-ivory); }
+.rx .rx-rsvp :is(.text-button, .hint, legend, .confirm-title, .confirm-body, .confirm-hint) { color: inherit; }
+
+/* ------------------------------------------------------------------- photos */
+.rx .rx-photos { margin: 0 auto 26px; width: min(100%, 300px); }
+.rx .rx-photos img { display: block; width: 100%; height: auto; max-height: 420px; object-fit: cover; }
+.rx .rx-photos.is-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.rx .rx-photos.is-pair img { aspect-ratio: 3 / 4; height: 100%; }
+.rx .rx-photos-second { margin-top: 26px; }
+/* shapes, by the name of the choice */
+.rx :is(.rx-photos-roundel, .rx-photos-record) { width: min(70%, 220px); }
+.rx :is(.rx-photos-roundel, .rx-photos-record, .rx-photos-oval) img { aspect-ratio: 1; border-radius: 50%; }
+.rx .rx-photos-oval img { aspect-ratio: 4 / 5; }
+.rx .rx-photos-record img { border: 14px solid #141414; box-shadow: 0 0 0 3px var(--color-gold); }
+.rx :is(.rx-photos-postcard, .rx-photos-polaroid, .rx-photos-polaroids) img { padding: 10px 10px 34px; background: #fff; box-shadow: 0 8px 22px #0003; }
+.rx .rx-photos-postcard img { padding-bottom: 10px; rotate: -2deg; }
+.rx .rx-photos-polaroid img { rotate: 3deg; }
+.rx .rx-photos-polaroids.is-pair img:first-child { rotate: -4deg; }
+.rx .rx-photos-polaroids.is-pair img:last-child { rotate: 4deg; }
+.rx :is(.rx-photos-mounted, .rx-photos-inset) img { padding: 10px; background: var(--color-plate); border: 2px solid currentColor; }
+.rx :is(.rx-photos-portrait, .rx-photos-gala, .rx-photos-under-canopy) img { aspect-ratio: 3 / 4; border-radius: 999px 999px 8px 8px; border: 4px solid var(--color-gold); }
+.rx :is(.rx-photos-tile) img { aspect-ratio: 1; border: 10px solid var(--color-gold); outline: 3px solid var(--color-wine); }
+.rx :is(.rx-photos-stripe, .rx-photos-strip) { width: 100%; }
+.rx :is(.rx-photos-stripe, .rx-photos-strip) img { aspect-ratio: 3 / 1; }
+.rx .rx-photos-stripe img { border-block: 8px solid var(--color-gold); }
+.rx .rx-photos-editorial img { padding: 8px; border: 1px solid currentColor; }
+.rx .rx-photos-below { width: 100%; }
+.rx .rx-photos-below img { aspect-ratio: 4 / 3; border: 6px solid var(--color-plate); box-shadow: 6px 6px 0 var(--color-gold); }
+.rx .rx-photos-poster img { border: 6px solid var(--color-wine); box-shadow: 0 0 22px color-mix(in srgb, var(--color-wine) 50%, transparent); }
+.rx .rx-photos-filmstrip.is-pair { padding: 14px 10px; background: #141414; border-block: 8px dashed #f2f2f2; }
+.rx :is(.rx-photos-diptych, .rx-photos-side, .rx-photos-pair).is-pair img { border: 4px double var(--color-gold); padding: 4px; }
+.rx .rx-photos-split.is-pair img:first-child { border-inline-end: 4px solid var(--color-gold); }
+
+/* ------------------------------------------- drawings an option scatters beside the sections */
+.rx :is(.rx-content, .rx-bodywrap) { position: relative; isolation: isolate; }
+.rx .rx-body-extra { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.rx .rx-bit { position: absolute; display: block; }
+.rx .rx-bit svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* --------------------------------------------------------------- motion */
+@media (prefers-reduced-motion: reduce) {
+  .rx *, .rx *::before, .rx *::after { animation: none !important; transition: none !important; }
+}
+
+/* ------------------------------------------------------------- RSVP button choices
+ * A style's default button is drawn by its own design (style.css). The other choices reshape
+ * that same button, keeping its colours; a shape that is some style's default skips that style.
+ */
+.rx:is(.rx-o-cta-pill, .rx-o-cta-square, .rx-o-cta-underline, .rx-o-cta-solid, .rx-o-cta-link, .rx-o-cta-outline, .rx-o-cta-chamfer, .rx-o-cta-stitched, .rx-o-cta-flat, .rx-o-cta-hairline, .rx-o-cta-seal, .rx-o-cta-boxed, .rx-o-cta-postage, .rx-o-cta-bubble, .rx-o-cta-rect, .rx-o-cta-tabs,
+  .rx-o-rsvp-button-ticket, .rx-o-rsvp-button-solid, .rx-o-rsvp-button-pill, .rx-o-rsvp-button-outlined, .rx-o-rsvp-button-seal, .rx-o-rsvp-button-enamel, .rx-o-rsvp-button-round, .rx-o-rsvp-button-burst, .rx-o-rsvp-button-float, .rx-o-rsvp-button-tile, .rx-o-rsvp-button-ribbon, .rx-o-rsvp-button-bevel, .rx-o-rsvp-button-outline, .rx-o-rsvp-button-block, .rx-o-rsvp-button-glow, .rx-o-rsvp-button-gem, .rx-o-rsvp-button-label, .rx-o-rsvp-button-plaque) .rx-rsvp .form-submit {
+  clip-path: none; -webkit-mask: none; mask: none; outline: none; box-shadow: none; transform: none; border: 0;
+}
+.rx:is(.rx-o-cta-pill, .rx-o-rsvp-button-pill) .rx-rsvp .form-submit { border-radius: 999px; }
+.rx:is(.rx-o-cta-square, .rx-o-rsvp-button-solid, .rx-o-cta-solid) .rx-rsvp .form-submit { border-radius: 3px; }
+.rx:is(.rx-o-cta-rect, .rx-o-cta-flat) .rx-rsvp .form-submit { border-radius: 6px; }
+.rx.rx-o-rsvp-button-round .rx-rsvp .form-submit { border-radius: 999px; min-height: 64px; }
+.rx.rx-o-rsvp-button-block .rx-rsvp .form-submit { border-radius: 0; box-shadow: 6px 6px 0 var(--color-wine); }
+.rx:is(.rx-o-cta-underline, .rx-o-cta-link) .rx-rsvp .form-submit { width: auto; margin-inline: auto; padding-inline: 6px; border-radius: 0; background: none; color: inherit; }
+.rx.rx-o-cta-underline .rx-rsvp .form-submit { border-block-end: 3px solid currentColor; }
+.rx.rx-o-cta-link .rx-rsvp .form-submit { text-decoration: underline; text-underline-offset: 0.3em; text-decoration-thickness: 2px; }
+.rx:is(.rx-o-cta-outline, .rx-o-rsvp-button-outline, .rx-o-rsvp-button-outlined, .rx-o-cta-hairline, .rx-o-cta-stitched, .rx-o-cta-boxed) .rx-rsvp .form-submit { background: transparent; color: inherit; border: 2px solid currentColor; border-radius: 6px; }
+.rx.rx-o-cta-hairline .rx-rsvp .form-submit { border-width: 1px; border-radius: 0; font-weight: 600; }
+.rx.rx-o-cta-stitched .rx-rsvp .form-submit { border-style: dashed; border-radius: 14px; }
+.rx.rx-o-cta-boxed .rx-rsvp .form-submit { border-radius: 0; box-shadow: inset 0 0 0 4px var(--color-ground), inset 0 0 0 6px currentColor; }
+.rx.rx-o-rsvp-button-outline .rx-rsvp .form-submit { border-radius: 999px; }
+.rx:is(.rx-o-cta-chamfer, .rx-o-rsvp-button-bevel) .rx-rsvp .form-submit { border-radius: 0; clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px); }
+.rx.rx-o-rsvp-button-gem .rx-rsvp .form-submit { border-radius: 0; clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 22px 100%, 0 50%); }
+.rx:is(.rx-o-rsvp-button-seal, .rx-o-cta-seal):not(.rx-mazal-tov-papercut) .rx-rsvp .form-submit { border-radius: 999px; outline: 2px dashed currentColor; outline-offset: 5px; margin-block: 8px; }
+.rx:is(.rx-o-rsvp-button-enamel, .rx-o-rsvp-button-tile):not(.rx-rimon-fiesta) .rx-rsvp .form-submit { border-radius: 6px; box-shadow: inset 0 0 0 4px var(--color-gold), inset 0 0 0 6px var(--rx-on-accent); }
+.rx.rx-o-rsvp-button-enamel .rx-rsvp .form-submit { border-radius: 999px; }
+.rx:is(.rx-o-rsvp-button-plaque):not(.rx-gala-glow, .rx-jerusalem-stone) .rx-rsvp .form-submit { border-radius: 4px; box-shadow: inset 0 0 0 3px var(--rx-on-accent), inset 0 0 0 6px var(--color-gold), inset 0 0 0 7px var(--rx-on-accent); }
+.rx:is(.rx-o-rsvp-button-ticket):not(.rx-klezmer-confetti) .rx-rsvp .form-submit {
+  border-radius: 6px;
+  -webkit-mask: radial-gradient(circle 11px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 11px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 11px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 11px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+}
+.rx.rx-o-cta-postage .rx-rsvp .form-submit { border-radius: 0; -webkit-mask: none; mask: none; outline: 3px dotted var(--color-ground); outline-offset: -7px; box-shadow: 0 0 0 3px var(--color-gold); }
+.rx.rx-o-cta-bubble .rx-rsvp .form-submit { border-radius: 28px 28px 28px 6px; box-shadow: 6px 6px 0 var(--color-wine); }
+.rx.rx-o-cta-tabs .rx-rsvp .form-submit { border-radius: 18px 18px 4px 4px; box-shadow: 0 6px 0 var(--color-wine), 0 12px 0 var(--color-gold); margin-bottom: 12px; }
+.rx:is(.rx-o-rsvp-button-glow):not(.rx-firework-finale) .rx-rsvp .form-submit { border-radius: 999px; box-shadow: 0 0 0 2px var(--color-gold), 0 0 22px color-mix(in srgb, var(--color-gold) 70%, transparent); }
+.rx.rx-o-rsvp-button-burst .rx-rsvp .form-submit { border-radius: 999px; box-shadow: 0 0 0 4px var(--color-ground), 0 0 0 7px var(--color-wine), 0 0 0 11px var(--color-ground), 0 0 0 13px var(--color-gold); margin-block: 14px; }
+.rx.rx-o-rsvp-button-float .rx-rsvp .form-submit { border-radius: 999px; border: 8px solid transparent; background: linear-gradient(var(--color-gold), var(--color-gold)) padding-box, repeating-conic-gradient(var(--color-wine) 0 12.5%, var(--color-plate) 0 25%) border-box; }
+.rx.rx-o-rsvp-button-tile.rx-poolside-vows .rx-rsvp .form-submit { border-radius: 4px; background-image: linear-gradient(color-mix(in srgb, var(--rx-on-accent) 22%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--rx-on-accent) 22%, transparent) 1px, transparent 1px); background-size: 16px 16px; }
+.rx.rx-o-rsvp-button-ribbon .rx-rsvp .form-submit { border-radius: 0; padding-inline: 36px; clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 50%, 100% 100%, 0 100%, 18px 50%); }
+.rx.rx-o-rsvp-button-label .rx-rsvp .form-submit { border-radius: 0; letter-spacing: 0.08em; box-shadow: inset 0 0 0 3px var(--color-gold), inset 0 0 0 5px var(--rx-on-accent); }

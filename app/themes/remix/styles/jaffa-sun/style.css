@@ -1,0 +1,18 @@
+/* Generated from the pack's jaffa-sun preview: positions in the hero are in 375-wide design units (--u). */
+.rx-jaffa-sun .rx-topbar { background:var(--x26);color:var(--p0); }
+.rx-jaffa-sun .rx-hero { height:calc(650 * var(--u));background:var(--x2); }
+.rx-jaffa-sun .rx-h-kicker { display:none; }
+.rx-jaffa-sun .rx-h-invite { top:calc(78 * var(--u));left:calc(25 * var(--u));right:calc(25 * var(--u));color:var(--x28);font-size:calc(19 * var(--u)); }
+.rx-jaffa-sun .rx-h-title { top:calc(139 * var(--u));left:calc(20 * var(--u));right:calc(18 * var(--u));color:var(--x29);text-shadow:calc(3 * var(--u)) calc(4 * var(--u)) var(--x30),calc(-1 * var(--u)) calc(-1 * var(--u)) var(--x30);font-size:calc(55 * var(--u)); }
+.rx-jaffa-sun .rx-h-date { top:calc(447 * var(--u));left:calc(57 * var(--u));right:calc(57 * var(--u));padding:calc(9 * var(--u));color:var(--p1);border:calc(4 * var(--u)) solid var(--x32);background:var(--x33);box-shadow:calc(5 * var(--u)) calc(6 * var(--u)) var(--x34);transform:rotate(-4deg); }
+.rx-jaffa-sun .rx-h-note { top:calc(540 * var(--u));left:calc(15 * var(--u));right:calc(15 * var(--u));color:var(--x35); }
+.rx-jaffa-sun .rx-h-latin { top:calc(563 * var(--u));left:calc(10 * var(--u));right:calc(10 * var(--u));color:var(--x36);font-weight:700; }
+.rx-jaffa-sun .rx-content { background:var(--x37); }
+.rx-jaffa-sun .rx-welcome { font-size:20px;color:var(--x38); }
+.rx-jaffa-sun .rx-schedule { border:5px solid var(--x39);background:var(--x40);box-shadow:7px 7px var(--x41); }
+.rx-jaffa-sun .rx-label { color:var(--x42); }
+.rx-jaffa-sun .rx-times { color:var(--x43); }
+.rx-jaffa-sun .rx-location { border-block:2px solid var(--x44); }
+.rx-jaffa-sun .rx-rsvp { background:var(--x45);border-radius:18px;box-shadow:7px 7px var(--x46); }
+.rx-jaffa-sun .rx-rsvp h2 { color:var(--x47); }
+.rx-jaffa-sun .rx-rsvp .form-submit { background:var(--x48);color:var(--p2);border-radius:3px; }

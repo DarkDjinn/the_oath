@@ -1,0 +1,19 @@
+/* Generated from the pack's firework-finale preview: positions in the hero are in 375-wide design units (--u). */
+.rx-firework-finale { background:var(--color-ground);color:var(--p0); }
+.rx-firework-finale .rx-topbar { background:var(--x6);color:var(--p1); }
+.rx-firework-finale .rx-hero { height:calc(660 * var(--u));background:var(--x8);color:var(--p2); }
+.rx-firework-finale .rx-hero-art { top:0;height:calc(520 * var(--u));opacity:.99; }
+.rx-firework-finale .rx-hero-tag { top:calc(20 * var(--u));left:0;right:0;color:var(--x9); }
+.rx-firework-finale .rx-hero-text { top:calc(155 * var(--u));left:calc(20 * var(--u));right:calc(20 * var(--u));color:var(--x1);font-size:calc(21 * var(--u)); }
+.rx-firework-finale .rx-hero-name { top:calc(221 * var(--u));left:calc(10 * var(--u));right:calc(10 * var(--u));color:var(--x1);font-size:calc(48 * var(--u));text-shadow:calc(4 * var(--u)) calc(5 * var(--u)) var(--x10); }
+.rx-firework-finale .rx-hero-date { top:calc(390 * var(--u));left:calc(12 * var(--u));right:calc(12 * var(--u));font-size:calc(70 * var(--u));line-height:.9;letter-spacing:calc(-6 * var(--u));color:var(--x11);text-shadow:calc(6 * var(--u)) calc(6 * var(--u)) var(--x12); }
+.rx-firework-finale .rx-hero-badge { top:calc(507 * var(--u));left:calc(50 * var(--u));right:calc(50 * var(--u));background:var(--x13);color:var(--p3);padding:calc(12 * var(--u));font-size:calc(17 * var(--u));transform:rotate(-2deg); }
+.rx-firework-finale .rx-hero-caption { top:calc(572 * var(--u));left:calc(20 * var(--u));right:calc(20 * var(--u));color:var(--x15);font-size:calc(23 * var(--u)); }
+.rx-firework-finale .rx-bodywrap { background:var(--color-ground);padding:30px 20px;color:var(--p4); }
+.rx-firework-finale .rx-intro { font-size:21px;font-weight:850; }
+.rx-firework-finale .rx-info { background:var(--x16);border:2px solid var(--x17);padding:19px 15px;border-radius:5px; }
+.rx-firework-finale .rx-detail-head { color:var(--x18);text-align:center; }
+.rx-firework-finale .rx-venue { color:var(--x19); }
+.rx-firework-finale .rx-rsvp { background:var(--x20);color:var(--p5);padding:23px 20px;border-radius:20px; }
+.rx-firework-finale .rx-rsvp .form-submit { background:var(--x22);color:var(--p6);border-radius:6px; }
+.rx-firework-finale .rx-foot { color:var(--x23); }

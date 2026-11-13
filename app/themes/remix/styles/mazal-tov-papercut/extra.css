@@ -1,0 +1,10 @@
+/* Mazal Tov!: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-mazal-tov-papercut.rx-o-papercut-pomegranates .rx-part-papercut,
+.rx-mazal-tov-papercut.rx-o-papercut-floral .rx-part-papercut { display: none; }
+
+/* paper-edge: the dashed papercut lace as designed, a cut-diamond border, or a clean edge */
+.rx-mazal-tov-papercut.rx-o-paper-edge-diamond .rx-info { border: 10px solid transparent; border-image: repeating-linear-gradient(45deg, var(--x30) 0 7px, transparent 7px 14px) 12; border-radius: 0; }
+.rx-mazal-tov-papercut.rx-o-paper-edge-clean .rx-info { border-style: solid; border-width: 3px; }
+.rx-mazal-tov-papercut.rx-o-paper-edge-clean .rx-rsvp { border-width: 3px; }

@@ -1,0 +1,7 @@
+/* Seven Joys: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-seven-blessings.rx-o-medallions-facets .rx-part-medallions,
+.rx-seven-blessings.rx-o-medallions-stars .rx-part-medallions,
+.rx-seven-blessings.rx-o-border-beads .rx-part-border,
+.rx-seven-blessings.rx-o-border-none .rx-part-border { display: none; }

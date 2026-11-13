@@ -1,0 +1,19 @@
+/* Velvet Deco / Champagne Tower: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+/* The design leaves no room for the invitation line; it sits under the tag, so a guest's name still greets them. */
+.rx-velvet-deco .rx-h-invite { display: block; top: calc(40 * var(--u)); left: calc(40 * var(--u)); right: calc(40 * var(--u)); color: var(--x18); font-size: calc(13 * var(--u)); font-weight: 700; }
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-velvet-deco.rx-o-crest-sunburst .rx-part-crest,
+.rx-velvet-deco.rx-o-crest-diamond .rx-part-crest { display: none; }
+
+/* frame: a gilded double rule round the opening (double), Deco corner brackets, or none */
+.rx-velvet-deco:is(.rx-o-frame-double, .rx-o-frame-corners) .rx-hero::after { content: ''; position: absolute; inset: calc(10 * var(--u)); z-index: 3; pointer-events: none; }
+.rx-velvet-deco.rx-o-frame-double .rx-hero::after { border: calc(5 * var(--u)) double var(--x2); }
+.rx-velvet-deco.rx-o-frame-corners .rx-hero::after {
+  --c: var(--x2); --l: calc(46 * var(--u)); --w: calc(3 * var(--u));
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--l) var(--w) no-repeat, linear-gradient(var(--c), var(--c)) top left / var(--w) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--l) var(--w) no-repeat, linear-gradient(var(--c), var(--c)) top right / var(--w) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--l) var(--w) no-repeat, linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--l) var(--w) no-repeat, linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--l) no-repeat;
+}

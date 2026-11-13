@@ -1,0 +1,17 @@
+/* Postmarked Love / Air Mail: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* A stamp choice other than the drawn flower keeps the stamp and its frame, not the flower (options.ts draws the new picture). */
+.rx-postmarked-love:is(.rx-o-stamp-heart, .rx-o-stamp-asterisk) .rx-part-stamp > :nth-child(n+3) { display: none; }
+
+/* edge: the airmail-striped card as designed (perforated), a ruled double frame, or a clean card */
+.rx-postmarked-love.rx-o-edge-double .rx-schedule { border: 6px double var(--x31); border-image: none; }
+.rx-postmarked-love.rx-o-edge-double .rx-rsvp { border-style: double; border-width: 6px; }
+.rx-postmarked-love.rx-o-edge-clean .rx-schedule { border: 2px solid var(--x31); border-image: none; }
+.rx-postmarked-love.rx-o-edge-clean .rx-rsvp { border-style: solid; border-width: 2px; }
+.rx-postmarked-love.rx-o-edge-clean .rx-location { border-block-style: solid; }
+
+/* The invitation line, longer than the design's with a guest's name, keeps clear of the stamp. */
+.rx-postmarked-love .rx-h-invite { right: calc(160 * var(--u)); left: calc(46 * var(--u)); }
+
+/* The weekday and the Latin names, longer in real use than in the design, each get their own line. */
+.rx-postmarked-love .rx-h-note { top: calc(512 * var(--u)); }

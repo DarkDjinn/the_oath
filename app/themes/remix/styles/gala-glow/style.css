@@ -1,0 +1,19 @@
+/* Generated from the pack's gala-glow preview: positions in the hero are in 375-wide design units (--u). */
+.rx-gala-glow { background:var(--color-ground);color:var(--p0); }
+.rx-gala-glow .rx-topbar { background:var(--x15);color:var(--p1); }
+.rx-gala-glow .rx-hero { height:calc(640 * var(--u));background:var(--x3); }
+.rx-gala-glow .rx-hero-art { top:calc(5 * var(--u));height:calc(480 * var(--u)); }
+.rx-gala-glow .rx-hero-tag { top:calc(40 * var(--u));left:0;right:0;color:var(--x17); }
+.rx-gala-glow .rx-hero-text { top:calc(171 * var(--u));left:calc(91 * var(--u));right:calc(91 * var(--u));font-size:calc(14 * var(--u));color:var(--x18); }
+.rx-gala-glow .rx-hero-name { top:calc(230 * var(--u));left:calc(95 * var(--u));right:calc(95 * var(--u));font-size:calc(34 * var(--u));line-height:1.4;font-family:var(--font-display);color:var(--x19); }
+.rx-gala-glow .rx-hero-date { top:calc(337 * var(--u));left:calc(102 * var(--u));right:calc(102 * var(--u));color:var(--x20);font-size:calc(18 * var(--u));letter-spacing:calc(1 * var(--u)); }
+.rx-gala-glow .rx-hero-badge { top:calc(499 * var(--u));left:calc(20 * var(--u));right:calc(20 * var(--u));font-size:calc(29 * var(--u));font-family:var(--font-display);color:var(--x21); }
+.rx-gala-glow .rx-hero-caption { top:calc(557 * var(--u));left:calc(18 * var(--u));right:calc(18 * var(--u));font-size:calc(16 * var(--u));color:var(--x22); }
+.rx-gala-glow .rx-bodywrap { padding:10px 22px;background:var(--color-ground);color:var(--p2); }
+.rx-gala-glow .rx-intro { font-family:var(--font-display);color:var(--x24);font-size:19px; }
+.rx-gala-glow .rx-info { border:2px solid var(--x25);background:var(--x26);padding:26px 13px;box-shadow:0 0 0 6px var(--x27); }
+.rx-gala-glow .rx-detail-head { text-align:center;color:var(--x28);font-family:var(--font-display); }
+.rx-gala-glow .rx-venue { color:var(--x29); }
+.rx-gala-glow .rx-rsvp { background:var(--x30);padding:28px 16px;border:3px solid var(--x31); }
+.rx-gala-glow .rx-rsvp .form-submit { background:var(--x32);color:var(--p3);border-radius:3px; }
+.rx-gala-glow .rx-foot { color:var(--x34); }

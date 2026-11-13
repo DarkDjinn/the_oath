@@ -1,0 +1,7 @@
+/* Saffron Dunes / Desert Festival: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-saffron-dunes.rx-o-horizon-weave .rx-part-horizon,
+.rx-saffron-dunes.rx-o-horizon-stars .rx-part-horizon,
+.rx-saffron-dunes.rx-o-border-woven .rx-part-border,
+.rx-saffron-dunes.rx-o-border-none .rx-part-border { display: none; }

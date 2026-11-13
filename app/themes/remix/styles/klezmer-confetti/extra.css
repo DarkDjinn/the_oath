@@ -1,0 +1,8 @@
+/* Simcha Soundtrack: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-klezmer-confetti.rx-o-instrument-clarinet .rx-part-instrument,
+.rx-klezmer-confetti.rx-o-instrument-accordion .rx-part-instrument,
+.rx-klezmer-confetti.rx-o-confetti-ribbons .rx-part-confetti,
+.rx-klezmer-confetti.rx-o-confetti-notes .rx-part-confetti,
+.rx-klezmer-confetti.rx-o-confetti-dots .rx-part-confetti { display: none; }

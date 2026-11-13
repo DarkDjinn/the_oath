@@ -1,0 +1,10 @@
+/* Ribbon Rebel: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+/* The design's slanted line over the stripes is decoration; the real invitation line sits in the clear band above them. */
+.rx-confetti-couture .rx-hero-text { top: calc(40 * var(--u)); left: auto; right: calc(15 * var(--u)); max-width: calc(345 * var(--u)); padding: calc(3 * var(--u)) calc(9 * var(--u)); transform: none; font-size: calc(14 * var(--u)); color: var(--color-ivory); background: var(--color-ground); text-align: start; }
+[dir='ltr'] .rx-confetti-couture .rx-hero-text { right: auto; left: calc(15 * var(--u)); }
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-confetti-couture.rx-o-ribbons-loops .rx-part-ribbons,
+.rx-confetti-couture.rx-o-ribbons-streamers .rx-part-ribbons,
+.rx-confetti-couture.rx-o-confetti-discs .rx-part-confetti,
+.rx-confetti-couture.rx-o-confetti-stars .rx-part-confetti { display: none; }

@@ -1,0 +1,7 @@
+/* Opening Night: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-gala-glow.rx-o-chandelier-orb .rx-part-bulbs,
+.rx-gala-glow.rx-o-chandelier-tiered .rx-part-arcs, .rx-gala-glow.rx-o-chandelier-tiered .rx-part-bulbs,
+.rx-gala-glow.rx-o-drapery-swags .rx-part-drapery,
+.rx-gala-glow.rx-o-drapery-clean .rx-part-drapery { display: none; }

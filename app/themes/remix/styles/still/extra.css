@@ -1,0 +1,6 @@
+/* Still / Electric Editorial: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* divider: a short accent bar under the welcome (rule), three dots, or nothing */
+.rx-still:is(.rx-o-divider-rule, .rx-o-divider-dots) .rx-welcome::after { content: ''; display: block; margin-top: 20px; }
+.rx-still.rx-o-divider-rule .rx-welcome::after { width: 84px; height: 7px; background: var(--color-gold); box-shadow: 18px 9px 0 -2px var(--color-wine); }
+.rx-still.rx-o-divider-dots .rx-welcome::after { width: 54px; height: 12px; background: radial-gradient(circle, var(--color-gold) 5px, transparent 5.5px) 0 0 / 18px 12px repeat-x; }

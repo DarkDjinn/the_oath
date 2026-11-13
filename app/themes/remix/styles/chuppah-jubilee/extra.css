@@ -1,0 +1,7 @@
+/* Under the Chuppah: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-chuppah-jubilee.rx-o-canopy-striped .rx-part-flowers,
+.rx-chuppah-jubilee.rx-o-canopy-floral .rx-part-flowers,
+.rx-chuppah-jubilee.rx-o-hanging-lanterns .rx-part-hanging,
+.rx-chuppah-jubilee.rx-o-hanging-petals .rx-part-hanging { display: none; }

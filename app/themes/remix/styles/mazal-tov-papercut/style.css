@@ -1,0 +1,20 @@
+/* Generated from the pack's mazal-tov-papercut preview: positions in the hero are in 375-wide design units (--u). */
+.rx-mazal-tov-papercut { background:var(--color-ground); }
+.rx-mazal-tov-papercut .rx-topbar { background:var(--x0);color:var(--p0); }
+.rx-mazal-tov-papercut .rx-hero { height:calc(600 * var(--u));background:var(--x19); }
+.rx-mazal-tov-papercut .rx-hero-art { top:0;height:calc(590 * var(--u)); }
+.rx-mazal-tov-papercut .rx-hero-name { top:calc(285 * var(--u));left:calc(25 * var(--u));right:calc(25 * var(--u));padding:calc(17 * var(--u)) calc(6 * var(--u)) calc(13 * var(--u));background:var(--x20);border:calc(7 * var(--u)) solid var(--x21);box-shadow:calc(8 * var(--u)) calc(9 * var(--u)) 0 var(--x22);transform:rotate(-2deg);color:var(--p1);font-size:calc(48 * var(--u)); }
+.rx-mazal-tov-papercut .rx-hero-text { top:calc(255 * var(--u));width:100%;color:var(--x24);font-size:calc(18 * var(--u)); }
+.rx-mazal-tov-papercut .rx-hero-date { top:calc(414 * var(--u));width:100%;color:var(--x25);font-size:calc(29 * var(--u));letter-spacing:calc(5 * var(--u)); }
+.rx-mazal-tov-papercut .rx-hero-tag { top:calc(485 * var(--u));left:calc(25 * var(--u));right:calc(25 * var(--u));color:var(--p2);background:var(--x27);padding:calc(10 * var(--u));transform:rotate(2deg);font-size:calc(12 * var(--u)); }
+.rx-mazal-tov-papercut .rx-hero-badge { top:calc(538 * var(--u));left:0;right:0;color:var(--color-wine);font-size:calc(20 * var(--u)); }
+.rx-mazal-tov-papercut .rx-bodywrap { background:var(--color-ground);padding-top:21px; }
+.rx-mazal-tov-papercut .rx-intro { font-weight:800;color:var(--x28);font-size:20px; }
+.rx-mazal-tov-papercut .rx-info { background:var(--x29);border:4px dashed var(--x30);border-radius:25px;padding:18px 16px;box-shadow:8px 8px 0 var(--x31); }
+.rx-mazal-tov-papercut .rx-detail-head { color:var(--x32);text-align:center; }
+.rx-mazal-tov-papercut .rx-time-slot { color:var(--x33); }
+.rx-mazal-tov-papercut .rx-venue { padding-top:33px; }
+.rx-mazal-tov-papercut .rx-rsvp { background:var(--x34);color:var(--p3);padding:23px 18px;border:6px solid var(--x35);transform:rotate(1deg);box-shadow:7px 7px 0 var(--x36); }
+.rx-mazal-tov-papercut .rx-rsvp .form-submit { background:var(--x37);color:var(--p4);border-radius:5px;font-size:20px; }
+.rx-mazal-tov-papercut .rx-foot { color:var(--x39); }
+.rx-mazal-tov-papercut .rx-hero-caption { display:none; }

@@ -1,0 +1,7 @@
+/* LOVE.exe: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-neon-afterglow.rx-o-neon-shape-heart .rx-part-shape,
+.rx-neon-afterglow.rx-o-neon-shape-infinity .rx-part-shape,
+.rx-neon-afterglow.rx-o-background-dots .rx-part-background,
+.rx-neon-afterglow.rx-o-background-rays .rx-part-background { display: none; }

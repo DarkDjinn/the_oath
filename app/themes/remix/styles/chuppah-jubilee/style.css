@@ -1,0 +1,19 @@
+/* Generated from the pack's chuppah-jubilee preview: positions in the hero are in 375-wide design units (--u). */
+.rx-chuppah-jubilee { background:var(--x15); }
+.rx-chuppah-jubilee .rx-topbar { color:var(--p0);background:var(--x17); }
+.rx-chuppah-jubilee .rx-hero { height:calc(625 * var(--u));background:linear-gradient(var(--x18) 70%,var(--x19)); }
+.rx-chuppah-jubilee .rx-hero-art { top:calc(20 * var(--u));height:calc(560 * var(--u)); }
+.rx-chuppah-jubilee .rx-hero-tag { top:calc(20 * var(--u));left:0;right:0;color:var(--x20); }
+.rx-chuppah-jubilee .rx-hero-text { top:calc(190 * var(--u));left:calc(65 * var(--u));right:calc(65 * var(--u));font-size:calc(16 * var(--u));color:var(--x21);background:#FFF4E0EB;padding:calc(5 * var(--u)) 0;border-radius:calc(18 * var(--u)); }
+.rx-chuppah-jubilee .rx-hero-name { top:calc(235 * var(--u));left:calc(28 * var(--u));right:calc(28 * var(--u));color:var(--x22);font-family:var(--font-display);font-size:calc(52 * var(--u));line-height:1.28;text-shadow:calc(1 * var(--u)) calc(2 * var(--u)) var(--x23); }
+.rx-chuppah-jubilee .rx-hero-date { top:calc(350 * var(--u));left:calc(70 * var(--u));right:calc(70 * var(--u));background:var(--x24);padding:calc(7 * var(--u));color:var(--p1);border:calc(3 * var(--u)) solid var(--x26);border-radius:50%;font-size:calc(24 * var(--u)); }
+.rx-chuppah-jubilee .rx-hero-badge { top:calc(484 * var(--u));left:calc(35 * var(--u));right:calc(35 * var(--u));font-size:calc(23 * var(--u));color:var(--x27); }
+.rx-chuppah-jubilee .rx-hero-caption { top:calc(542 * var(--u));left:calc(30 * var(--u));right:calc(30 * var(--u));font-size:calc(15 * var(--u));color:var(--x28); }
+.rx-chuppah-jubilee .rx-bodywrap { padding:0 20px 32px;background:var(--x15); }
+.rx-chuppah-jubilee .rx-intro { margin:0;background:var(--x29);border-radius:16px 16px 0 0;padding:24px 20px 15px;color:var(--p2); }
+.rx-chuppah-jubilee .rx-info { background:var(--x23);border:2px solid var(--x31);border-radius:0 0 80px 80px;padding:20px 10px 28px;box-shadow:0 8px 0 var(--x32); }
+.rx-chuppah-jubilee .rx-detail-head { text-align:center;color:var(--x33); }
+.rx-chuppah-jubilee .rx-venue { color:var(--x34); }
+.rx-chuppah-jubilee .rx-rsvp { background:var(--x35);color:var(--p3);padding:22px 20px 30px;border-radius:95px 95px 16px 16px;margin-top:25px; }
+.rx-chuppah-jubilee .rx-rsvp .form-submit { background:var(--x37);color:var(--p4);border-radius:100px; }
+.rx-chuppah-jubilee .rx-foot { color:var(--x38); }

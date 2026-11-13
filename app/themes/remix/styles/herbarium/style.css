@@ -1,0 +1,17 @@
+/* Generated from the pack's herbarium preview: positions in the hero are in 375-wide design units (--u). */
+.rx-herbarium .rx-topbar { background:var(--x19);color:var(--p0); }
+.rx-herbarium .rx-hero { height:calc(650 * var(--u));background:var(--x0); }
+.rx-herbarium .rx-h-kicker { top:calc(40 * var(--u));left:calc(62 * var(--u));right:calc(35 * var(--u));text-align:center;color:var(--x21); }
+.rx-herbarium .rx-h-invite { top:calc(72 * var(--u));left:calc(80 * var(--u));right:calc(60 * var(--u));color:var(--x22);font-size:calc(16 * var(--u)); }
+.rx-herbarium .rx-h-title { top:calc(303 * var(--u));left:calc(46 * var(--u));right:calc(45 * var(--u));font-size:calc(39 * var(--u));color:var(--p1);line-height:1.16;letter-spacing:calc(-1 * var(--u));background:var(--x1);border:calc(2 * var(--u)) solid var(--x17);padding:calc(13 * var(--u)) calc(5 * var(--u)) calc(11 * var(--u));box-shadow:calc(4 * var(--u)) calc(4 * var(--u)) var(--x24); }
+.rx-herbarium .rx-h-date { top:calc(455 * var(--u));left:calc(72 * var(--u));right:calc(72 * var(--u));color:var(--p2);font-size:calc(22 * var(--u));background:var(--x1);padding:calc(5 * var(--u));border:calc(1 * var(--u)) solid var(--x26); }
+.rx-herbarium .rx-h-note { top:calc(528 * var(--u));left:calc(52 * var(--u));right:calc(51 * var(--u));color:var(--p3);background:var(--x1);padding:calc(5 * var(--u)); }
+.rx-herbarium .rx-h-latin { top:calc(560 * var(--u));left:calc(10 * var(--u));right:calc(10 * var(--u));color:var(--x28); }
+.rx-herbarium .rx-content { background:var(--x29);border-inline:18px solid var(--x30);padding-inline:17px; }
+.rx-herbarium .rx-welcome { color:var(--x31); }
+.rx-herbarium .rx-schedule { background:var(--x32);border:2px solid var(--x33);border-radius:3px; }
+.rx-herbarium .rx-label { font-family:var(--font-fraktur);color:var(--x34); }
+.rx-herbarium .rx-times b { font-weight:800; }
+.rx-herbarium .rx-location { background:var(--x35);border-left:5px solid var(--x36);border-right:5px solid var(--x36); }
+.rx-herbarium .rx-rsvp { border:2px dashed var(--x37);background:var(--x38);transform:rotate(1deg); }
+.rx-herbarium .rx-rsvp .form-submit { background:var(--x39);color:var(--p4);border-radius:3px; }

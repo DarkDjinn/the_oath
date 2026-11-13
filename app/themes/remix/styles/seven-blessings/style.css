@@ -1,0 +1,20 @@
+/* Generated from the pack's seven-blessings preview: positions in the hero are in 375-wide design units (--u). */
+.rx-seven-blessings { background:var(--color-ground); }
+.rx-seven-blessings .rx-topbar { background:var(--x2);color:var(--p0); }
+.rx-seven-blessings .rx-hero { height:calc(615 * var(--u));background:var(--x2);color:var(--p1); }
+.rx-seven-blessings .rx-hero-art { top:calc(12 * var(--u));height:calc(430 * var(--u)); }
+.rx-seven-blessings .rx-hero-tag { top:calc(20 * var(--u));left:0;right:0;color:var(--x22); }
+.rx-seven-blessings .rx-hero-text { top:calc(181 * var(--u));left:calc(115 * var(--u));right:calc(115 * var(--u));color:var(--x23);font-size:calc(14 * var(--u));line-height:1.4; }
+.rx-seven-blessings .rx-hero-name { top:calc(207 * var(--u));left:calc(105 * var(--u));right:calc(105 * var(--u));color:var(--x24);font-size:calc(34 * var(--u));line-height:1.45;letter-spacing:calc(-1.1 * var(--u));font-family:var(--font-display); }
+.rx-seven-blessings .rx-hero-date { top:calc(312 * var(--u));left:calc(110 * var(--u));right:calc(110 * var(--u));color:var(--x25);font-size:calc(16 * var(--u));letter-spacing:0; }
+.rx-seven-blessings .rx-hero-badge { top:calc(454 * var(--u));left:calc(22 * var(--u));right:calc(22 * var(--u));font-size:calc(28 * var(--u));font-family:var(--font-display);color:var(--x26); }
+.rx-seven-blessings .rx-hero-caption { top:calc(509 * var(--u));left:calc(24 * var(--u));right:calc(24 * var(--u));font-size:calc(17 * var(--u));color:var(--x27); }
+.rx-seven-blessings .rx-bodywrap { background:var(--color-ground);padding:25px 20px 32px; }
+.rx-seven-blessings .rx-intro { font-family:var(--font-display);font-weight:700;color:var(--x28); }
+.rx-seven-blessings .rx-info { border:4px double var(--x29);background:var(--color-plate);border-radius:45% 45% 14px 14px / 20px 20px 14px 14px;padding:30px 14px 10px;box-shadow:0 8px 0 var(--x30); }
+.rx-seven-blessings .rx-detail-head { text-align:center;color:var(--x31); }
+.rx-seven-blessings .rx-time-slot { color:var(--x32); }
+.rx-seven-blessings .rx-venue { color:var(--x33); }
+.rx-seven-blessings .rx-rsvp { padding:22px 14px;margin-top:26px;background:var(--x34);color:var(--p2);border-radius:6px; }
+.rx-seven-blessings .rx-rsvp .form-submit { background:var(--x35);color:var(--p3); }
+.rx-seven-blessings .rx-foot { color:var(--x37); }

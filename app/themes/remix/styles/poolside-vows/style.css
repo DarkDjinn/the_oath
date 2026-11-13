@@ -1,0 +1,20 @@
+/* Generated from the pack's poolside-vows preview: positions in the hero are in 375-wide design units (--u). */
+.rx-poolside-vows { background:var(--color-ground); }
+.rx-poolside-vows .rx-topbar { background:var(--x11);color:var(--p0); }
+.rx-poolside-vows .rx-hero { height:calc(660 * var(--u));background:var(--x13); }
+.rx-poolside-vows .rx-hero-art { top:calc(34 * var(--u));height:calc(430 * var(--u)); }
+.rx-poolside-vows .rx-hero-tag { top:calc(13 * var(--u));left:0;right:0;color:var(--x14); }
+.rx-poolside-vows .rx-hero-text { top:calc(48 * var(--u));left:calc(18 * var(--u));right:calc(18 * var(--u));font-weight:900;font-size:calc(23 * var(--u));color:var(--x15);text-shadow:calc(2 * var(--u)) calc(3 * var(--u)) var(--x16); }
+.rx-poolside-vows .rx-hero-date { top:calc(221 * var(--u));left:calc(115 * var(--u));right:calc(115 * var(--u));color:var(--x17);font-size:calc(23 * var(--u));line-height:1.2;letter-spacing:calc(1 * var(--u));text-shadow:calc(1 * var(--u)) calc(2 * var(--u)) var(--x18); }
+.rx-poolside-vows .rx-hero-name { top:calc(470 * var(--u));left:calc(12 * var(--u));right:calc(12 * var(--u));color:var(--p1);background:var(--x20);border-radius:calc(100 * var(--u)) calc(100 * var(--u)) calc(15 * var(--u)) calc(15 * var(--u));padding:calc(14 * var(--u)) calc(4 * var(--u));font-size:calc(47 * var(--u));transform:rotate(-2deg); }
+.rx-poolside-vows .rx-hero-badge { top:calc(581 * var(--u));left:calc(30 * var(--u));right:calc(30 * var(--u));color:var(--x21);font-size:calc(16 * var(--u));letter-spacing:calc(1 * var(--u)); }
+.rx-poolside-vows .rx-bodywrap { background:var(--color-ground);padding:22px 18px;color:var(--p2); }
+.rx-poolside-vows .rx-intro { font-size:20px;color:var(--x22); }
+.rx-poolside-vows .rx-info { border:6px solid var(--x23);border-radius:32px;background:var(--color-plate);padding:19px 10px;box-shadow:6px 7px var(--x24); }
+.rx-poolside-vows .rx-detail-head { text-align:center;color:var(--color-gold); }
+.rx-poolside-vows .rx-row-time { background:var(--color-ground);border-radius:24px; }
+.rx-poolside-vows .rx-venue { color:var(--x25); }
+.rx-poolside-vows .rx-rsvp { background:var(--x26);border-radius:90px 90px 25px 25px;padding:35px 20px;color:var(--p3); }
+.rx-poolside-vows .rx-rsvp .form-submit { background:var(--x28);color:var(--p4);border-radius:100px; }
+.rx-poolside-vows .rx-foot { color:var(--x28); }
+.rx-poolside-vows .rx-hero-caption { display:none; }

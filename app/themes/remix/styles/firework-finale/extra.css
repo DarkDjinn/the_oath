@@ -1,0 +1,14 @@
+/* Big Bang Love: by hand, on top of the generated style.css. Option choices are .rx-o-<option>-<choice> on the sheet. */
+/* The giant date breaks after the month, as drawn, whatever the width of the numeral face. */
+.rx-firework-finale .rx-hero-date { padding-inline: calc(45 * var(--u)); }
+
+/* Option choices that replace part of the drawing hide that part (options.ts draws the replacement). */
+.rx-firework-finale.rx-o-burst-comets .rx-part-rays,
+.rx-firework-finale.rx-o-burst-sparkles .rx-part-rays,
+.rx-firework-finale.rx-o-skyline-hills .rx-part-skyline,
+.rx-firework-finale.rx-o-skyline-none .rx-part-skyline { display: none; }
+
+/* The badge sits under the giant year, clear of its descending digits. */
+.rx-firework-finale .rx-hero-badge { margin-top: calc(18 * var(--u)); }
+/* …and the weekday under the badge keeps clear of it. */
+.rx-firework-finale .rx-hero-caption { margin-top: calc(14 * var(--u)); }

@@ -1,0 +1,14 @@
+/* Generated from the pack's jerusalem-stone preview: positions in the hero are in 375-wide design units (--u). */
+.rx-jerusalem-stone .rx-topbar { background:var(--x32);color:var(--p0); }
+.rx-jerusalem-stone .rx-hero { height:calc(650 * var(--u));background:var(--x34); }
+.rx-jerusalem-stone .rx-h-kicker { top:calc(23 * var(--u));left:0;right:0;text-align:center;color:var(--x35); }
+.rx-jerusalem-stone .rx-h-invite { top:calc(103 * var(--u));left:calc(25 * var(--u));right:calc(25 * var(--u));color:var(--x36);font-size:calc(15 * var(--u)); }
+.rx-jerusalem-stone .rx-h-title { top:calc(471 * var(--u));left:calc(56 * var(--u));right:calc(55 * var(--u));color:var(--x37);font-size:calc(34 * var(--u));line-height:1.18; }
+.rx-jerusalem-stone .rx-h-date { top:calc(563 * var(--u));left:calc(57 * var(--u));right:calc(56 * var(--u));color:var(--x38);font-size:calc(22 * var(--u)); }
+.rx-jerusalem-stone .rx-h-note { top:calc(314 * var(--u));left:calc(42 * var(--u));right:calc(42 * var(--u));color:var(--p1);background:var(--x40);padding:calc(5 * var(--u)) 0; }
+.rx-jerusalem-stone .rx-h-latin { top:calc(29 * var(--u));left:calc(40 * var(--u));right:calc(40 * var(--u));color:var(--x37);font-size:calc(16 * var(--u)); }
+.rx-jerusalem-stone .rx-content { background:var(--x41);border-inline:10px solid var(--x42); }
+.rx-jerusalem-stone .rx-welcome { font-family:var(--font-fraktur);color:var(--x43); }
+.rx-jerusalem-stone .rx-schedule { background:var(--x44);border:4px double var(--x45);clip-path:polygon(4% 0,96% 0,100% 10%,100% 90%,96% 100%,4% 100%,0 90%,0 10%); }
+.rx-jerusalem-stone .rx-rsvp { background:var(--x46);border:4px solid var(--x47);box-shadow:inset 0 0 0 6px var(--x48); }
+.rx-jerusalem-stone .rx-rsvp .form-submit { background:var(--x49);border-radius:2px; }

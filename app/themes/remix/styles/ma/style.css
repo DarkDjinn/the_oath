@@ -1,0 +1,17 @@
+/* Generated from the pack's ma preview: positions in the hero are in 375-wide design units (--u). */
+.rx-ma .rx-topbar { background:var(--x18);color:var(--p0); }
+.rx-ma .rx-hero { height:calc(650 * var(--u));background:var(--x0); }
+.rx-ma .rx-h-kicker { top:calc(23 * var(--u));right:calc(17 * var(--u));color:var(--x20);writing-mode:horizontal-tb; }
+.rx-ma .rx-h-invite { top:calc(352 * var(--u));left:calc(99 * var(--u));right:calc(33 * var(--u));text-align:start;color:var(--p1);background:var(--x5);padding:calc(5 * var(--u));font-size:calc(15 * var(--u)); }
+.rx-ma .rx-h-title { top:calc(409 * var(--u));left:calc(96 * var(--u));right:calc(24 * var(--u));text-align:start;font-size:calc(42 * var(--u));color:var(--x22);line-height:1.19; }
+.rx-ma .rx-h-date { top:calc(535 * var(--u));left:calc(99 * var(--u));right:calc(20 * var(--u));text-align:start;font-size:calc(21 * var(--u));color:var(--x23);letter-spacing:0; }
+.rx-ma .rx-h-note { top:calc(575 * var(--u));left:calc(87 * var(--u));right:calc(20 * var(--u));text-align:start;font-size:calc(14 * var(--u));color:var(--x24); }
+.rx-ma .rx-h-latin { top:calc(302 * var(--u));left:calc(96 * var(--u));right:calc(25 * var(--u));text-align:start;color:var(--p2);font-size:calc(16 * var(--u));background:var(--x5);padding:calc(4 * var(--u)); }
+.rx-ma .rx-content { background:var(--color-ground);padding-top:42px; }
+.rx-ma .rx-welcome { text-align:start;color:var(--x26); }
+.rx-ma .rx-schedule { border-top:6px solid var(--x27);border-bottom:6px solid var(--x27);background:var(--x28); }
+.rx-ma .rx-label { text-align:start; }
+.rx-ma .rx-location { text-align:start; }
+.rx-ma .rx-location h2 { text-align:start; }
+.rx-ma .rx-rsvp { background:var(--x29);border-left:10px solid var(--x30);text-align:start; }
+.rx-ma .rx-rsvp .form-submit { border-radius:0;background:var(--x31); }
