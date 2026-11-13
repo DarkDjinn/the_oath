@@ -7,8 +7,7 @@
  * quiet colours follow their neutral (so a dark preset darkens the paper and lightens the
  * ink), saturated ones follow their accent's hue and strength.
  */
-// A relative path, so the unit tests can load this file without Nuxt's aliases.
-import { contrast } from '../../../shared/design/colour'
+import { contrast } from '#shared/design/colour'
 
 export type Role = 'ground' | 'surface' | 'text' | 'muted' | 'accent' | 'accent2'
 /** [role, L, C, H] of an art colour in the style's default preset. */
