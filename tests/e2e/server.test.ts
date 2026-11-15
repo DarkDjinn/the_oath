@@ -493,6 +493,54 @@ describe('campaigns and couples', () => {
     expect(removed.photos.hero).toBeNull()
   })
 
+  it('keeps the last 20 photos to choose again, without duplicates, for the admin only', async () => {
+    const lib = async () => (await call(`/api/admin/c/${danaId}/photos/library`, { cookie: danaCookie })).json() as Promise<{ photos: { id: string }[], inUse: Record<string, string | null> }>
+    const image = (n: number) => sharp({ create: { width: 30 + n, height: 30, channels: 3, background: { r: (n * 9) % 256, g: 80, b: 120 } } }).png().toBuffer()
+    const put = async (slot: string, n: number) => call(`/api/admin/c/${danaId}/photos/${slot}`, { method: 'PUT', raw: new Uint8Array(await image(n)), headers: { 'content-type': 'image/png' }, cookie: danaCookie })
+
+    // the photo uploaded in the previous test is already there
+    const before = (await lib()).photos.length
+    expect(before).toBeGreaterThanOrEqual(1)
+    expect((await put('hero', 1)).status).toBe(200)
+    expect((await put('second', 1)).status).toBe(200) // the same image again: kept once
+    let l = await lib()
+    expect(l.photos.length).toBe(before + 1)
+    expect(l.inUse.hero).toBe(l.photos[0]!.id)
+    expect(l.inUse.second).toBe(l.photos[0]!.id)
+    const first = l.photos[0]!.id
+
+    for (let n = 2; n <= 24; n++) expect((await put('second', n)).status).toBe(200)
+    l = await lib()
+    expect(l.photos.length).toBe(20) // only the last 20
+    expect(l.photos.some(p => p.id === first)).toBe(false) // the oldest made way
+    // the page keeps its photo even after the library let it go
+    expect((await call(`/photos/${danaId}/hero?w=480`)).status).toBe(200)
+
+    // choose an older one for the main photo: no upload, and it becomes the most recent
+    const older = l.photos[10]!.id
+    const used = await call(`/api/admin/c/${danaId}/photos/hero`, { method: 'POST', json: { photo: older }, cookie: danaCookie })
+    expect(used.status).toBe(200)
+    l = await lib()
+    expect([l.photos[0]!.id, l.inUse.hero]).toEqual([older, older])
+    const thumb = await call(`/api/admin/c/${danaId}/photos/library/${older}`, { cookie: danaCookie })
+    expect([thumb.status, thumb.headers.get('content-type')]).toEqual([200, 'image/webp'])
+
+    // forget one: gone from the list, the page untouched
+    const forgotten = await (await call(`/api/admin/c/${danaId}/photos/library/${older}`, { method: 'DELETE', cookie: danaCookie })).json()
+    expect(forgotten.photos.some((p: { id: string }) => p.id === older)).toBe(false)
+    expect((await call(`/photos/${danaId}/hero?w=480`)).status).toBe(200)
+    const gone = await call(`/api/admin/c/${danaId}/photos/second`, { method: 'POST', json: { photo: older }, cookie: danaCookie })
+    expect([gone.status, (await gone.json()).data.code]).toEqual([404, 'photo_gone'])
+    expect((await call(`/api/admin/c/${danaId}/photos/second`, { method: 'POST', json: { photo: '../../x' }, cookie: danaCookie })).status).toBe(400)
+
+    // guests and other campaigns' couples never see the list or its photos
+    const someId = l.photos[1]!.id
+    expect((await call(`/api/admin/c/${danaId}/photos/library`)).status).toBe(401)
+    expect((await call(`/api/admin/c/${danaId}/photos/library/${someId}`)).status).toBe(401)
+    expect((await call(`/photos/${danaId}/library/${someId}`)).status).toBe(404)
+    expect((await call(`/api/admin/c/1/photos/library`, { cookie: danaCookie })).status).toBe(404) // another campaign: as if it didn't exist
+  })
+
   it('a reset password ends the couple\'s session', async () => {
     await asOwner(`/api/admin/c/${danaId}/password`, { method: 'POST' })
     expect((await call('/api/admin/campaigns', { cookie: danaCookie })).status).toBe(401)

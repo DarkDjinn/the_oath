@@ -1,9 +1,11 @@
+import { writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
-import { isSlot, PHOTO_MAX_BYTES, photoTarget, removePhoto } from '../../../../../core/photos'
+import { addToLibrary, isSlot, PHOTO_MAX_BYTES, photoTarget, removePhoto } from '../../../../../core/photos'
 
 /**
  * Upload a photo as the raw request body. The image is decoded and re-encoded,
  * which verifies it really is an image and drops any metadata (location, camera).
+ * The photo is also kept in the campaign's recent photos, to pick again later.
  */
 export default apiHandler(async (event) => {
   const row = requireCampaign(event)
@@ -19,7 +21,9 @@ export default apiHandler(async (event) => {
   catch {
     throw createError({ statusCode: 400, message: 'That file is not an image we can read. Use JPEG, PNG, WebP or AVIF.', data: { code: 'photo_invalid' } })
   }
+  addToLibrary(row.id, image)
   removePhoto(row.id, slot)
-  await sharp(image).toFile(photoTarget(row.id, slot))
+  // The same bytes as its copy in the library, so the picker can tell which photo is in use.
+  await writeFile(photoTarget(row.id, slot), image)
   return adminCampaignView(event, row)
 })

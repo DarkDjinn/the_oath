@@ -185,14 +185,53 @@ async function upload(slot: string, event: Event) {
   photoBusy.value = slot
   try {
     update(await adminFetch<AdminCampaign>(`${api}/photos/${slot}`, { method: 'PUT', body: file, headers: { 'content-type': file.type || 'application/octet-stream' } }))
+    await loadRecent()
   }
   catch (e) { photoError.value = apiError(e) }
   finally { photoBusy.value = '' }
 }
+/** Recent photos: the last 20 uploaded or used, to set again without uploading. */
+interface RecentPhoto { id: string, usedAt: string, version: string }
+const recent = ref<RecentPhoto[]>([])
+const recentInUse = ref<Record<string, string | null>>({ hero: null, second: null })
+const recentLoaded = ref(false)
+async function loadRecent() {
+  try {
+    const res = await adminFetch<{ photos: RecentPhoto[], inUse: Record<string, string | null> }>(`${api}/photos/library`)
+    recent.value = res.photos
+    recentInUse.value = res.inUse
+  }
+  catch (e) { photoError.value = apiError(e) }
+  finally { recentLoaded.value = true }
+}
+watch(() => topic.value === 'photos', (on) => { if (on) loadRecent() }, { immediate: true })
+async function useRecent(slot: string, id: string) {
+  if (recentInUse.value[slot] === id) return
+  photoBusy.value = slot
+  photoError.value = ''
+  try {
+    update(await adminFetch<AdminCampaign>(`${api}/photos/${slot}`, { method: 'POST', body: { photo: id } }))
+    await loadRecent()
+  }
+  catch (e) { photoError.value = apiError(e) }
+  finally { photoBusy.value = '' }
+}
+async function forgetRecent(id: string) {
+  photoError.value = ''
+  try {
+    const res = await adminFetch<{ photos: RecentPhoto[], inUse: Record<string, string | null> }>(`${api}/photos/library/${id}`, { method: 'DELETE' })
+    recent.value = res.photos
+    recentInUse.value = res.inUse
+  }
+  catch (e) { photoError.value = apiError(e) }
+}
 async function removePhoto(slot: string) {
   photoBusy.value = slot
   photoError.value = ''
-  try { update(await adminFetch<AdminCampaign>(`${api}/photos/${slot}`, { method: 'DELETE' })) }
+  try {
+    update(await adminFetch<AdminCampaign>(`${api}/photos/${slot}`, { method: 'DELETE' }))
+    await loadRecent()
+  }
   catch (e) { photoError.value = apiError(e) }
   finally { photoBusy.value = '' }
 }
@@ -335,7 +374,27 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved design
             </label>
             <button v-if="campaign.photos[slot.id]" class="a-btn a-btn-sm a-btn-danger" type="button" :disabled="!!photoBusy" @click="removePhoto(slot.id)">Remove</button>
           </div>
+          <div v-if="recent.length" class="recent mt-3">
+            <p class="a-label">Or choose a recent photo</p>
+            <ul class="recent-grid">
+              <li v-for="photo in recent" :key="photo.id" class="recent-item" :class="{ 'is-on': recentInUse[slot.id] === photo.id }">
+                <button
+                  type="button" class="recent-pick" :disabled="!!photoBusy" :aria-pressed="recentInUse[slot.id] === photo.id"
+                  :aria-label="recentInUse[slot.id] === photo.id ? `In use as the ${slot.label.toLowerCase()}` : `Use as the ${slot.label.toLowerCase()}`"
+                  @click="useRecent(slot.id, photo.id)"
+                >
+                  <img :src="`${api}/photos/library/${photo.id}?v=${photo.version}`" alt="" loading="lazy" decoding="async">
+                </button>
+                <button
+                  v-if="recentInUse.hero !== photo.id && recentInUse.second !== photo.id"
+                  type="button" class="recent-forget" :disabled="!!photoBusy" aria-label="Remove from recent photos" title="Remove from recent photos"
+                  @click="forgetRecent(photo.id)"
+                >×</button>
+              </li>
+            </ul>
+          </div>
         </div>
+        <p v-if="recentLoaded && recent.length" class="muted mt-3 text-[0.8125rem]">Your last {{ recent.length === 20 ? 20 : recent.length }} photos are kept here; older ones make way for new uploads.</p>
       </template>
 
       <!-- History -->
@@ -398,6 +457,20 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('You have unsaved design
 .frame-desktop { width: min(100%, 26rem); aspect-ratio: 1280 / 800; }
 
 .panel { grid-area: panel; min-width: 0; }
+
+/* Recent photos: a grid of square thumbnails; the one in this slot is ringed, the others can be forgotten. */
+.recent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.25rem, 1fr)); gap: 0.4rem; margin-top: 0.35rem; }
+.recent-item { position: relative; }
+.recent-pick { display: block; width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: 7px; border: 1px solid var(--a-line-strong); background: var(--a-tint); }
+.recent-pick img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
+.recent-pick:hover:not(:disabled) img { transform: scale(1.05); }
+.recent-pick:disabled { cursor: wait; }
+.recent-item.is-on .recent-pick { border-color: var(--a-sec-text); box-shadow: 0 0 0 2px var(--a-sec-text); }
+.recent-item.is-on::after { content: '✓'; position: absolute; inset-block-end: 0.25rem; inset-inline-end: 0.25rem; display: grid; place-items: center; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: var(--a-sec-text); color: #fff; font-size: 0.75rem; font-weight: 700; pointer-events: none; }
+.recent-forget { position: absolute; inset-block-start: -0.4rem; inset-inline-end: -0.4rem; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 1px solid var(--a-line-strong); background: var(--a-surface); color: var(--a-mute); font-size: 1rem; line-height: 1; opacity: 0; transition: opacity 0.15s ease; }
+.recent-item:hover .recent-forget, .recent-forget:focus-visible { opacity: 1; }
+@media (hover: none) { .recent-forget { opacity: 1; } }
+.recent-forget:hover { color: var(--a-danger, #b42318); }
 .film { grid-area: film; display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: thin; margin-inline: -1rem; padding: 0.25rem 1rem 0.5rem; }
 .film-item { flex: none; display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.5rem; padding: 0.3rem 0.8rem 0.3rem 0.35rem; border: 1px solid var(--a-line-strong); border-radius: 8px; background: var(--a-surface); font-weight: 600; font-size: 0.875rem; white-space: nowrap; }
 
