@@ -14,6 +14,11 @@ else {
   const event = useRequestEvent()
   if (event) setResponseStatus(event, error.value?.statusCode === 429 ? 429 : 404)
 }
+// "Opened" is reported from the guest's own browser once the invitation is on screen, so a link preview
+// or a scanner that only fetches the page does not count. A failure here is never shown to the guest.
+onMounted(() => {
+  if (data.value && !data.value.adminView) $fetch('/api/rsvp/opened', { method: 'POST', headers: { authorization: `Bearer ${token}` } }).catch(() => {})
+})
 /** `data` is a shallow ref: replace it whole, or the page keeps showing the old answer until a reload. */
 function saved(invitation: GuestInvitation) {
   if (data.value) data.value = { ...data.value, invitation }

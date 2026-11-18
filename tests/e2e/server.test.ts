@@ -34,6 +34,8 @@ function call(path: string, init: Init = {}) {
 const asOwner = (path: string, init: Init = {}) => call(path, { ...init, cookie: owner })
 const tokenFrom = (url: string) => url.split('/i/')[1]!
 const guest = (token: string, init: Init = {}) => call('/api/rsvp', { ...init, headers: { authorization: `Bearer ${token}` } })
+/** What the guest's browser sends once the invitation is on screen. */
+const opened = (token: string, init: Init = {}) => call('/api/rsvp/opened', { ...init, method: 'POST', headers: { authorization: `Bearer ${token}` } })
 /** Sign in from a fresh address each time so the per-address lockout never interferes. */
 async function signIn(username: string, password: string) {
   const res = await call('/api/admin/login', { method: 'POST', json: { username, password }, ip: `10.50.0.${nextIp++}` })
@@ -232,8 +234,15 @@ describe('the guest journey (campaign 1, Victor and Dani)', () => {
     const asAdmin = await (await call(`/i/${tokenFrom(fresh.url)}`, { cookie: owner })).text()
     expect(asAdmin).toContain('not recorded as the guest opening')
     expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).toBeNull()
+    await opened(tokenFrom(fresh.url), { cookie: owner })
+    expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).toBeNull()
+    // Fetching the page (a link preview, a scanner) records nothing; the guest's browser reports the open.
     expect(await (await call(`/i/${tokenFrom(fresh.url)}`)).text()).not.toContain('not recorded as the guest opening')
+    expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).toBeNull()
+    expect((await opened(tokenFrom(fresh.url))).status).toBe(200)
     expect((await list()).find(i => i.guestName === 'Unopened Guest')!.firstOpenedAt).not.toBeNull()
+    expect((await opened('x'.repeat(43))).status).toBe(404)
+    for (const url of [danielUrl, alexUrl]) await opened(tokenFrom(url))
     await asOwner(`/api/admin/c/1/invitations/${fresh.id}`, { method: 'DELETE' })
   })
 

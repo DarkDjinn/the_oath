@@ -160,6 +160,17 @@ describe('campaign status and replies', () => {
     markOpened(db, getById(db, 1, row.id))
     expect(getById(db, 1, row.id).first_opened_at).toBe(first)
   })
+
+  it('setting a guest back to no answer clears the response time, and another admin edit keeps it', () => {
+    const db = freshDb()
+    const row = invite(db, 'Guest')
+    submitRsvp(db, tokenOf(row), { rsvpStatus: 'attending' })
+    const at = getById(db, 1, row.id).responded_at
+    expect(at).not.toBeNull()
+    expect(updateInvitation(db, 1, row.id, { rsvpStatus: 'declined', guestName: 'Guest B' }).responded_at).toBe(at)
+    expect(updateInvitation(db, 1, row.id, { rsvpStatus: 'pending' })).toMatchObject({ rsvp_status: 'pending', responded_at: null })
+    expect(submitRsvp(db, tokenOf(row), { rsvpStatus: 'declined' }).responded_at).not.toBeNull()
+  })
 })
 
 describe('guest limits', () => {

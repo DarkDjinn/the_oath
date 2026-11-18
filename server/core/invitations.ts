@@ -247,13 +247,15 @@ export function updateInvitation(db: DB, campaignId: number, id: number, patch: 
   const dietary = patch.dietaryNotes === undefined ? row.dietary_notes : validateNotes(patch.dietaryNotes, LIMITS.notes, 'notes_too_long')
   const sentAt = patch.sent === undefined ? row.sent_at : patch.sent === true ? (row.sent_at ?? now()) : null
   const phone = patch.phone === undefined ? row.phone : normalisePhone(patch.phone)
+  // Back to "no answer yet" means there is no response time either; the history still holds what the guest said.
+  const respondedAt = status === 'pending' ? null : row.responded_at
 
   db.prepare(`
     UPDATE invitations
     SET guest_name = ?, guests_allowed = ?, guest_limit = ?, language = ?, rsvp_status = ?, extra_guests = ?, dietary_notes = ?, sent_at = ?, phone = ?,
-        send_error = CASE WHEN ? THEN '' ELSE send_error END, updated_at = ?
+        send_error = CASE WHEN ? THEN '' ELSE send_error END, responded_at = ?, updated_at = ?
     WHERE id = ?
-  `).run(guestName, guestsAllowed ? 1 : 0, ownLimit, language, status, JSON.stringify(extras), dietary, sentAt, phone, phone !== row.phone || sentAt !== row.sent_at ? 1 : 0, now(), id)
+  `).run(guestName, guestsAllowed ? 1 : 0, ownLimit, language, status, JSON.stringify(extras), dietary, sentAt, phone, phone !== row.phone || sentAt !== row.sent_at ? 1 : 0, respondedAt, now(), id)
 
   // History: what an admin changed, in words.
   const changes: string[] = []
